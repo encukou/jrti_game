@@ -1,6 +1,7 @@
 import os
 import pyglet
 from pyglet import gl
+import ctypes
 
 import jrti_game.data
 import jrti_game.flippable
@@ -45,6 +46,16 @@ main_screen.children.extend(jrti_game.flippable.letters(
 @window.event
 def on_draw():
     window.clear()
+    gl.glMatrixMode(gl.GL_PROJECTION)
+    gl.glLoadMatrixf((ctypes.c_float * 16)(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 1,
+        0, 0, 0, 1))
+    gl.glScalef(2/window.width, 2/window.height, 1/1024)
+    gl.glTranslatef(-800/2, -600/2, 0)
+    gl.glMatrixMode(gl.GL_MODELVIEW)
+
     gl.glEnable(gl.GL_BLEND)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
     gl.glEnable(gl.GL_TEXTURE_2D)
@@ -52,6 +63,7 @@ def on_draw():
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
 
     main_screen.draw_outer()
+    main_screen.draw_flipping()
 
 
 @window.event

@@ -1,9 +1,20 @@
 import random
+import contextlib
 
 from pyglet import gl
 from attr import attrs, attrib
 
 from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
+
+
+def draw_rect(w, h):
+    gl.glBegin(gl.GL_TRIANGLE_FAN)
+    gl.glVertex2f(0, 0)
+    gl.glVertex2f(0, h)
+    gl.glVertex2f(w, h)
+    gl.glVertex2f(w, 0)
+    gl.glVertex2f(0, 0)
+    gl.glEnd()
 
 
 @attrs()
@@ -15,8 +26,10 @@ class Flippable:
     scale = attrib(1)
     parent = attrib(None)
     color = attrib((1, 1, 1))
+    bgcolor = attrib((0, 0, 0))
 
     drag_info = None, None
+    flip_params = (0, 0, 0, 0)
 
     def __attrs_post_init__(self):
         if self.parent:
@@ -28,15 +41,19 @@ class Flippable:
     def mouse_press(self, x, y):
         if self.drag_info[0]:
             self.mouse_release()
-        return self.drag_start(x, y)
+        self.drag_start(x, y)
+        self.mouse_drag(x, y)
 
     def mouse_drag(self, x, y):
-        pass
+        if self.drag_info[1]:
+            sx, sy = self.drag_info[1]
+            self.flip_params = 0, 0, 0, sy - y
 
     def mouse_release(self):
         obj, start = self.drag_info
         if obj and obj is not self:
             obj.mouse_release()
+        self.flip_params = None
         self.drag_info = None, None
 
     def hit_test(self, x, y):
@@ -44,39 +61,65 @@ class Flippable:
 
     def drag_start(self, x, y):
         self.drag_info = self, (x, y)
-        return True
 
-    def draw_outer(self):
+    @contextlib.contextmanager
+    def draw_context(self, bg=True, flipping=False):
         try:
             gl.glPushMatrix()
             gl.glTranslatef(self.x, self.y, 0)
             gl.glScalef(self.scale, self.scale, 1)
 
-            try:
-                r, g, b = self.bgcolor
-            except AttributeError:
-                r = random.uniform(0, 1)
-                g = random.uniform(0, 1) * (1-r)
-                b = 1 - r - g
-                self.bgcolor = r, g, b
-            if self.drag_info[0] == self:
-                gl.glColor4f(r, g, b, 1)
-            elif self.drag_info[0]:
-                gl.glColor4f(r, g, b, 1/2)
-            else:
-                gl.glColor4f(r, g, b, 1/4)
-            gl.glBegin(gl.GL_TRIANGLE_FAN)
-            gl.glVertex2f(0, 0)
-            gl.glVertex2f(0, self.height)
-            gl.glVertex2f(self.width, self.height)
-            gl.glVertex2f(self.width, 0)
-            gl.glVertex2f(0, 0)
-            gl.glEnd()
+            if flipping and self.drag_info[0] == self:
+                print(self.flip_params)
+                x, y, rx, ry = self.flip_params
+                gl.glTranslatef(x, y, 0)
+                gl.glRotatef(ry, 1, 0, 0)
+                gl.glRotatef(rx, 0, 1, 0)
+                gl.glTranslatef(-x, -y, 0)
+
+            if 0*1:  # XXX: debug
+                try:
+                    r, g, b = self.bgcolor
+                except AttributeError:
+                    r = random.uniform(0, 1)
+                    g = random.uniform(0, 1) * (1-r)
+                    b = 1 - r - g
+                    self.bgcolor = r, g, b
+                if self.drag_info[0] == self:
+                    gl.glColor4f(r, g, b, 1)
+                elif self.drag_info[0]:
+                    gl.glColor4f(r, g, b, 1/2)
+                else:
+                    gl.glColor4f(r, g, b, 1/4)
+                draw_rect(self.width, self.height)
+
+            if bg and self.bgcolor:
+                gl.glColor3f(*self.bgcolor)
+                draw_rect(self.width, self.height)
 
             gl.glColor3f(*self.color)
-            self.draw()
+
+            yield
         finally:
             gl.glPopMatrix()
+
+    def draw_outer(self):
+        obj, start = self.drag_info
+        with self.draw_context():
+            if obj is self:
+                self.draw_instructions()
+            else:
+                self.draw()
+
+    def draw_flipping(self):
+        obj, start = self.drag_info
+        if obj is self:
+            with self.draw_context(flipping=True):
+                self.draw()
+
+    def draw_instructions(self):
+        gl.glColor3f(0, 1, 1)
+        draw_rect(self.width, self.height)
 
 
 @attrs()
@@ -92,13 +135,28 @@ class Layer(Flippable):
             if child.hit_test(x - child.x, y - child.y):
                 child.mouse_press(x - child.x, y - child.y)
                 self.drag_info = child, (x, y)
-                return True
+                return
         self.drag_info = self, (x, y)
-        return True
 
     def draw(self):
         for child in self.children:
             child.draw_outer()
+
+    def draw_flipping(self):
+        obj, start = self.drag_info
+        if obj is self:
+            with self.draw_context(flipping=True):
+                obj.draw()
+        elif obj:
+            with self.draw_context(bg=False):
+                obj.draw_flipping()
+
+    def mouse_drag(self, x, y):
+        obj, start = self.drag_info
+        if obj is self:
+            super().mouse_drag(x, y)
+        elif obj is not None:
+            obj.mouse_drag(x - obj.x, y - obj.y)
 
 
 @attrs()
