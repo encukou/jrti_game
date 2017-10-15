@@ -8,7 +8,8 @@ Don't read this file before trying to play the game :)
 
 # None
 
-    Oh no! There are no instructions here.
+    Oh no!
+    There are no instructions here.
 
 
 # main_plaque
@@ -25,6 +26,91 @@ Don't read this file before trying to play the game :)
     Press keys on your keyboard to play.
 
     Reveal instructions and hints to figure out what keys to press.
-    If this is your first time here, pressing “I” would be a good start.
+    If this is your first time here, try what's under “I”.
 
     Good luck!
+
+# !
+
+    Most importantly, don't give up!
+    You can do it!
+
+# A
+
+    [XXX]
+    Move your tool left by holding {A}.
+
+    (That would be your left; not the tool's.)
+
+# XXX
+    B
+    C
+
+# D
+
+    [XXX]
+    Move your tool right by holding {D}.
+
+    This is only for moving. Figuring out the right way to use the right tool is up to you.
+
+# XXX
+    E
+    F
+
+# G
+
+    [XXX]
+    The Grabby Tool can be selected by Shift+{G}.
+
+    The {G} key clamps it, or lets go.
+
+# XXX
+    H
+
+# I
+
+    Tools are controlled by the “WASD” keys.
+
+    Look under a G for instructions on the Grabby tool.
+
+# XXX
+    J
+    K
+    L
+    M
+    N
+    O
+    P
+    Q
+
+# R
+
+    [XXX]
+    The {R} key reassigns other keys.
+
+    Press {R} followed by to other keys to swap them.
+
+
+# S
+
+    [XXX]
+    Move your tool down by holding {S}.
+
+    Say hello to all the turtles you meet.
+
+# XXX
+    T
+    U
+    V
+
+# W
+
+    [XXX]
+    Move your tool up by holding {W}.
+
+    Up, up and away!
+
+# XXX
+    X
+    Y
+    Z

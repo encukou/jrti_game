@@ -11,6 +11,7 @@ from jrti_game.data import spritesheet_texture
 state = types.SimpleNamespace(
     zoom=1,
     alt_zoom_start=None,
+    last_drag_pos=None,
     center=[400, 300],
     last_mouse_pos=(0, 0),
 )
@@ -37,20 +38,21 @@ title_plaque = jrti_game.flippable.Layer(
     width=600,
     height=8*48,
     instructions='main_plaque',
+    margin=4,
 )
 
 
 title_plaque.children.extend(jrti_game.flippable.letters(
-    "Just Read the",height=8*4, y=8*36, x=300, center=True))
+    "Just Read the", scale=4, y=8*36, x=300, center=True))
 title_plaque.children.extend(jrti_game.flippable.letters(
-    "Instructions!",height=8*8, y=8*24, x=300, center=True))
+    "Instructions!", scale=8, y=8*24, x=300, center=True))
 
 main_screen.children.extend(jrti_game.flippable.letters(
-    "They're behind everything!", height=8*2, y=8*8, x=400, center=True))
+    "They're behind everything!", scale=2, y=8*8, x=400, center=True))
 main_screen.children.extend(jrti_game.flippable.letters(
-    "PyWeek 24 entry", height=8, y=8*3, x=400, center=True))
+    "PyWeek 24 entry", scale=1, y=8*3, x=400, center=True))
 main_screen.children.extend(jrti_game.flippable.letters(
-    "https://pyweek.org/e/instructions/", height=8, y=8*1, x=400, center=True))
+    "https://pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True))
 
 fps_display = pyglet.window.FPSDisplay(window)
 
@@ -76,6 +78,7 @@ def on_draw():
     gl.glEnable(gl.GL_TEXTURE_2D)
     gl.glBindTexture(gl.GL_TEXTURE_2D, jrti_game.data.spritesheet_texture.id)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
 
     gl.glFrontFace(gl.GL_CCW)
     gl.glCullFace(gl.GL_BACK)
@@ -96,28 +99,37 @@ def on_mouse_motion(x, y, button, mod):
 @window.event
 def on_mouse_press(x, y, button, mod):
     if mod & pyglet.window.key.MOD_SHIFT:
-        state.alt_zoom_start = [y, y]
+        state.alt_zoom_start = [y, (x, y)]
         return
     if mod & pyglet.window.key.MOD_CTRL:
         button = pyglet.window.mouse.RIGHT
     if button == pyglet.window.mouse.LEFT:
-        main_screen.mouse_press(x, y)
+        main_screen.mouse_press(*mouse_to_logical(x, y))
+    else:
+        state.last_drag_pos = x, y
 
 
 @window.event
 def on_mouse_drag(x, y, dx, dy, button, mod):
-    if state.alt_zoom_start is None:
-        main_screen.mouse_drag(x, y)
-    else:
-        ys = state.alt_zoom_start
-        zoom((y - ys[0]) / 2, x, ys[1])
+    if state.alt_zoom_start is not None:
+        azs = state.alt_zoom_start
+        zoom((y - azs[0]) / 2, *azs[1])
         state.alt_zoom_start[0] = y
+    if state.last_drag_pos is not None:
+        px, py = state.last_drag_pos
+        x, y = mouse_to_logical(x, y)
+        state.center[0] += px - x
+        state.center[1] += py - y
+        state.last_drag_pos = x, y
+    else:
+        main_screen.mouse_drag(*mouse_to_logical(x, y))
     state.last_mouse_pos = x, y
 
 
 @window.event
 def on_mouse_release(x, y, button, mod):
     state.alt_zoom_start = None
+    state.last_drag_pos = None
     main_screen.mouse_release()
 
 
@@ -127,11 +139,18 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
 
 
 def zoom(amount, x, y):
+    x, y = mouse_to_logical(x, y)
     state.zoom *= 1.1 ** amount
     if state.zoom > 600**6:
         state.zoom = 600**6
     elif state.zoom < 1:
         state.zoom = 1
+
+
+def mouse_to_logical(x, y):
+    lx = x * state.zoom
+    ly = y * state.zoom
+    return lx, ly
 
 
 @pyglet.clock.schedule

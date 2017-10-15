@@ -51,6 +51,7 @@ class Flippable:
     color = attrib((1, 1, 1))
     bgcolor = attrib((0, 0, 0))
     instructions = attrib('None')
+    margin = attrib(1)
 
     drag_info = None, None
     flip_params = (0, 0, 0, 0)
@@ -77,7 +78,7 @@ class Flippable:
             dy = abs(sy - y)
             if self.flip_direction is None:
                 direction = abs(sx - x) > abs(sy - y)
-                if dx > 4 or dy > 4:
+                if dx > self.width/10 or dy > self.height/10:
                     self.flip_direction = direction
             else:
                 direction = self.flip_direction
@@ -113,6 +114,13 @@ class Flippable:
             else:
                 self.flip_params = 0, axis, 0, angle
 
+    @property
+    def instructions_color(self):
+        if self.instruction_label is None:
+            return 1/2, 1/2, 1/2
+        else:
+            return 0.1, 0.9, 1
+
     def mouse_release(self):
         obj, start = self.drag_info
         if obj and obj is not self:
@@ -122,6 +130,7 @@ class Flippable:
         self.drag_info = None, None
 
     def hit_test(self, x, y):
+        print(self.instructions, x, y)
         return (0 <= x < self.width) and (0 <= y < self.height)
 
     def drag_start(self, x, y):
@@ -134,7 +143,7 @@ class Flippable:
         try:
             gl.glPushMatrix()
             gl.glTranslatef(self.x, self.y, 0)
-            gl.glScalef(self.scale, self.scale, 1)
+            gl.glScalef(self.scale, self.scale, self.scale)
 
             if flipping and self.drag_info[0] == self:
                 x, y, rx, ry = self.flip_params
@@ -186,39 +195,48 @@ class Flippable:
                 self.draw_outline()
 
                 gl.glEnable(gl.GL_CULL_FACE)
-                gl.glColor4f(0, 1, 1,
+                gl.glColor4f(*self.instructions_color,
                              clamp(random.normalvariate(3/4, 1/120), 0, 1))
                 draw_rect(self.width, self.height)
                 gl.glDisable(gl.GL_CULL_FACE)
 
     def draw_instructions(self):
-        gl.glColor4f(0, 1, 1,
+        gl.glColor4f(*self.instructions_color,
                      clamp(random.normalvariate(1, 1/120), 0, 1))
         draw_rect(self.width, self.height)
 
         gl.glColor3f(0, 0, 0)
-        self.instruction_label.draw()
+        if self.instruction_label:
+            scale = self.instruction_label._jrti_scale
+            gl.glScalef(1/scale, 1/scale, 1)
+            self.instruction_label.draw()
         gl.glBindTexture(gl.GL_TEXTURE_2D, spritesheet_texture.id)
 
     @reify
     def instruction_label(self):
+        scale = 1
+        while self.width * scale < 400 and self.height * scale < 300:
+            scale *= 1.1
+            print(scale)
         document = pyglet.text.document.UnformattedDocument(
             get_instruction_text(self.instructions)
         )
         document.set_style(0, 0, {
             'color': (0, 0, 0, 255),
             'font_name': instruction_font_name,
-            'font_size': 15,
+            'font_size': 25,
         })
+        if self.width < self.margin*3 or self.height < self.margin*3:
+            return None
         layout = pyglet.text.layout.TextLayout(
             document,
-            width=self.width - 8,
-            height=self.height - 8,
+            width=(self.width - self.margin*2) * scale,
+            height=(self.height - self.margin*2) * scale,
             multiline=True,
         )
-        layout.x = 4
-        layout.y = 4
-        for size in range(15, 1, -1):
+        layout.x = self.margin * scale
+        layout.y = self.margin * scale
+        for size in range(25, 1, -1):
             if (layout.content_width > layout.width or
                     layout.content_height > layout.height):
                 document.set_style(0, 0, {'font_size': size})
@@ -226,6 +244,7 @@ class Flippable:
             if (layout.content_width > layout.width or
                     layout.content_height > layout.height):
                 document.set_style(0, 0, {'font_size': size/10})
+        layout._jrti_scale = scale
         return layout
 
     def draw_light(self):
@@ -247,7 +266,8 @@ class Flippable:
                     pw = p * wph * math.cos(diag_angle)
                     ph = p * wph * math.sin(diag_angle)
                     points = self.get_light_points(rx, ry, pw, ph)
-                    gl.glColor4f(0, 1, 1, (1 - angle / 60) / N * 2)
+                    gl.glColor4f(*self.instructions_color,
+                                 (1 - angle / 60) / N * 2)
                     gl.glBegin(gl.GL_TRIANGLE_FAN)
                     for point in points:
                         gl.glVertex2f(*point)
@@ -298,7 +318,7 @@ class Flippable:
     def draw_outline(self):
         x, y, rx, ry = self.flip_params
         points = self.get_light_points(rx, ry, 0, 0)
-        gl.glColor4f(0, 1, 1, 1/2)
+        gl.glColor4f(*self.instructions_color, 1/2)
         gl.glBegin(gl.GL_LINE_STRIP)
         for point in points:
             gl.glVertex2f(*point)
@@ -317,8 +337,10 @@ class Layer(Flippable):
 
     def drag_start(self, x, y):
         for child in self.children:
-            if child.hit_test(x - child.x, y - child.y):
-                child.mouse_press(x - child.x, y - child.y)
+            cx = (x - child.x) / child.scale
+            cy = (y - child.y) / child.scale
+            if child.hit_test(cx, cy):
+                child.mouse_press(cx, cy)
                 self.drag_info = child, (x, y)
                 return
         self.drag_info = self, (x, y)
@@ -340,7 +362,7 @@ class Layer(Flippable):
         if obj is self:
             super().mouse_drag(x, y)
         elif obj is not None:
-            obj.mouse_drag(x - obj.x, y - obj.y)
+            obj.mouse_drag((x - obj.x) / obj.scale, (y - obj.y) / obj.scale)
 
 
 @attrs()
@@ -381,11 +403,12 @@ class Letter(Sprite):
         )
         if 'width' not in kwargs:
             kwargs['width'] = (kwargs['height'] // 9 * width) or 1
+        kwargs.setdefault('instructions', letter.upper())
+        kwargs.setdefault('margin', 1/2)
         super().__init__(**kwargs)
 
 
-def letters(string, x=0, y=0, height=8, center=False):
-    scale = height // 8
+def letters(string, x=0, y=0, scale=1, center=False):
     if center:
         x -= scale * (text_width(string) // 2)
     starting_x = x
@@ -402,9 +425,9 @@ def letters(string, x=0, y=0, height=8, center=False):
                 trim = 1
             else:
                 trim = 0
-            letter = Letter(character, x=x, y=y, height=height+scale,
+            letter = Letter(character, x=x, y=y, height=9, scale=scale,
                             trim=trim)
-            x += letter.width - scale
+            x += letter.width * scale - scale
             if character != ' ':
                 yield letter
         last_char = character
