@@ -17,8 +17,17 @@ window = pyglet.window.Window(
     style=window_style,
 )
 
-letters = list(
-    jrti_game.flippable.letters("Just Read the Instructions!", height=8*4))
+letters = []
+letters.extend(jrti_game.flippable.letters(
+    "Just Read the",height=8*4, y=400 + 8*2, x=400, center=True))
+letters.extend(jrti_game.flippable.letters(
+    "Instructions!",height=8*8, y=400 - 8*8, x=400, center=True))
+letters.extend(jrti_game.flippable.letters(
+    "They're behind everything!", height=8*2, y=8*8, x=400, center=True))
+letters.extend(jrti_game.flippable.letters(
+    "PyWeek 24 entry", height=8, y=8*3, x=400, center=True))
+letters.extend(jrti_game.flippable.letters(
+    "https://pyweek.org/e/instructions/", height=8, y=8*1, x=400, center=True))
 
 @window.event
 def on_draw():

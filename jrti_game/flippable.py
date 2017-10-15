@@ -1,6 +1,6 @@
 from attr import attrs, attrib
 
-from jrti_game.data import spritesheet_texture, spritesheet_data
+from jrti_game.data import spritesheet_texture, letter_uvwh, text_width
 from jrti_game.data import RED
 
 
@@ -43,18 +43,10 @@ class Sprite(Flippable):
 class Letter(Sprite):
     def __init__(self, letter, **kwargs):
         number = ord(letter)
-        if ord(' ') < number <= ord('~'):
-            u = 8 * ((number - ord(' ')) % 32)
-            v = 8 * ((number - ord(' ')) // 32)
-        else:
-            u = 0
-            v = 8 * 2
-        for width in range(8, 0, -1):
-            if spritesheet_data[v+7][u+width-1] != RED:
-                break
+        u, v, width, height = letter_uvwh(letter)
         kwargs.update(
             texture_width=width,
-            texture_height=8,
+            texture_height=height,
             u=u,
             v=v,
         )
@@ -64,7 +56,9 @@ class Letter(Sprite):
         super().__init__(**kwargs)
 
 
-def letters(string, x=0, y=0, height=8):
+def letters(string, x=0, y=0, height=8, center=False):
+    if center:
+        x -= height // 8 * (text_width(string) // 2)
     starting_x = x
     for character in string:
         if character == ' ':
