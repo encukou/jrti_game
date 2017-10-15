@@ -43,6 +43,8 @@ main_screen.children.extend(jrti_game.flippable.letters(
 main_screen.children.extend(jrti_game.flippable.letters(
     "https://pyweek.org/e/instructions/", height=8, y=8*1, x=400, center=True))
 
+fps_display = pyglet.window.FPSDisplay(window)
+
 @window.event
 def on_draw():
     window.clear()
@@ -69,6 +71,9 @@ def on_draw():
     main_screen.draw_outer()
     main_screen.draw_flipping()
 
+    if os.environ.get('GAME_DEBUG'):
+        fps_display.draw()
+
 
 @window.event
 def on_mouse_press(x, y, button, mod):
@@ -87,7 +92,7 @@ def on_mouse_release(x, y, button, mod):
 
 @pyglet.clock.schedule
 def tick(dt):
-    print(dt * 60)
+    pass
 
 def main():
     pyglet.app.run()
