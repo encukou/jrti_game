@@ -1,5 +1,5 @@
-Just Read the Instructions
-==========================
+Just Read the Instructions!
+===========================
 
 Entry in PyWeek #24  <https://pyweek.org/24/>
 Team: encukou

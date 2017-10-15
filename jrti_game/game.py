@@ -18,7 +18,7 @@ window = pyglet.window.Window(
 )
 
 letters = list(
-    jrti_game.flippable.letters("Just Read the Instructions", height=8*4))
+    jrti_game.flippable.letters("Just Read the Instructions!", height=8*4))
 
 @window.event
 def on_draw():

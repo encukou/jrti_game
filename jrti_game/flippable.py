@@ -43,12 +43,9 @@ class Sprite(Flippable):
 class Letter(Sprite):
     def __init__(self, letter, **kwargs):
         number = ord(letter)
-        if ord('a') <= number <= ord('z'):
-            u = 8 * (number - ord('a'))
-            v = 0
-        elif ord('A') <= number <= ord('Z'):
-            u = 8 * (number - ord('A'))
-            v = 8
+        if ord(' ') < number <= ord('~'):
+            u = 8 * ((number - ord(' ')) % 32)
+            v = 8 * ((number - ord(' ')) // 32)
         else:
             u = 0
             v = 8 * 2
