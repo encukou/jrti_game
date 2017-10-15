@@ -9,5 +9,9 @@ setup(
     license='MIT',
     url='https://pyweek.org/e/instructions/',
     packages=['jrti_game'],
-    install_requires=['pyglet == 1.2.4'],
+    install_requires=[
+        'pyglet == 1.2.4',
+        'pypng == 0.0.18',
+        'attrs == 17.2.0',
+    ],
 )
