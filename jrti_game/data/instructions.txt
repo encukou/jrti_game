@@ -52,7 +52,7 @@ Don't read this file before trying to play the game :)
     [XXX]
     Move your tool right by holding {D}.
 
-    This is only for moving. Figuring out the right way to use the right tool is up to you.
+    This only moves to the right. Figuring out the right tool, and the right way to use it, is up to you.
 
 # XXX
     E
@@ -73,14 +73,23 @@ Don't read this file before trying to play the game :)
 
     Tools are controlled by the “WASD” keys.
 
-    Look under a G for instructions on the Grabby tool.
+    Look under a G for instructions on the Grabby Tool.
 
 # XXX
     J
     K
     L
     M
-    N
+
+# N
+
+    Some instructions are short, some long.
+    Some are helpful, some… Not so much.
+    Some are behind letters, some are behind objects, some are behind creatures or special areas of the game.
+
+    If you have lots of free time, you can try to read all the instructions – or you can only pick the ones behind interesting-looking things.
+
+# XXX
     O
     P
     Q
@@ -98,7 +107,7 @@ Don't read this file before trying to play the game :)
     [XXX]
     Move your tool down by holding {S}.
 
-    Say hello to all the turtles you meet.
+    If you reach the turtles, say hello.
 
 # XXX
     T

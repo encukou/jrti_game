@@ -130,7 +130,6 @@ class Flippable:
         self.drag_info = None, None
 
     def hit_test(self, x, y):
-        print(self.instructions, x, y)
         return (0 <= x < self.width) and (0 <= y < self.height)
 
     def drag_start(self, x, y):
@@ -217,7 +216,6 @@ class Flippable:
         scale = 1
         while self.width * scale < 400 and self.height * scale < 300:
             scale *= 1.1
-            print(scale)
         document = pyglet.text.document.UnformattedDocument(
             get_instruction_text(self.instructions)
         )
@@ -253,7 +251,7 @@ class Flippable:
             angle = abs(rx + ry)
             if angle < 90:
                 wph = self.width + self.height
-                N = wph / 8 * angle / 20 + 2
+                N = wph / 8 * angle / 20 * self.scale + 2
                 if N > 50:
                     N = 50
                 r = random.Random()
@@ -391,14 +389,14 @@ class Sprite(Flippable):
         texture.blit(0, 0, width=self.width, height=self.height)
 
 class Letter(Sprite):
-    def __init__(self, letter, trim=0, **kwargs):
+    def __init__(self, letter, strim=0, etrim=0, **kwargs):
         number = ord(letter)
         u, v, width, height = letter_uvwh(letter)
-        width += 1-trim
+        width += 1-etrim-strim
         kwargs.update(
             texture_width=width,
             texture_height=height,
-            u=u-1,
+            u=u-1+strim,
             v=v,
         )
         if 'width' not in kwargs:
@@ -414,20 +412,25 @@ def letters(string, x=0, y=0, scale=1, center=False):
     starting_x = x
     last_char = None
     next_kern = 0
-    for character, next_char in zip(string, ' ' + string):
+    for character, next_char in zip(string, string[1:] + ' '):
         if character == '\n':
             y -= height
             x = starting_x
         else:
             x += next_kern
+            if next_kern < 0:
+                strim = 1
+                x += scale
+            else:
+                strim = 0
             next_kern = kerns.get((character, next_char), 0) * scale
             if next_kern < 0:
-                trim = 1
+                etrim = 1
             else:
-                trim = 0
+                etrim = 0
             letter = Letter(character, x=x, y=y, height=9, scale=scale,
-                            trim=trim)
-            x += letter.width * scale - scale
+                            strim=strim, etrim=etrim)
+            x += (letter.width + etrim) * scale - scale
             if character != ' ':
                 yield letter
         last_char = character

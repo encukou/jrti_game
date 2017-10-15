@@ -82,6 +82,8 @@ def get_instruction_text(key):
     return instruction_texts.get(key, instruction_texts['None'])
 
 sprites = {
-    'eye': spritesheet_texture.get_region(0, 3*8, 9, 8)
+    'eye': spritesheet_texture.get_region(0, 3*8, 9, 8),
+    'crosshair': spritesheet_texture.get_region(10, 3*8, 8, 8),
+    'ex': spritesheet_texture.get_region(18, 3*8, 8, 8),
 }
 

@@ -66,11 +66,13 @@ def on_draw():
         0, 1, 0, 0,
         0, 0, 1, 1,
         0, 0, 0, 1))
-    gl.glScalef(2/window.width*state.zoom, 2/window.height*state.zoom, 1/2048*state.zoom)
-    gl.glTranslatef(-400, -300, 0)
+    gl.glScalef(2/window.width, 2/window.height, 1/2048)
     gl.glMatrixMode(gl.GL_MODELVIEW)
 
+
     gl.glLoadIdentity()
+    gl.glTranslatef(-400*state.zoom, -300*state.zoom, 0)
+    gl.glScalef(state.zoom, state.zoom, state.zoom)
     cx, cy = state.center
     gl.glTranslatef(400-cx, 300-cy, 0)
 
@@ -93,6 +95,13 @@ def on_draw():
     gl.glColor4f(0, 1, 1, 1/state.zoom)
     sprites['eye'].blit(-4.5, -4)
 
+    gl.glLoadIdentity()
+    gl.glTranslatef(*logical_to_mouse(0, 0), 0)
+    sprites['ex'].blit(-4.5, -4)
+    gl.glLoadIdentity()
+    gl.glTranslatef(*logical_to_mouse(400, 300), 0)
+    sprites['crosshair'].blit(-4.5, -4)
+
     if os.environ.get('GAME_DEBUG'):
         fps_display.draw()
 
@@ -104,6 +113,7 @@ def on_mouse_motion(x, y, button, mod):
 
 @window.event
 def on_mouse_press(x, y, button, mod):
+    main_screen.mouse_release()
     if mod & pyglet.window.key.MOD_SHIFT:
         state.alt_zoom_start = [y, (x, y)]
         return
@@ -144,7 +154,6 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
 
 
 def zoom(amount, x, y):
-    x, y = mouse_to_logical(x, y)
     state.zoom *= 1.1 ** amount
     if state.zoom > 600**6:
         state.zoom = 600**6
@@ -152,11 +161,18 @@ def zoom(amount, x, y):
         state.zoom = 1
 
 
-def mouse_to_logical(x, y):
+def mouse_to_logical(mx, my):
     cx, cy = state.center
-    lx = (x-400) / state.zoom + cx
-    ly = (y-300) / state.zoom + cy
+    lx = (mx-400) / state.zoom + cx
+    ly = (my-300) / state.zoom + cy
     return lx, ly
+
+
+def logical_to_mouse(lx, ly):
+    cx, cy = state.center
+    mx = (lx - cx) * state.zoom
+    my = (ly - cy) * state.zoom
+    return mx, my
 
 
 @pyglet.clock.schedule
