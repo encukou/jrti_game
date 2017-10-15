@@ -84,7 +84,6 @@ class Flippable:
                 if ratio < -1:
                     ratio = -1
                 angle = math.degrees(math.acos(ratio) * factor)
-            print(angle)
             if direction:
                 self.flip_params = axis, 0, -angle, 0
             else:
@@ -156,12 +155,74 @@ class Flippable:
     def draw_flipping(self):
         obj, start = self.drag_info
         if obj is self:
+            with self.draw_context():
+                self.draw_light()
+                self.draw_instructions()
             with self.draw_context(flipping=True):
                 self.draw()
 
     def draw_instructions(self):
-        gl.glColor3f(0, 1, 1)
+        gl.glColor4f(0, 1, 1, 1)
         draw_rect(self.width, self.height)
+
+    def draw_light(self):
+        if self.flip_params:
+            x, y, rx, ry = self.flip_params
+            angle = abs(rx + ry)
+            print(angle)
+            if angle < 90:
+                w = self.width
+                h = self.height
+                wph = self.width + self.height
+                N = wph / 8 * angle / 20 + 2
+                if N > 50:
+                    N = 50
+                for i in range(int(N)):
+                    p = (angle / 60 / N * i) ** 2
+                    pw = p * wph
+                    ph = p * wph
+                    points = [
+                        (0, 0),
+                        (0, h),
+                        (w, h),
+                        (w, 0),
+                    ]
+                    if rx:
+                        if rx > 0:
+                            points = [
+                                (0, 0),
+                                (0, h),
+                                (w+pw, h+ph),
+                                (w+pw, -ph),
+                            ]
+                        else:
+                            points = [
+                                (-pw, -ph),
+                                (-pw, h+ph),
+                                (w, h),
+                                (w, 0),
+                            ]
+                    elif ry:
+                        if ry > 0:
+                            points = [
+                                (-pw, -ph),
+                                (0, h),
+                                (w, h),
+                                (w+pw, -ph),
+                            ]
+                        else:
+                            points = [
+                                (0, 0),
+                                (-pw, h+ph),
+                                (w+pw, h+ph),
+                                (w, 0),
+                            ]
+                    gl.glColor4f(0, 1, 1, (1 - angle / 60) / N * 2)
+                    gl.glBegin(gl.GL_TRIANGLE_FAN)
+                    for point in points:
+                        gl.glVertex2f(*point)
+                    gl.glVertex2f(*points[0])
+                    gl.glEnd()
 
 
 @attrs()
@@ -187,8 +248,7 @@ class Layer(Flippable):
     def draw_flipping(self):
         obj, start = self.drag_info
         if obj is self:
-            with self.draw_context(flipping=True):
-                obj.draw()
+            super().draw_flipping()
         elif obj:
             with self.draw_context(bg=False):
                 obj.draw_flipping()
