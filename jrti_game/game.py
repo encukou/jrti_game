@@ -51,7 +51,22 @@ def on_draw():
     gl.glBindTexture(gl.GL_TEXTURE_2D, jrti_game.data.spritesheet_texture.id)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
 
-    main_screen.draw()
+    main_screen.draw_outer()
+
+
+@window.event
+def on_mouse_press(x, y, button, mod):
+    main_screen.mouse_press(x, y)
+
+
+@window.event
+def on_mouse_drag(x, y, dx, dy, button, mod):
+    main_screen.mouse_drag(x, y)
+
+
+@window.event
+def on_mouse_release(x, y, button, mod):
+    main_screen.mouse_release()
 
 
 def main():

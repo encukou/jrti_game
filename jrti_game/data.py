@@ -16,7 +16,6 @@ def _load_spritesheet():
         width, height, data, metadata = png.Reader(f).read()
         data = list(data)
         data.reverse()
-    print(data)
     return data, metadata['palette']
 
 spritesheet_data, spritesheet_palette = _load_spritesheet()
@@ -25,7 +24,7 @@ spritesheet_data, spritesheet_palette = _load_spritesheet()
 @functools.lru_cache()
 def letter_uvwh(character):
     number = ord(character)
-    if not (ord(' ') < number <= ord('~')):
+    if not (ord(' ') <= number <= ord('~')):
         number = 127
     u = 8 * ((number - ord(' ')) % 32)
     v = 8 * ((number - ord(' ')) // 32)
@@ -37,7 +36,13 @@ def letter_uvwh(character):
 
 def text_width(string):
     width = 0
+    last_char = None
     for character in string:
         u, v, w, h = letter_uvwh(character)
-        width += w
+        width += w + kerns.get((last_char, character), 0)
     return width
+
+kerns = {
+    ('s', 't'): -1,
+    ('/', '/'): -2,
+}
