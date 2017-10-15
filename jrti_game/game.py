@@ -25,16 +25,16 @@ main_screen = jrti_game.flippable.Layer(
 title_plaque = jrti_game.flippable.Layer(
     parent=main_screen,
     x=400 - 600//2,
-    y=400 - 8*16,
+    y=400 - 8*32,
     width=600,
-    height=8*32,
+    height=8*48,
 )
 
 
 title_plaque.children.extend(jrti_game.flippable.letters(
-    "Just Read the",height=8*4, y=8*18, x=300, center=True))
+    "Just Read the",height=8*4, y=8*36, x=300, center=True))
 title_plaque.children.extend(jrti_game.flippable.letters(
-    "Instructions!",height=8*8, y=8*8, x=300, center=True))
+    "Instructions!",height=8*8, y=8*24, x=300, center=True))
 
 main_screen.children.extend(jrti_game.flippable.letters(
     "They're behind everything!", height=8*2, y=8*8, x=400, center=True))
@@ -62,6 +62,10 @@ def on_draw():
     gl.glBindTexture(gl.GL_TEXTURE_2D, jrti_game.data.spritesheet_texture.id)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
 
+    gl.glFrontFace(gl.GL_CCW)
+    gl.glCullFace(gl.GL_BACK)
+    gl.glDisable(gl.GL_CULL_FACE)
+
     main_screen.draw_outer()
     main_screen.draw_flipping()
 
@@ -80,6 +84,10 @@ def on_mouse_drag(x, y, dx, dy, button, mod):
 def on_mouse_release(x, y, button, mod):
     main_screen.mouse_release()
 
+
+@pyglet.clock.schedule
+def tick(dt):
+    print(dt * 60)
 
 def main():
     pyglet.app.run()

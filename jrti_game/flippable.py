@@ -18,6 +18,14 @@ def draw_rect(w, h):
     gl.glEnd()
 
 
+def clamp(value, minimum=0, maximum=1):
+    if value < minimum:
+        return minimum
+    if value > maximum:
+        return maximum
+    return value
+
+
 @attrs()
 class Flippable:
     x = attrib(0)
@@ -32,6 +40,7 @@ class Flippable:
     drag_info = None, None
     flip_params = (0, 0, 0, 0)
     flip_direction = None
+    light_seed = 0
 
     def __attrs_post_init__(self):
         if self.parent:
@@ -103,6 +112,7 @@ class Flippable:
     def drag_start(self, x, y):
         self.drag_info = self, (x, y)
         self.flip_direction = None
+        self.light_seed = random.randint(0, 2**32)
 
     @contextlib.contextmanager
     def draw_context(self, bg=True, flipping=False):
@@ -160,69 +170,96 @@ class Flippable:
                 self.draw_instructions()
             with self.draw_context(flipping=True):
                 self.draw()
+                self.draw_outline()
+
+                gl.glEnable(gl.GL_CULL_FACE)
+                gl.glColor4f(0, 1, 1,
+                             clamp(random.normalvariate(3/4, 1/120), 0, 1))
+                draw_rect(self.width, self.height)
+                gl.glDisable(gl.GL_CULL_FACE)
 
     def draw_instructions(self):
-        gl.glColor4f(0, 1, 1, 1)
+        gl.glColor4f(0, 1, 1,
+                     clamp(random.normalvariate(1, 1/120), 0, 1))
         draw_rect(self.width, self.height)
 
     def draw_light(self):
         if self.flip_params:
             x, y, rx, ry = self.flip_params
             angle = abs(rx + ry)
-            print(angle)
             if angle < 90:
-                w = self.width
-                h = self.height
                 wph = self.width + self.height
                 N = wph / 8 * angle / 20 + 2
                 if N > 50:
                     N = 50
+                r = random.Random()
+                r.seed(self.light_seed)
                 for i in range(int(N)):
-                    p = (angle / 60 / N * i) ** 2
-                    pw = p * wph
-                    ph = p * wph
-                    points = [
-                        (0, 0),
-                        (0, h),
-                        (w, h),
-                        (w, 0),
-                    ]
-                    if rx:
-                        if rx > 0:
-                            points = [
-                                (0, 0),
-                                (0, h),
-                                (w+pw, h+ph),
-                                (w+pw, -ph),
-                            ]
-                        else:
-                            points = [
-                                (-pw, -ph),
-                                (-pw, h+ph),
-                                (w, h),
-                                (w, 0),
-                            ]
-                    elif ry:
-                        if ry > 0:
-                            points = [
-                                (-pw, -ph),
-                                (0, h),
-                                (w, h),
-                                (w+pw, -ph),
-                            ]
-                        else:
-                            points = [
-                                (0, 0),
-                                (-pw, h+ph),
-                                (w+pw, h+ph),
-                                (w, 0),
-                            ]
+                    p = (angle / 60 / N * i) ** 1.1 / 5
+                    diag_angle = math.tau/8
+                    diag_angle += r.normalvariate(0, math.tau/16)
+                    diag_angle += random.normalvariate(0, math.tau/256)
+                    pw = p * wph * math.cos(diag_angle)
+                    ph = p * wph * math.sin(diag_angle)
+                    points = self.get_light_points(rx, ry, pw, ph)
                     gl.glColor4f(0, 1, 1, (1 - angle / 60) / N * 2)
                     gl.glBegin(gl.GL_TRIANGLE_FAN)
                     for point in points:
                         gl.glVertex2f(*point)
                     gl.glVertex2f(*points[0])
                     gl.glEnd()
+
+    def get_light_points(self, rx, ry, pw, ph):
+        w = self.width
+        h = self.height
+        if rx:
+            if rx > 0:
+                return [
+                    (0, h),
+                    (w+pw, h+ph),
+                    (w+pw, -ph),
+                    (0, 0),
+                ]
+            else:
+                return [
+                    (w, 0),
+                    (-pw, -ph),
+                    (-pw, h+ph),
+                    (w, h),
+                ]
+        elif ry:
+            if ry > 0:
+                return [
+                    (w, h),
+                    (w+pw, -ph),
+                    (-pw, -ph),
+                    (0, h),
+                ]
+            else:
+                return [
+                    (0, 0),
+                    (-pw, h+ph),
+                    (w+pw, h+ph),
+                    (w, 0),
+                ]
+        else:
+            return [
+                (-pw, -ph),
+                (-pw, h+ph),
+                (w+pw, h+ph),
+                (w+pw, -ph),
+            ]
+
+    def draw_outline(self):
+        x, y, rx, ry = self.flip_params
+        points = self.get_light_points(rx, ry, 0, 0)
+        gl.glColor4f(0, 1, 1, 1/2)
+        gl.glBegin(gl.GL_LINE_STRIP)
+        for point in points:
+            gl.glVertex2f(*point)
+        if not rx and not ry:
+            gl.glVertex2f(*points[0])
+        gl.glEnd()
 
 
 @attrs()
