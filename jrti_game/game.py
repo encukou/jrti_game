@@ -2,10 +2,18 @@ import os
 import pyglet
 from pyglet import gl
 import ctypes
+import types
 
 import jrti_game.data
 import jrti_game.flippable
 from jrti_game.data import spritesheet_texture
+
+state = types.SimpleNamespace(
+    zoom=1,
+    alt_zoom_start=None,
+    center=[400, 300],
+    last_mouse_pos=(0, 0),
+)
 
 window_style = getattr(
     pyglet.window.Window,
@@ -55,9 +63,13 @@ def on_draw():
         0, 1, 0, 0,
         0, 0, 1, 1,
         0, 0, 0, 1))
-    gl.glScalef(2/window.width, 2/window.height, 1/2048)
-    gl.glTranslatef(-800/2, -600/2, 0)
+    gl.glScalef(2/window.width*state.zoom, 2/window.height*state.zoom, 1/2048)
+    gl.glTranslatef(-400, -300, 0)
     gl.glMatrixMode(gl.GL_MODELVIEW)
+
+    gl.glLoadIdentity()
+    cx, cy = state.center
+    gl.glTranslatef(400-cx, 300-cy, 0)
 
     gl.glEnable(gl.GL_BLEND)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
@@ -77,18 +89,49 @@ def on_draw():
 
 
 @window.event
+def on_mouse_motion(x, y, button, mod):
+    state.last_mouse_pos = x, y
+
+
+@window.event
 def on_mouse_press(x, y, button, mod):
-    main_screen.mouse_press(x, y)
+    if mod & pyglet.window.key.MOD_SHIFT:
+        state.alt_zoom_start = [y, y]
+        return
+    if mod & pyglet.window.key.MOD_CTRL:
+        button = pyglet.window.mouse.RIGHT
+    if button == pyglet.window.mouse.LEFT:
+        main_screen.mouse_press(x, y)
 
 
 @window.event
 def on_mouse_drag(x, y, dx, dy, button, mod):
-    main_screen.mouse_drag(x, y)
+    if state.alt_zoom_start is None:
+        main_screen.mouse_drag(x, y)
+    else:
+        ys = state.alt_zoom_start
+        zoom((y - ys[0]) / 2, x, ys[1])
+        state.alt_zoom_start[0] = y
+    state.last_mouse_pos = x, y
 
 
 @window.event
 def on_mouse_release(x, y, button, mod):
+    state.alt_zoom_start = None
     main_screen.mouse_release()
+
+
+@window.event
+def on_mouse_scroll(x, y, scroll_x, scroll_y):
+    zoom(scroll_y, x, y)
+
+
+def zoom(amount, x, y):
+    state.zoom *= 1.1 ** amount
+    if state.zoom > 600**6:
+        state.zoom = 600**6
+    elif state.zoom < 1:
+        state.zoom = 1
 
 
 @pyglet.clock.schedule
