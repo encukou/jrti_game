@@ -5,6 +5,7 @@ import ctypes
 import types
 
 import jrti_game.data
+from jrti_game.data import sprites
 import jrti_game.flippable
 from jrti_game.data import spritesheet_texture
 
@@ -65,7 +66,7 @@ def on_draw():
         0, 1, 0, 0,
         0, 0, 1, 1,
         0, 0, 0, 1))
-    gl.glScalef(2/window.width*state.zoom, 2/window.height*state.zoom, 1/2048)
+    gl.glScalef(2/window.width*state.zoom, 2/window.height*state.zoom, 1/2048*state.zoom)
     gl.glTranslatef(-400, -300, 0)
     gl.glMatrixMode(gl.GL_MODELVIEW)
 
@@ -86,6 +87,11 @@ def on_draw():
 
     main_screen.draw_outer()
     main_screen.draw_flipping()
+
+    mx, my = mouse_to_logical(*state.last_mouse_pos)
+    gl.glTranslatef(round(mx), round(my), 0)
+    gl.glColor4f(0, 1, 1, 1/state.zoom)
+    sprites['eye'].blit(-4.5, -4)
 
     if os.environ.get('GAME_DEBUG'):
         fps_display.draw()
@@ -117,9 +123,8 @@ def on_mouse_drag(x, y, dx, dy, button, mod):
         state.alt_zoom_start[0] = y
     if state.last_drag_pos is not None:
         px, py = state.last_drag_pos
-        x, y = mouse_to_logical(x, y)
-        state.center[0] += px - x
-        state.center[1] += py - y
+        state.center[0] += (px - x) / state.zoom
+        state.center[1] += (py - y) / state.zoom
         state.last_drag_pos = x, y
     else:
         main_screen.mouse_drag(*mouse_to_logical(x, y))
@@ -148,8 +153,9 @@ def zoom(amount, x, y):
 
 
 def mouse_to_logical(x, y):
-    lx = x * state.zoom
-    ly = y * state.zoom
+    cx, cy = state.center
+    lx = (x-400) / state.zoom + cx
+    ly = (y-300) / state.zoom + cy
     return lx, ly
 
 

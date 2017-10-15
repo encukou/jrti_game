@@ -80,3 +80,8 @@ instruction_texts = load_instructions()
 
 def get_instruction_text(key):
     return instruction_texts.get(key, instruction_texts['None'])
+
+sprites = {
+    'eye': spritesheet_texture.get_region(0, 3*8, 9, 8)
+}
+

@@ -8,6 +8,7 @@ Don't read this file before trying to play the game :)
 
 # None
 
+    [XXX]
     Oh no!
     There are no instructions here.
 
@@ -20,8 +21,8 @@ Don't read this file before trying to play the game :)
 
     Use the mouse to navigate:
     - Right button grabs things to reveal instructions underneath.
-    - The wheel zooms. [XXX] (alternate: hold Shift and drag up/down)
-    - Right button to move around the screen. [XXX] (alt: Ctrl+drag)
+    - The wheel zooms. (You can also zoom by dragging up/down with Shift.)
+    - Drag with the left button (or with Ctrl) to move around the screen.
 
     Press keys on your keyboard to play.
 
@@ -62,7 +63,8 @@ Don't read this file before trying to play the game :)
     [XXX]
     The Grabby Tool can be selected by Shift+{G}.
 
-    The {G} key clamps it, or lets go.
+    With the {G} key, clamp or let go.
+    Try it on a letter!
 
 # XXX
     H
@@ -88,7 +90,7 @@ Don't read this file before trying to play the game :)
     [XXX]
     The {R} key reassigns other keys.
 
-    Press {R} followed by to other keys to swap them.
+    Press {R} followed by two other keys to swap them.
 
 
 # S
