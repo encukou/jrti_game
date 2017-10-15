@@ -65,3 +65,17 @@ class Letter(Sprite):
             kwargs['width'] = (kwargs['height'] // 8 * width) or 1
         print(kwargs)
         super().__init__(**kwargs)
+
+
+def letters(string, x=0, y=0, height=8):
+    starting_x = x
+    for character in string:
+        if character == ' ':
+            x += height // 8 * 6
+        elif character == '\n':
+            y -= height
+            x = starting_x
+        else:
+            letter = Letter(character, x=x, y=y, height=height)
+            x += letter.width
+            yield letter

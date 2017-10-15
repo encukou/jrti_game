@@ -17,14 +17,16 @@ window = pyglet.window.Window(
     style=window_style,
 )
 
-spr = jrti_game.flippable.Letter('J', height=8*4)
+letters = list(
+    jrti_game.flippable.letters("Just Read the Instructions", height=8*4))
 
 @window.event
 def on_draw():
     gl.glEnable(gl.GL_TEXTURE_2D)
     gl.glBindTexture(gl.GL_TEXTURE_2D, jrti_game.data.spritesheet_texture.id)
     gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
-    spr.draw()
+    for letter in letters:
+        letter.draw()
 
 
 def main():
