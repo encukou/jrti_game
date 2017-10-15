@@ -31,9 +31,10 @@ def letter_uvwh(character):
     u = 8 * ((number - ord(' ')) % 32)
     v = 8 * ((number - ord(' ')) // 32)
     for width in range(8, 0, -1):
-        if spritesheet_data[v+7][u+width-1] == 0:
+        if any(spritesheet_data[v+7-i][u+width-1]
+               for i in range(8)):
             break
-    return u, v, width, 8
+    return u, v, width+1, 9
 
 
 def text_width(string):
@@ -46,7 +47,7 @@ def text_width(string):
 
 kerns = {
     ('s', 't'): -1,
-    ('/', '/'): -2,
+    ('/', '/'): -1,
 }
 
 pyglet.font.add_file(str(data_path / 'font' / 'Itim-Regular.ttf'))

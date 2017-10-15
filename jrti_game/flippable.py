@@ -369,17 +369,18 @@ class Sprite(Flippable):
         texture.blit(0, 0, width=self.width, height=self.height)
 
 class Letter(Sprite):
-    def __init__(self, letter, **kwargs):
+    def __init__(self, letter, trim=0, **kwargs):
         number = ord(letter)
         u, v, width, height = letter_uvwh(letter)
+        width += 1-trim
         kwargs.update(
             texture_width=width,
             texture_height=height,
-            u=u,
+            u=u-1,
             v=v,
         )
         if 'width' not in kwargs:
-            kwargs['width'] = (kwargs['height'] // 8 * width) or 1
+            kwargs['width'] = (kwargs['height'] // 9 * width) or 1
         super().__init__(**kwargs)
 
 
@@ -389,14 +390,21 @@ def letters(string, x=0, y=0, height=8, center=False):
         x -= scale * (text_width(string) // 2)
     starting_x = x
     last_char = None
-    for character in string:
+    next_kern = 0
+    for character, next_char in zip(string, ' ' + string):
         if character == '\n':
             y -= height
             x = starting_x
         else:
-            x += kerns.get((last_char, character), 0) * scale
-            letter = Letter(character, x=x, y=y, height=height)
-            x += letter.width
+            x += next_kern
+            next_kern = kerns.get((character, next_char), 0) * scale
+            if next_kern < 0:
+                trim = 1
+            else:
+                trim = 0
+            letter = Letter(character, x=x, y=y, height=height+scale,
+                            trim=trim)
+            x += letter.width - scale
             if character != ' ':
                 yield letter
         last_char = character
