@@ -3,9 +3,11 @@ import contextlib
 import math
 
 from pyglet import gl
+import pyglet.text
 from attr import attrs, attrib
 
 from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
+from jrti_game.data import instruction_font_name
 
 
 def draw_rect(w, h):
@@ -24,6 +26,18 @@ def clamp(value, minimum=0, maximum=1):
     if value > maximum:
         return maximum
     return value
+
+
+class reify:
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+        value = self.func(obj)
+        setattr(obj, self.func.__name__, value)
+        return value
 
 
 @attrs()
@@ -145,7 +159,8 @@ class Flippable:
                 draw_rect(self.width, self.height)
 
             if bg and self.bgcolor:
-                gl.glColor3f(*self.bgcolor)
+                print(self.bgcolor, type(self))
+                gl.glColor4f(*self.bgcolor, 1)
                 draw_rect(self.width, self.height)
 
             gl.glColor3f(*self.color)
@@ -157,9 +172,7 @@ class Flippable:
     def draw_outer(self):
         obj, start = self.drag_info
         with self.draw_context():
-            if obj is self:
-                self.draw_instructions()
-            else:
+            if obj is not self:
                 self.draw()
 
     def draw_flipping(self):
@@ -168,7 +181,7 @@ class Flippable:
             with self.draw_context():
                 self.draw_light()
                 self.draw_instructions()
-            with self.draw_context(flipping=True):
+            with self.draw_context(flipping=True, bg=True):
                 self.draw()
                 self.draw_outline()
 
@@ -182,6 +195,37 @@ class Flippable:
         gl.glColor4f(0, 1, 1,
                      clamp(random.normalvariate(1, 1/120), 0, 1))
         draw_rect(self.width, self.height)
+
+        gl.glColor3f(0, 0, 0)
+        self.instruction_label.draw()
+        gl.glBindTexture(gl.GL_TEXTURE_2D, spritesheet_texture.id)
+
+    @reify
+    def instruction_label(self):
+        document = pyglet.text.document.UnformattedDocument(
+            "These are the instructions!"
+        )
+        document.set_style(0, 0, {
+            'color': (0, 0, 0, 255),
+            'font_name': instruction_font_name,
+            'font_size': 25,
+        })
+        layout = pyglet.text.layout.TextLayout(
+            document,
+            width=self.width - 8,
+            height=self.height - 8,
+        )
+        layout.x = 4
+        layout.y = 4
+        for size in range(25, 1, -1):
+            if (layout.content_width > layout.width or
+                    layout.content_height > layout.height):
+                document.set_style(0, 0, {'font_size': size})
+        for size in range(10, 1, -1):
+            if (layout.content_width > layout.width or
+                    layout.content_height > layout.height):
+                document.set_style(0, 0, {'font_size': size/10})
+        return layout
 
     def draw_light(self):
         if self.flip_params:

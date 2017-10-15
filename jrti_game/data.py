@@ -1,6 +1,7 @@
 import functools
 
 import pyglet.image
+import pyglet.font
 import png
 
 from pathlib import Path
@@ -46,3 +47,7 @@ kerns = {
     ('s', 't'): -1,
     ('/', '/'): -2,
 }
+
+pyglet.font.add_file(str(data_path / 'font' / 'JustMeAgainDownHere.ttf'))
+
+instruction_font_name = 'Just Me Again Down Here'
