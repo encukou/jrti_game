@@ -1,4 +1,5 @@
 import functools
+import textwrap
 
 import pyglet.image
 import pyglet.font
@@ -48,6 +49,33 @@ kerns = {
     ('/', '/'): -2,
 }
 
-pyglet.font.add_file(str(data_path / 'font' / 'JustMeAgainDownHere.ttf'))
+pyglet.font.add_file(str(data_path / 'font' / 'Itim-Regular.ttf'))
 
-instruction_font_name = 'Just Me Again Down Here'
+instruction_font_name = "Itim"
+
+
+def load_instructions():
+    instruction_texts = {}
+
+    with (data_path / 'instructions.txt').open() as f:
+        current_text = []
+        current_heading = ''
+
+        def _load_instruction():
+            text = textwrap.dedent(''.join(current_text)).strip()
+            instruction_texts[current_heading] = text
+            current_text.clear()
+
+        for line in f:
+            if line.startswith('#'):
+                _load_instruction()
+                current_heading = line[1:].strip()
+            else:
+                current_text.append(line)
+        _load_instruction()
+    return instruction_texts
+
+instruction_texts = load_instructions()
+
+def get_instruction_text(key):
+    return instruction_texts.get(key, instruction_texts['None'])

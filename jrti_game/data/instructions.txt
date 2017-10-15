@@ -1,0 +1,30 @@
+
+
+SPOILERS!
+
+Don't read this file before trying to play the game :)
+
+
+
+# None
+
+    Oh no! There are no instructions here.
+
+
+# main_plaque
+
+    THE INSTRUCTIONS
+
+    Win the game by ...? XXX
+
+    Use the mouse to navigate:
+    - Right button grabs things to reveal instructions underneath.
+    - The wheel zooms. [XXX] (alternate: hold Shift and drag up/down)
+    - Right button to move around the screen. [XXX] (alt: Ctrl+drag)
+
+    Press keys on your keyboard to play.
+
+    Reveal instructions and hints to figure out what keys to press.
+    If this is your first time here, pressing “I” would be a good start.
+
+    Good luck!

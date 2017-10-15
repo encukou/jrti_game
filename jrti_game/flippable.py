@@ -7,7 +7,7 @@ import pyglet.text
 from attr import attrs, attrib
 
 from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
-from jrti_game.data import instruction_font_name
+from jrti_game.data import instruction_font_name, get_instruction_text
 
 
 def draw_rect(w, h):
@@ -50,6 +50,7 @@ class Flippable:
     parent = attrib(None)
     color = attrib((1, 1, 1))
     bgcolor = attrib((0, 0, 0))
+    instructions = attrib('None')
 
     drag_info = None, None
     flip_params = (0, 0, 0, 0)
@@ -159,7 +160,6 @@ class Flippable:
                 draw_rect(self.width, self.height)
 
             if bg and self.bgcolor:
-                print(self.bgcolor, type(self))
                 gl.glColor4f(*self.bgcolor, 1)
                 draw_rect(self.width, self.height)
 
@@ -203,21 +203,22 @@ class Flippable:
     @reify
     def instruction_label(self):
         document = pyglet.text.document.UnformattedDocument(
-            "These are the instructions!"
+            get_instruction_text(self.instructions)
         )
         document.set_style(0, 0, {
             'color': (0, 0, 0, 255),
             'font_name': instruction_font_name,
-            'font_size': 25,
+            'font_size': 15,
         })
         layout = pyglet.text.layout.TextLayout(
             document,
             width=self.width - 8,
             height=self.height - 8,
+            multiline=True,
         )
         layout.x = 4
         layout.y = 4
-        for size in range(25, 1, -1):
+        for size in range(15, 1, -1):
             if (layout.content_width > layout.width or
                     layout.content_height > layout.height):
                 document.set_style(0, 0, {'font_size': size})

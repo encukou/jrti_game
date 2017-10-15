@@ -28,6 +28,7 @@ title_plaque = jrti_game.flippable.Layer(
     y=400 - 8*32,
     width=600,
     height=8*48,
+    instructions='main_plaque',
 )
 
 
