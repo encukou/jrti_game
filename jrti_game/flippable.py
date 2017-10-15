@@ -1,5 +1,6 @@
 import random
 import contextlib
+import math
 
 from pyglet import gl
 from attr import attrs, attrib
@@ -30,6 +31,7 @@ class Flippable:
 
     drag_info = None, None
     flip_params = (0, 0, 0, 0)
+    flip_direction = None
 
     def __attrs_post_init__(self):
         if self.parent:
@@ -47,13 +49,53 @@ class Flippable:
     def mouse_drag(self, x, y):
         if self.drag_info[1]:
             sx, sy = self.drag_info[1]
-            self.flip_params = 0, 0, 0, sy - y
+            dx = abs(sx - x)
+            dy = abs(sy - y)
+            if self.flip_direction is None:
+                direction = abs(sx - x) > abs(sy - y)
+                if dx > 4 or dy > 4:
+                    self.flip_direction = direction
+            else:
+                direction = self.flip_direction
+            if direction:
+                mouse = x
+                start = sx
+                d = dx
+                dim = self.width
+            else:
+                mouse = y
+                start = sy
+                d = dy
+                dim = self.height
+            if mouse < start:
+                axis = 0
+                factor = -1
+            else:
+                axis = dim
+                factor = 1
+            if start == axis:
+                angle = 0
+            elif mouse == axis:
+                angle = 90 * factor
+            else:
+                ratio = ((mouse - axis) / (start - axis))
+                if ratio > 1:
+                    ratio = 1
+                if ratio < -1:
+                    ratio = -1
+                angle = math.degrees(math.acos(ratio) * factor)
+            print(angle)
+            if direction:
+                self.flip_params = axis, 0, -angle, 0
+            else:
+                self.flip_params = 0, axis, 0, angle
 
     def mouse_release(self):
         obj, start = self.drag_info
         if obj and obj is not self:
             obj.mouse_release()
         self.flip_params = None
+        self.flip_direction = None
         self.drag_info = None, None
 
     def hit_test(self, x, y):
@@ -61,6 +103,7 @@ class Flippable:
 
     def drag_start(self, x, y):
         self.drag_info = self, (x, y)
+        self.flip_direction = None
 
     @contextlib.contextmanager
     def draw_context(self, bg=True, flipping=False):
@@ -70,7 +113,6 @@ class Flippable:
             gl.glScalef(self.scale, self.scale, 1)
 
             if flipping and self.drag_info[0] == self:
-                print(self.flip_params)
                 x, y, rx, ry = self.flip_params
                 gl.glTranslatef(x, y, 0)
                 gl.glRotatef(ry, 1, 0, 0)

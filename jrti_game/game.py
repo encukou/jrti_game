@@ -52,7 +52,7 @@ def on_draw():
         0, 1, 0, 0,
         0, 0, 1, 1,
         0, 0, 0, 1))
-    gl.glScalef(2/window.width, 2/window.height, 1/1024)
+    gl.glScalef(2/window.width, 2/window.height, 1/2048)
     gl.glTranslatef(-800/2, -600/2, 0)
     gl.glMatrixMode(gl.GL_MODELVIEW)
 
