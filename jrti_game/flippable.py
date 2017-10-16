@@ -251,7 +251,7 @@ class Flippable:
             angle = abs(rx + ry)
             if angle < 90:
                 wph = self.width + self.height
-                N = wph / 8 * angle / 20 * self.scale + 2
+                N = wph / 8 / (angle+1) * 20 * self.scale + 2
                 if N > 50:
                     N = 50
                 r = random.Random()

@@ -17,7 +17,7 @@ Don't read this file before trying to play the game :)
 
     THE INSTRUCTIONS
 
-    Win the game by ...? XXX
+    Win the game by unlocking the wall that is keeping you trapped.
 
     Use the mouse to navigate:
     - Right button grabs things to reveal instructions underneath.
@@ -36,23 +36,56 @@ Don't read this file before trying to play the game :)
     Most importantly, don't give up!
     You can do it!
 
+# /
+
+    Make sure you keep moving! Preferably, up and to the right.
+
+# .
+
+    The goal is near! Don't stop now!
+
+# '
+
+    Are you sure you are not leaving anything out?
+
+    Double-check!
+
+# :
+
+    If you find instructions that are not helpful, don't despair!
+
+    You're not likely to run out of instructions to read.
+
 # A
 
-    [XXX]
+    [XXX] MOVING LEFT
+
     Move your tool left by holding {A}.
 
-    (That would be your left; not the tool's.)
+    (That would be your left; not necessarily the tool's.)
+
+# B
+
+    [XXX] BUGS
+
+    Bugs are curious, wriggly organisms that frequently appear in all kinds of virtual environments.
+    Some humans specialize in exterminating them; others expend significant effort to reproduce them.
+
+    Examination of a bug can reveal useful information about the structure and operation of its environment.
+
+    The best time to catch a bug is when it is feeding.
+    As feeding spots are some of their favorite places, bugs tend to scurry towards food when disturbed.
 
 # XXX
-    B
     C
 
 # D
 
-    [XXX]
+    [XXX] MOVING RIGHT
+
     Move your tool right by holding {D}.
 
-    This only moves to the right. Figuring out the right tool, and the right way to use it, is up to you.
+    This only moves the tool to the right. Figuring out the right tool to use, and the right way to use it, is up to you.
 
 # XXX
     E
@@ -60,10 +93,12 @@ Don't read this file before trying to play the game :)
 
 # G
 
-    [XXX]
+    [XXX] GRABBY TOOL
+
     The Grabby Tool can be selected by Shift+{G}.
 
-    With the {G} key, clamp or let go.
+    When it's selected, you can grab and release things with the {G} key.
+    The grabbed object will move with the tool.
     Try it on a letter!
 
 # XXX
@@ -71,21 +106,36 @@ Don't read this file before trying to play the game :)
 
 # I
 
-    Tools are controlled by the “WASD” keys.
+    TOOLS
 
-    Look under a G for instructions on the Grabby Tool.
+    Tools can be used to interact with the game. They are controlled by the “WASD” keys.
+
+    Instructions for specific tools can be found under G or K.
 
 # XXX
     J
-    K
+
+# K
+
+    [XXX] KEY TOOL
+
+    The Key Tool can be selected by Shift+{K}.
+    Place the key over a lock, and press {K} to unlock.
+
+    Combinations for specific locks can be found in buggy areas.
+
+# XXX
     L
     M
 
 # N
 
+    INSTRUCTION INSTRUCTIONS
+
     Some instructions are short, some long.
     Some are helpful, some… Not so much.
-    Some are behind letters, some are behind objects, some are behind creatures or special areas of the game.
+    Some are explicit, others merely hints.
+    They're behind everything: behind letters, creatures, objects, walls – everything.
 
     If you have lots of free time, you can try to read all the instructions – or you can only pick the ones behind interesting-looking things.
 
@@ -96,18 +146,20 @@ Don't read this file before trying to play the game :)
 
 # R
 
-    [XXX]
+    [XXX] REASSIGNING
+
     The {R} key reassigns other keys.
 
-    Press {R} followed by two other keys to swap them.
+    Press {R} followed by two other keys to swap their function.
 
 
 # S
 
-    [XXX]
+    [XXX] MOVING DOWN
+
     Move your tool down by holding {S}.
 
-    If you reach the turtles, say hello.
+    If you reach the stack of turtles, say hello to them.
 
 # XXX
     T
@@ -116,7 +168,8 @@ Don't read this file before trying to play the game :)
 
 # W
 
-    [XXX]
+    [XXX] MOVING UP
+
     Move your tool up by holding {W}.
 
     Up, up and away!
