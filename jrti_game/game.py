@@ -8,6 +8,7 @@ import jrti_game.data
 from jrti_game.data import sprites
 import jrti_game.flippable
 from jrti_game.data import spritesheet_texture
+from jrti_game.bug import Bug
 
 state = types.SimpleNamespace(
     zoom=1,
@@ -15,6 +16,7 @@ state = types.SimpleNamespace(
     last_drag_pos=None,
     center=[400, 300],
     last_mouse_pos=(0, 0),
+    time=0,
 )
 
 window_style = getattr(
@@ -43,17 +45,22 @@ title_plaque = jrti_game.flippable.Layer(
 )
 
 
-title_plaque.children.extend(jrti_game.flippable.letters(
-    "Just Read the", scale=4, y=8*36, x=300, center=True))
-title_plaque.children.extend(jrti_game.flippable.letters(
-    "Instructions!", scale=8, y=8*24, x=300, center=True))
+all(jrti_game.flippable.letters(
+    "Just Read the", scale=4, y=8*36, x=300, center=True, parent=title_plaque))
+all(jrti_game.flippable.letters(
+    "Instructions!", scale=8, y=8*24, x=300, center=True, parent=title_plaque))
 
-main_screen.children.extend(jrti_game.flippable.letters(
-    "They're behind everything!", scale=2, y=8*8, x=400, center=True))
-main_screen.children.extend(jrti_game.flippable.letters(
-    "PyWeek 24 entry", scale=1, y=8*3, x=400, center=True))
-main_screen.children.extend(jrti_game.flippable.letters(
-    "https://pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True))
+Bug(parent=title_plaque)
+
+all(jrti_game.flippable.letters(
+    "They're behind everything!", scale=2, y=8*8, x=400, center=True,
+    parent=main_screen))
+all(jrti_game.flippable.letters(
+    "PyWeek 24 entry", scale=1, y=8*3, x=400, center=True,
+    parent=main_screen))
+all(jrti_game.flippable.letters(
+    "https://pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True,
+    parent=main_screen))
 
 fps_display = pyglet.window.FPSDisplay(window)
 
@@ -177,7 +184,7 @@ def logical_to_mouse(lx, ly):
 
 @pyglet.clock.schedule
 def tick(dt):
-    pass
+    state.time += dt
 
 def main():
     pyglet.app.run()

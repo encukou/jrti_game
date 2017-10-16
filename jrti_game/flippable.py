@@ -251,7 +251,7 @@ class Flippable:
             angle = abs(rx + ry)
             if angle < 90:
                 wph = self.width + self.height
-                N = wph / 8 / (angle+1) * 20 * self.scale + 2
+                N = 80 / (angle+1) * 20 * self.scale + 2
                 if N > 50:
                     N = 50
                 r = random.Random()
@@ -406,7 +406,7 @@ class Letter(Sprite):
         super().__init__(**kwargs)
 
 
-def letters(string, x=0, y=0, scale=1, center=False):
+def letters(string, x=0, y=0, scale=1, center=False, parent=None):
     if center:
         x -= scale * (text_width(string) // 2)
     starting_x = x
@@ -428,9 +428,11 @@ def letters(string, x=0, y=0, scale=1, center=False):
                 etrim = 1
             else:
                 etrim = 0
-            letter = Letter(character, x=x, y=y, height=9, scale=scale,
-                            strim=strim, etrim=etrim)
-            x += (letter.width + etrim) * scale - scale
-            if character != ' ':
+            if character == ' ':
+                x += (4 + etrim) * scale
+            else:
+                letter = Letter(character, x=x, y=y, height=9, scale=scale,
+                                strim=strim, etrim=etrim, parent=parent)
+                x += (letter.width + etrim) * scale - scale
                 yield letter
         last_char = character

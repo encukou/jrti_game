@@ -85,5 +85,7 @@ sprites = {
     'eye': spritesheet_texture.get_region(0, 3*8, 9, 8),
     'crosshair': spritesheet_texture.get_region(10, 3*8, 8, 8),
     'ex': spritesheet_texture.get_region(18, 3*8, 8, 8),
+    'bug': spritesheet_texture.get_region(28, 3*8+1, 11, 11),
+    'bugleg': spritesheet_texture.get_region(40, 3*8+1, 7, 11),
 }
 
