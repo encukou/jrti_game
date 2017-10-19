@@ -8,6 +8,7 @@ from attr import attrs, attrib
 
 from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
 from jrti_game.data import instruction_font_name, get_instruction_text
+from jrti_game.data import spritesheet_data
 from jrti_game.util import clamp, reify, draw_rect
 from jrti_game.state import state
 
@@ -416,6 +417,9 @@ class Letter(Sprite):
         kwargs.setdefault('instructions', letter.upper())
         kwargs.setdefault('margin', 1/2)
         super().__init__(**kwargs)
+
+    def pixel(self, x, y):
+        return spritesheet_data[self.v+y][self.u+x]
 
 
 def letters(string, x=0, y=0, scale=1, center=False, parent=None):

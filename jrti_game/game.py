@@ -3,12 +3,13 @@ import pyglet
 from pyglet import gl
 import ctypes
 import math
+import random
 
 import jrti_game.data
 from jrti_game.data import sprites
 import jrti_game.flippable
 from jrti_game.data import spritesheet_texture
-from jrti_game.bug import RangingBug, BugArena
+from jrti_game.bug import BugArena
 from jrti_game.util import clamp
 from jrti_game.state import state
 
@@ -29,7 +30,7 @@ main_screen = jrti_game.flippable.Layer(
     x=-400,
     y=-300,
 )
-title_plaque = BugArena(
+bug_arena = BugArena(
     parent=main_screen,
     x=400 - 600//2,
     y=400 - 8*32,
@@ -41,12 +42,12 @@ title_plaque = BugArena(
 
 
 all(jrti_game.flippable.letters(
-    "Just Read the", scale=4, y=8*36, x=300, center=True, parent=title_plaque))
+    "Just Read the", scale=4, y=8*36, x=300, center=True, parent=bug_arena))
 all(jrti_game.flippable.letters(
-    "Instructions!", scale=8, y=8*24, x=300, center=True, parent=title_plaque))
+    "Instructions!", scale=8, y=8*24, x=300, center=True, parent=bug_arena))
 
 for x in range(2):
-    RangingBug(parent=title_plaque)
+    bug_arena.spawn_bug()
 
 all(jrti_game.flippable.letters(
     "They're behind everything!", scale=2, y=8*8, x=400, center=True,
@@ -204,7 +205,10 @@ def tick(dt):
         w1 = 1 - w2
         _zoom( (x1**w1 * x2**w2) ** (1/1))
     main_screen.tick(dt)
-    print()
+
+    avg_seconds_to_bug = clamp((bug_arena.num_bugs-1/2)*4, 1, 100)
+    if random.uniform(0, avg_seconds_to_bug) < dt:
+        bug_arena.spawn_bug()
 
 def main():
     pyglet.app.run()

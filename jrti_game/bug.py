@@ -4,7 +4,7 @@ import random
 
 from pyglet import gl
 
-from jrti_game.flippable import Flippable, Layer
+from jrti_game.flippable import Flippable, Layer, Letter
 from jrti_game.data import sprites
 from jrti_game.util import reify, draw_rect, clamp
 from jrti_game.state import state
@@ -27,6 +27,7 @@ class Bug(Flippable):
         self.y = random.uniform(0, self.parent.height - self.height * self.scale)
 
     def draw(self):
+        #gl.glColor3f(0, 1, 0)
         #if self.homing:
         #    gl.glColor3f(1, 0, 0)
         gl.glPushMatrix()
@@ -64,11 +65,10 @@ class Bug(Flippable):
             self.rotation += math.degrees(a * dt * 3 * (math.exp(-d/1000)))
 
         if not self.flip_params:
-            if random.uniform(0, 2) < dt:
-                self.rotation = -self.rotation + random.uniform(-90, 90)
-            if random.uniform(0, 0.4) < dt:
+            self.moment *= 0.75 ** dt
+            if random.uniform(0, 0.3) < dt:
                 self.moment += random.uniform(-30, 30)
-            if random.uniform(0, 0.8) < dt:
+            if random.uniform(0, 1) < dt:
                 self.moment += random.uniform(-90, 90)
             self.rotation += self.moment * dt
             s = dt * self.speed
@@ -111,7 +111,7 @@ class Bug(Flippable):
 class RangingBug(Bug):
     def tick(self, dt):
         super().tick(dt)
-        if random.uniform(0, 10) < dt:
+        if random.uniform(0, 30) < dt:
             self.homing = True
 
     def homed(self):
@@ -129,6 +129,25 @@ class BugArena(Layer):
         draw_rect(scale * 1,
                   scale * 4)
         gl.glPopMatrix()
+
+    def add_bug(self):
+        bug = RangingBug(parent=self)
+        while True:
+            letter = random.choice(self.children)
+            if isinstance(letter, Letter):
+                if letter.scale < 8 and random.randrange(0, 6):
+                    continue
+                x = random.randrange(0, letter.width)
+                y = random.randrange(0, letter.height)
+                if all(letter.pixel(x+xx, y+yy)
+                       for xx in (0, 1) for yy in (0, 1)):
+                    bug.x = letter.x + x * letter.scale
+                    bug.y = letter.y + y * letter.scale
+                    return bug
+
+    @property
+    def num_bugs(self):
+        return len([c for c in self.children if isinstance(c, Bug)])
 
     @property
     def home_coords(self):
