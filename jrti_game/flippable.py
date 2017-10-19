@@ -86,21 +86,30 @@ class Flippable:
             dx = abs(sx - x)
             dy = abs(sy - y)
             if self.flip_direction is None:
-                direction = abs(sx - x) > abs(sy - y)
+                if dx > dy:
+                    direction = sx - x, 0
+                else:
+                    direction = 0, sy - y
                 if dx > self.width/10 or dy > self.height/10:
                     self.flip_direction = direction
             else:
                 direction = self.flip_direction
-            if direction:
+            if direction[0]:
                 mouse = x
                 start = sx
                 d = dx
                 dim = self.width
+                vdir = direction[0]
             else:
                 mouse = y
                 start = sy
                 d = dy
                 dim = self.height
+                vdir = direction[1]
+            if vdir < 0 and mouse < start:
+                mouse = start
+            if vdir > 0 and mouse > start:
+                mouse = start
             if mouse < start:
                 axis = 0
                 factor = -1
@@ -118,10 +127,10 @@ class Flippable:
                 if ratio < -1:
                     ratio = -1
                 angle = math.degrees(math.acos(ratio) * factor)
-            if direction:
+            if direction[0]:
                 self.flip_params = axis, 0, -angle, 0
             else:
-                self.flip_params = 0, axis, 0, angle
+                self.flip_params = 0, axis, 0, -angle
 
     @property
     def instructions_color(self):
@@ -156,7 +165,7 @@ class Flippable:
             if flipping and self.drag_info[0] == self:
                 x, y, rx, ry = self.flip_params
                 gl.glTranslatef(x, y, 0)
-                gl.glRotatef(ry, 1, 0, 0)
+                gl.glRotatef(-ry, 1, 0, 0)
                 gl.glRotatef(rx, 0, 1, 0)
                 gl.glTranslatef(-x, -y, 0)
 
@@ -302,17 +311,17 @@ class Flippable:
         elif ry:
             if ry > 0:
                 return [
-                    (w, h),
-                    (w+pw, -ph),
-                    (-pw, -ph),
-                    (0, h),
-                ]
-            else:
-                return [
                     (0, 0),
                     (-pw, h+ph),
                     (w+pw, h+ph),
                     (w, 0),
+                ]
+            else:
+                return [
+                    (w, h),
+                    (w+pw, -ph),
+                    (-pw, -ph),
+                    (0, h),
                 ]
         else:
             return [
@@ -323,13 +332,16 @@ class Flippable:
             ]
 
     def draw_outline(self):
-        x, y, rx, ry = self.flip_params
-        points = self.get_light_points(rx, ry, 0, 0)
+        if self.flip_direction is None:
+            dummy, rummy, dx, dy = self.flip_params
+        else:
+            dx, dy = self.flip_direction
+        points = self.get_light_points(dx, dy, 0, 0)
         gl.glColor4f(*self.instructions_color, 1/2)
         gl.glBegin(gl.GL_LINE_STRIP)
         for point in points:
             gl.glVertex2f(*point)
-        if not rx and not ry:
+        if dx == dy == 0:
             gl.glVertex2f(*points[0])
         gl.glEnd()
 
