@@ -87,5 +87,6 @@ sprites = {
     'ex': spritesheet_texture.get_region(18, 3*8, 8, 8),
     'bug': spritesheet_texture.get_region(28, 3*8+1, 11, 11),
     'bugleg': spritesheet_texture.get_region(40, 3*8+1, 7, 11),
+    'keyhole': spritesheet_texture.get_region(80, 3*8+1, 16, 32),
 }
 

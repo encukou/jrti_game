@@ -65,11 +65,11 @@ class Bug(Flippable):
             self.rotation += math.degrees(a * dt * 3 * (math.exp(-d/1000)))
 
         if not self.flip_params:
-            self.moment *= 0.75 ** dt
-            if random.uniform(0, 0.3) < dt:
-                self.moment += random.uniform(-30, 30)
+            self.moment *= 0.25 ** dt
+            if random.uniform(0, 0.1) < dt:
+                self.moment += random.uniform(-60, 60)
             if random.uniform(0, 1) < dt:
-                self.moment += random.uniform(-90, 90)
+                self.moment += random.uniform(-180, 180)
             self.rotation += self.moment * dt
             s = dt * self.speed
             dx = math.cos(angle) * self.speed * dt

@@ -59,6 +59,12 @@ all(jrti_game.flippable.letters(
     "https://pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True,
     parent=main_screen))
 
+jrti_game.flippable.Sprite(
+    parent=main_screen,
+    x=800-32-16*2, y=32,
+    u=80-1, v=3*8, width=16+1, height=32+1, scale=2,
+    instructions='Keyhole')
+
 fps_display = pyglet.window.FPSDisplay(window)
 
 @window.event

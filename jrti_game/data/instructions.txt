@@ -56,6 +56,14 @@ Don't read this file before trying to play the game :)
 
     You're not likely to run out of instructions to read.
 
+# Keyhole
+
+    UNLOCKING
+
+    The master lock may be unlocked with a device bearing a one-time password.
+
+    Make sure to configure the device properly, to avoid damage to the locking mechanism.
+
 # A
 
     [XXX] MOVING LEFT
@@ -99,7 +107,8 @@ Don't read this file before trying to play the game :)
 
     When it's selected, you can grab and release things with the {G} key.
     The grabbed object will move with the tool.
-    Try it on a letter!
+
+    Moving things may scare creatures hiding underneath them.
 
 # XXX
     H
