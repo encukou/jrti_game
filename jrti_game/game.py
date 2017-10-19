@@ -12,6 +12,7 @@ from jrti_game.data import spritesheet_texture
 from jrti_game.bug import BugArena
 from jrti_game.util import clamp
 from jrti_game.state import state
+from jrti_game import tool
 
 window_style = getattr(
     pyglet.window.Window,
@@ -40,7 +41,6 @@ bug_arena = BugArena(
     margin=4,
 )
 
-
 all(jrti_game.flippable.letters(
     "Just Read the", scale=4, y=8*36, x=300, center=True, parent=bug_arena))
 all(jrti_game.flippable.letters(
@@ -66,6 +66,10 @@ jrti_game.flippable.Sprite(
     instructions='Keyhole')
 
 fps_display = pyglet.window.FPSDisplay(window)
+
+pressed_keys = {}
+
+state.tool = tool.Tool()
 
 @window.event
 def on_draw():
@@ -100,10 +104,12 @@ def on_draw():
     main_screen.draw_outer()
     main_screen.draw_flipping()
 
-    mx, my = mouse_to_logical(*state.last_mouse_pos)
-    gl.glTranslatef(round(mx), round(my), 0)
-    gl.glColor4f(0, 1, 1, 1/state.zoom)
-    sprites['eye'].blit(-4.5, -4)
+    gl.glLoadIdentity()
+    gl.glPushMatrix()
+    gl.glTranslatef(state.tool_x, state.tool_y, 0)
+    gl.glScalef(state.tool.scale, state.tool.scale, 1)
+    state.tool.draw()
+    gl.glPopMatrix()
 
     if os.environ.get('GAME_DEBUG'):
         fps_display.draw()
@@ -160,8 +166,32 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
     main_screen.mouse_release()
 
 
-def zoom(amount, x, y):
-    state.target_zoom = clamp(state.target_zoom * 1.1 ** amount, 1, 600**6)
+@window.event
+def on_key_press(sym, mod):
+    try:
+        key = state.keymap[sym]
+    except KeyError:
+        return
+    if mod == 0:
+        pressed_keys[key] = state.time
+    if key == 'G':
+        if mod == pyglet.window.key.MOD_SHIFT:
+            state.tool = tool.Grabby()
+    if key == 'K':
+        if mod == pyglet.window.key.MOD_SHIFT:
+            state.tool = tool.Key()
+
+@window.event
+def on_key_release(sym, mod):
+    try:
+        key = state.keymap[sym]
+    except KeyError:
+        return
+    pressed_keys.pop(key, None)
+
+
+def zoom(amount, x=None, y=None):
+    state.target_zoom = clamp(state.target_zoom * 1.1 ** amount, 1, 800)
 
 def _zoom(amount):
     cx, cy = state.center
@@ -215,6 +245,30 @@ def tick(dt):
     avg_seconds_to_bug = clamp((bug_arena.num_bugs-1/2)*4, 1, 100)
     if random.uniform(0, avg_seconds_to_bug) < dt:
         bug_arena.spawn_bug()
+
+    state.tool.speed = 0
+    for key, time in ((k, state.time - pressed_keys[k])
+                       for k in 'OPWSAD'
+                       if k in pressed_keys):
+        dz = .1 + (time*4)**3
+        dm = 2 + (time*6)**2
+        tool_size = state.tool.size * state.tool.scale / 2
+        if key == 'O':
+            zoom(dz * dt)
+        elif key == 'P':
+            zoom(-dz * dt)
+        elif key == 'A':
+            state.tool_x = clamp(state.tool_x - dm, tool_size-400, 400-tool_size)
+            state.tool.speed += dm
+        elif key == 'D':
+            state.tool_x = clamp(state.tool_x + dm, tool_size-400, 400-tool_size)
+            state.tool.speed -= dm
+        elif key == 'S':
+            state.tool_y = clamp(state.tool_y - dm, tool_size-300, 300-tool_size)
+            state.tool.speed += dm
+        elif key == 'W':
+            state.tool_y = clamp(state.tool_y + dm, tool_size-300, 300-tool_size)
+            state.tool.speed -= dm
 
 def main():
     pyglet.app.run()

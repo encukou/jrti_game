@@ -148,9 +148,31 @@ Don't read this file before trying to play the game :)
 
     If you have lots of free time, you can try to read all the instructions – or you can only pick the ones behind interesting-looking things.
 
+# O
+
+    [XXX] ZOOMING OUT
+
+    There are several way to zoom out:
+
+    You can scroll down with the mouse wheel.
+
+    If you don't have a mouse wheel, hold Shift and drag down.
+
+    Alternately, you can press the {O} key.
+
+# P
+
+    [XXX] ZOOMING IN
+
+    There are several way to zoom in:
+
+    You can scroll up with the mouse wheel.
+
+    If you don't have a mouse wheel, hold Shift and drag up.
+
+    Alternately, you can press the {P} key.
+
 # XXX
-    O
-    P
     Q
 
 # R
