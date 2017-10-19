@@ -42,6 +42,8 @@ class reify:
 
 @attrs()
 class Flippable:
+    transparent = False
+
     x = attrib(0)
     y = attrib(0)
     width = attrib(8)
@@ -49,12 +51,12 @@ class Flippable:
     scale = attrib(1)
     parent = attrib(None)
     color = attrib((1, 1, 1))
-    bgcolor = attrib((0, 0, 0))
+    bgcolor = attrib((0, 0, 0, 1))
     instructions = attrib('None')
     margin = attrib(1)
 
     drag_info = None, None
-    flip_params = (0, 0, 0, 0)
+    flip_params = None
     flip_direction = None
     light_seed = 0
 
@@ -64,6 +66,13 @@ class Flippable:
 
     def draw(self):
         """Draw this. Needs to be reimplemented in subclasses."""
+
+    def tick(self, dt):
+        """Called repeatedly."""
+
+    def die(self):
+        self.parent.children.remove(self)
+        self.parent = None
 
     def mouse_press(self, x, y):
         if self.drag_info[0]:
@@ -168,7 +177,7 @@ class Flippable:
                 draw_rect(self.width, self.height)
 
             if bg and self.bgcolor:
-                gl.glColor4f(*self.bgcolor, 1)
+                gl.glColor4f(*self.bgcolor)
                 draw_rect(self.width, self.height)
 
             gl.glColor3f(*self.color)
@@ -179,7 +188,7 @@ class Flippable:
 
     def draw_outer(self):
         obj, start = self.drag_info
-        with self.draw_context():
+        with self.draw_context(bg=not self.transparent):
             if obj is not self:
                 self.draw()
 
@@ -332,6 +341,10 @@ class Layer(Flippable):
     @children.default
     def _default(self):
         return []
+
+    def tick(self, dt):
+        for child in self.children:
+            child.tick(dt)
 
     def drag_start(self, x, y):
         for child in self.children:

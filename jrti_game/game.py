@@ -51,6 +51,7 @@ all(jrti_game.flippable.letters(
     "Instructions!", scale=8, y=8*24, x=300, center=True, parent=title_plaque))
 
 Bug(parent=title_plaque)
+Bug(parent=title_plaque)
 
 all(jrti_game.flippable.letters(
     "They're behind everything!", scale=2, y=8*8, x=400, center=True,
@@ -185,6 +186,7 @@ def logical_to_mouse(lx, ly):
 @pyglet.clock.schedule
 def tick(dt):
     state.time += dt
+    main_screen.tick(dt)
 
 def main():
     pyglet.app.run()
