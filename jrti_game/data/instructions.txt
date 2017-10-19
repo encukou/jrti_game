@@ -161,8 +161,15 @@ Don't read this file before trying to play the game :)
 
     If you reach the stack of turtles, say hello to them.
 
+# T
+
+    ZOOMING OUT
+
+    If something is too big, it will be impossible to reveal instructions from under it.
+    In that case, zoom out and try again.
+
+
 # XXX
-    T
     U
     V
 

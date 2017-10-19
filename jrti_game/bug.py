@@ -130,7 +130,7 @@ class BugArena(Layer):
                   scale * 4)
         gl.glPopMatrix()
 
-    def add_bug(self):
+    def spawn_bug(self):
         bug = RangingBug(parent=self)
         while True:
             letter = random.choice(self.children)

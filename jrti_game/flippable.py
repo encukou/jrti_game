@@ -130,12 +130,17 @@ class Flippable:
             else:
                 self.flip_params = 0, axis, 0, -angle
 
+            z = zoom
+            if abs(angle) > 5 and (z*self.width >= 800 or z*self.height >= 600):
+                self.mouse_release()
+                return
+
     @property
     def instructions_color(self):
         if self.instruction_label is None:
             return 1/2, 1/2, 1/2
         else:
-            return 0.1, 0.9, 1
+            return 0.4, 0.9, 1
 
     def mouse_release(self, **kwargs):
         obj, start = self.drag_info
@@ -369,7 +374,7 @@ class Layer(Flippable):
     def mouse_drag(self, x, y, *, zoom=1, **kwargs):
         obj, start = self.drag_info
         if obj is self:
-            super().mouse_drag(x, y, **kwargs)
+            super().mouse_drag(x, y, zoom=zoom, **kwargs)
         elif obj is not None:
             obj.mouse_drag((x - obj.x) / obj.scale, (y - obj.y) / obj.scale,
                            zoom=zoom * obj.scale,
