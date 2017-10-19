@@ -23,26 +23,17 @@ class Grabby(Tool):
         gl.glRotatef(90 + self.speed/2, 0, 0, 1)
 
         gl.glColor3f(0.9, 0.1, 0.4)
-        sprites['grabby'].blit(0, 0)
-        gl.glRotatef(90, 0, 0, 1)
-        sprites['grabby'].blit(0, 0)
-        gl.glRotatef(90, 0, 0, 1)
-        sprites['grabby'].blit(0, 0)
-        gl.glRotatef(90, 0, 0, 1)
-        sprites['grabby'].blit(0, 0)
-        gl.glRotatef(90, 0, 0, 1)
+        for i in range(4):
+            sprites['grabby'].blit(0, 0)
+            gl.glRotatef(90, 0, 0, 1)
 
-        gl.glColor3f(0.9, 0.4, 0.1)
+        gl.glColor3f(0.9 * abs(math.cos(state.time * 3)),
+                     0.1 * math.sin(state.time * 3)**2,
+                     0.4 * math.sin(state.time * 3)**2)
         tr = (abs(math.sin(state.time * 3)) * 2 - 1)
-
-        sprites['grabtooth'].blit(tr, tr)
-        gl.glRotatef(90, 0, 0, 1)
-        sprites['grabtooth'].blit(tr, tr)
-        gl.glRotatef(90, 0, 0, 1)
-        sprites['grabtooth'].blit(tr, tr)
-        gl.glRotatef(90, 0, 0, 1)
-        sprites['grabtooth'].blit(tr, tr)
-        gl.glRotatef(90, 0, 0, 1)
+        for i in range(4):
+            sprites['grabtooth'].blit(tr, tr)
+            gl.glRotatef(90, 0, 0, 1)
 
 
 class Key(Tool):
