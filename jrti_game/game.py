@@ -2,7 +2,7 @@ import os
 import pyglet
 from pyglet import gl
 import ctypes
-import types
+import math
 
 import jrti_game.data
 from jrti_game.data import sprites
@@ -10,15 +10,7 @@ import jrti_game.flippable
 from jrti_game.data import spritesheet_texture
 from jrti_game.bug import Bug
 from jrti_game.util import clamp
-
-state = types.SimpleNamespace(
-    zoom=1,
-    alt_zoom_start=None,
-    last_drag_pos=None,
-    center=[0, 0],
-    last_mouse_pos=(0, 0),
-    time=0,
-)
+from jrti_game.state import state
 
 window_style = getattr(
     pyglet.window.Window,
@@ -172,15 +164,14 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
 
 
 def zoom(amount, x, y):
+    state.target_zoom = clamp(state.target_zoom * 1.1 ** amount, 1, 600**6)
+
+def _zoom(amount):
     cx, cy = state.center
-    lx, ly = mouse_to_logical(x, y)
+    lx, ly = mouse_to_logical(*state.last_mouse_pos)
 
     old = state.zoom
-    state.zoom *= 1.1 ** amount
-    if state.zoom > 600**6:
-        state.zoom = 600**6
-    elif state.zoom < 1:
-        state.zoom = 1
+    state.zoom = amount
 
     cx = lx - (lx - cx) * old / state.zoom
     cy = ly - (ly - cy) * old / state.zoom
@@ -219,6 +210,14 @@ def logical_to_mouse(lx, ly):
 @pyglet.clock.schedule
 def tick(dt):
     state.time += dt
+    if 0.999 < state.zoom / state.target_zoom < 1.001:
+        _zoom(state.target_zoom)
+    else:
+        x1 = state.zoom
+        x2 = state.target_zoom
+        w2 = 1 - math.exp(-dt) ** (10)
+        w1 = 1 - w2
+        _zoom( (x1**w1 * x2**w2) ** (1/1))
     main_screen.tick(dt)
 
 def main():
