@@ -14,7 +14,7 @@ state = types.SimpleNamespace(
     zoom=1,
     alt_zoom_start=None,
     last_drag_pos=None,
-    center=[400, 300],
+    center=[0, 0],
     last_mouse_pos=(0, 0),
     time=0,
 )
@@ -33,6 +33,8 @@ window = pyglet.window.Window(
 main_screen = jrti_game.flippable.Layer(
     width=800,
     height=600,
+    x=-400,
+    y=-300,
 )
 title_plaque = jrti_game.flippable.Layer(
     parent=main_screen,
@@ -79,10 +81,10 @@ def on_draw():
 
 
     gl.glLoadIdentity()
-    gl.glTranslatef(-400*state.zoom, -300*state.zoom, 0)
+
     gl.glScalef(state.zoom, state.zoom, state.zoom)
     cx, cy = state.center
-    gl.glTranslatef(400-cx, 300-cy, 0)
+    gl.glTranslatef(-cx, -cy, 0)
 
     gl.glEnable(gl.GL_BLEND)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
@@ -109,6 +111,9 @@ def on_draw():
     gl.glLoadIdentity()
     gl.glTranslatef(*logical_to_mouse(400, 300), 0)
     sprites['crosshair'].blit(-4.5, -4)
+    gl.glLoadIdentity()
+    gl.glTranslatef(*logical_to_mouse(-400, -300), 0)
+    sprites['crosshair'].blit(-4.5, -4)
 
     if os.environ.get('GAME_DEBUG'):
         fps_display.draw()
@@ -128,7 +133,8 @@ def on_mouse_press(x, y, button, mod):
     if mod & pyglet.window.key.MOD_CTRL:
         button = pyglet.window.mouse.RIGHT
     if button == pyglet.window.mouse.LEFT:
-        main_screen.mouse_press(*mouse_to_logical(x, y))
+        lx, ly = mouse_to_logical(x, y)
+        main_screen.mouse_press(lx + 400, ly + 300)
     else:
         state.last_drag_pos = x, y
 
@@ -141,11 +147,12 @@ def on_mouse_drag(x, y, dx, dy, button, mod):
         state.alt_zoom_start[0] = y
     if state.last_drag_pos is not None:
         px, py = state.last_drag_pos
-        state.center[0] += (px - x) / state.zoom
-        state.center[1] += (py - y) / state.zoom
+        cx, cy = state.center
+        state.center = cx + (px - x) / state.zoom, cy + (py - y) / state.zoom
         state.last_drag_pos = x, y
     else:
-        main_screen.mouse_drag(*mouse_to_logical(x, y))
+        lx, ly = mouse_to_logical(x, y)
+        main_screen.mouse_drag(lx + 400, ly + 300)
     state.last_mouse_pos = x, y
 
 
@@ -159,27 +166,37 @@ def on_mouse_release(x, y, button, mod):
 @window.event
 def on_mouse_scroll(x, y, scroll_x, scroll_y):
     zoom(scroll_y, x, y)
+    main_screen.mouse_release()
 
 
 def zoom(amount, x, y):
+    cx, cy = state.center
+    lx, ly = mouse_to_logical(x, y)
+
+    old = state.zoom
     state.zoom *= 1.1 ** amount
     if state.zoom > 600**6:
         state.zoom = 600**6
     elif state.zoom < 1:
         state.zoom = 1
 
+    cx = lx - (lx - cx) * old / state.zoom
+    cy = ly - (ly - cy) * old / state.zoom
+    state.center = cx, cy
+
 
 def mouse_to_logical(mx, my):
     cx, cy = state.center
-    lx = (mx-400) / state.zoom + cx
-    ly = (my-300) / state.zoom + cy
+    lx = (mx - 400) / state.zoom + cx
+    ly = (my - 300) / state.zoom + cy
     return lx, ly
 
 
 def logical_to_mouse(lx, ly):
     cx, cy = state.center
-    mx = (lx - cx) * state.zoom
-    my = (ly - cy) * state.zoom
+    mx = (lx - cx) * state.zoom + 400
+    my = (ly - cy) * state.zoom + 300
+
     return mx, my
 
 
@@ -190,4 +207,3 @@ def tick(dt):
 
 def main():
     pyglet.app.run()
-

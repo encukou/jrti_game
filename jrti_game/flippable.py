@@ -148,8 +148,8 @@ class Flippable:
 
     @contextlib.contextmanager
     def draw_context(self, bg=True, flipping=False):
+        gl.glPushMatrix()
         try:
-            gl.glPushMatrix()
             gl.glTranslatef(self.x, self.y, 0)
             gl.glScalef(self.scale, self.scale, self.scale)
 

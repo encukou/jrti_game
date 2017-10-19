@@ -37,7 +37,7 @@ class Bug(Flippable):
 
     def tick(self, dt):
         self.rotation += self.moment * dt
-        if random.uniform(0, 2) < dt:
+        if random.uniform(0, 1) < dt:
             self.rotation = -self.rotation + random.uniform(-90, 90)
 
         if self.flip_params is None:

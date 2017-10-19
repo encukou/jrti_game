@@ -68,7 +68,7 @@ Don't read this file before trying to play the game :)
 
     [XXX] BUGS
 
-    Bugs are curious, wriggly organisms that frequently appear in all kinds of virtual environments.
+    Bugs are various wriggly organisms that frequently appear in all kinds of virtual environments.
     Some humans specialize in exterminating them; others expend significant effort to reproduce them.
 
     Examination of a bug can reveal useful information about the structure and operation of its environment.
