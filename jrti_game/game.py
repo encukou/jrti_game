@@ -134,7 +134,7 @@ def on_mouse_press(x, y, button, mod):
         button = pyglet.window.mouse.RIGHT
     if button == pyglet.window.mouse.LEFT:
         lx, ly = mouse_to_logical(x, y)
-        main_screen.mouse_press(lx + 400, ly + 300)
+        main_screen.mouse_press(lx + 400, ly + 300, zoom=state.zoom)
     else:
         state.last_drag_pos = x, y
 
@@ -152,7 +152,7 @@ def on_mouse_drag(x, y, dx, dy, button, mod):
         state.last_drag_pos = x, y
     else:
         lx, ly = mouse_to_logical(x, y)
-        main_screen.mouse_drag(lx + 400, ly + 300)
+        main_screen.mouse_drag(lx + 400, ly + 300, zoom=state.zoom)
     state.last_mouse_pos = x, y
 
 

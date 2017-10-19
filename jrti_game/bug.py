@@ -40,7 +40,7 @@ class Bug(Flippable):
         if random.uniform(0, 1) < dt:
             self.rotation = -self.rotation + random.uniform(-90, 90)
 
-        if self.flip_params is None:
+        if self.drag_info[0] is not self:
             s = dt * self.speed
             angle = math.radians(self.rotation)
             dx = math.cos(angle) * self.speed * dt

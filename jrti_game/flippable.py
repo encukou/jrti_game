@@ -58,6 +58,7 @@ class Flippable:
     drag_info = None, None
     flip_params = None
     flip_direction = None
+    flip_counter = 0
     light_seed = 0
 
     def __attrs_post_init__(self):
@@ -68,19 +69,39 @@ class Flippable:
         """Draw this. Needs to be reimplemented in subclasses."""
 
     def tick(self, dt):
-        """Called repeatedly."""
+        if self.flip_params and self.drag_info[0] is not self:
+            angle = dt * 360 * 2
+            print(dt)
+            x, y, rx, ry = self.flip_params
+            if abs(rx) < angle and abs(ry) < angle:
+                obj = self
+                if obj is self:
+                    while obj:
+                        obj.flip_counter -= 1
+                        obj = obj.parent
+                self.flip_params = None
+            else:
+                if rx > 0:
+                    rx -= angle
+                elif rx < 0:
+                    rx += angle
+                elif ry > 0:
+                    ry -= angle
+                elif ry < 0:
+                    ry += angle
+                self.flip_params = x, y, rx, ry
 
     def die(self):
         self.parent.children.remove(self)
         self.parent = None
 
-    def mouse_press(self, x, y):
+    def mouse_press(self, x, y, **kwargs):
         if self.drag_info[0]:
             self.mouse_release()
-        self.drag_start(x, y)
-        self.mouse_drag(x, y)
+        self.drag_start(x, y, **kwargs)
+        self.mouse_drag(x, y, **kwargs)
 
-    def mouse_drag(self, x, y):
+    def mouse_drag(self, x, y, *, zoom=1, **kwargs):
         if self.drag_info[1]:
             sx, sy = self.drag_info[1]
             dx = abs(sx - x)
@@ -90,8 +111,9 @@ class Flippable:
                     direction = sx - x, 0
                 else:
                     direction = 0, sy - y
-                if dx > self.width/10 or dy > self.height/10:
+                if dx > 4/zoom or dy > 4/zoom:
                     self.flip_direction = direction
+                    print(dx, dy, zoom)
             else:
                 direction = self.flip_direction
             if direction[0]:
@@ -139,21 +161,25 @@ class Flippable:
         else:
             return 0.1, 0.9, 1
 
-    def mouse_release(self):
+    def mouse_release(self, **kwargs):
         obj, start = self.drag_info
         if obj and obj is not self:
             obj.mouse_release()
-        self.flip_params = None
         self.flip_direction = None
         self.drag_info = None, None
 
     def hit_test(self, x, y):
         return (0 <= x < self.width) and (0 <= y < self.height)
 
-    def drag_start(self, x, y):
+    def drag_start(self, x, y, **kwargs):
         self.drag_info = self, (x, y)
         self.flip_direction = None
         self.light_seed = random.randint(0, 2**32)
+
+        obj = self
+        while obj:
+            obj.flip_counter += 1
+            obj = obj.parent
 
     @contextlib.contextmanager
     def draw_context(self, bg=True, flipping=False):
@@ -162,28 +188,12 @@ class Flippable:
             gl.glTranslatef(self.x, self.y, 0)
             gl.glScalef(self.scale, self.scale, self.scale)
 
-            if flipping and self.drag_info[0] == self:
+            if flipping and self.flip_params:
                 x, y, rx, ry = self.flip_params
                 gl.glTranslatef(x, y, 0)
                 gl.glRotatef(-ry, 1, 0, 0)
                 gl.glRotatef(rx, 0, 1, 0)
                 gl.glTranslatef(-x, -y, 0)
-
-            if 0*1:  # XXX: debug
-                try:
-                    r, g, b = self.bgcolor
-                except AttributeError:
-                    r = random.uniform(0, 1)
-                    g = random.uniform(0, 1) * (1-r)
-                    b = 1 - r - g
-                    self.bgcolor = r, g, b
-                if self.drag_info[0] == self:
-                    gl.glColor4f(r, g, b, 1)
-                elif self.drag_info[0]:
-                    gl.glColor4f(r, g, b, 1/2)
-                else:
-                    gl.glColor4f(r, g, b, 1/4)
-                draw_rect(self.width, self.height)
 
             if bg and self.bgcolor:
                 gl.glColor4f(*self.bgcolor)
@@ -196,14 +206,12 @@ class Flippable:
             gl.glPopMatrix()
 
     def draw_outer(self):
-        obj, start = self.drag_info
         with self.draw_context(bg=not self.transparent):
-            if obj is not self:
+            if not self.flip_params:
                 self.draw()
 
     def draw_flipping(self):
-        obj, start = self.drag_info
-        if obj is self:
+        if self.flip_params:
             with self.draw_context():
                 self.draw_light()
                 self.draw_instructions()
@@ -355,37 +363,40 @@ class Layer(Flippable):
         return []
 
     def tick(self, dt):
+        super().tick(dt)
         for child in self.children:
             child.tick(dt)
 
-    def drag_start(self, x, y):
+    def drag_start(self, x, y, *, zoom=1, **kwargs):
         for child in self.children:
             cx = (x - child.x) / child.scale
             cy = (y - child.y) / child.scale
             if child.hit_test(cx, cy):
-                child.mouse_press(cx, cy)
+                child.mouse_press(cx, cy, zoom=zoom*child.scale, **kwargs)
                 self.drag_info = child, (x, y)
                 return
-        self.drag_info = self, (x, y)
+        super().drag_start(x, y, zoom=zoom, **kwargs)
 
     def draw(self):
         for child in self.children:
             child.draw_outer()
 
     def draw_flipping(self):
-        obj, start = self.drag_info
-        if obj is self:
-            super().draw_flipping()
-        elif obj:
-            with self.draw_context(bg=False):
-                obj.draw_flipping()
+        if self.flip_counter:
+            if self.flip_params:
+                super().draw_flipping()
+            with self.draw_context(bg=False, flipping=self.flip_params):
+                for obj in self.children:
+                    obj.draw_flipping()
 
-    def mouse_drag(self, x, y):
+    def mouse_drag(self, x, y, *, zoom=1, **kwargs):
         obj, start = self.drag_info
         if obj is self:
-            super().mouse_drag(x, y)
+            super().mouse_drag(x, y, **kwargs)
         elif obj is not None:
-            obj.mouse_drag((x - obj.x) / obj.scale, (y - obj.y) / obj.scale)
+            obj.mouse_drag((x - obj.x) / obj.scale, (y - obj.y) / obj.scale,
+                           zoom=zoom * obj.scale,
+                           **kwargs)
 
 
 @attrs()
