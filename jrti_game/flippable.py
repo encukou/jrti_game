@@ -8,6 +8,7 @@ from attr import attrs, attrib
 
 from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
 from jrti_game.data import instruction_font_name, get_instruction_text
+from jrti_game.util import clamp
 
 
 def draw_rect(w, h):
@@ -18,14 +19,6 @@ def draw_rect(w, h):
     gl.glVertex2f(w, 0)
     gl.glVertex2f(0, 0)
     gl.glEnd()
-
-
-def clamp(value, minimum=0, maximum=1):
-    if value < minimum:
-        return minimum
-    if value > maximum:
-        return maximum
-    return value
 
 
 class reify:

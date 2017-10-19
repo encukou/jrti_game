@@ -9,6 +9,7 @@ from jrti_game.data import sprites
 import jrti_game.flippable
 from jrti_game.data import spritesheet_texture
 from jrti_game.bug import Bug
+from jrti_game.util import clamp
 
 state = types.SimpleNamespace(
     zoom=1,
@@ -149,6 +150,7 @@ def on_mouse_drag(x, y, dx, dy, button, mod):
         px, py = state.last_drag_pos
         cx, cy = state.center
         state.center = cx + (px - x) / state.zoom, cy + (py - y) / state.zoom
+        fix_box()
         state.last_drag_pos = x, y
     else:
         lx, ly = mouse_to_logical(x, y)
@@ -183,6 +185,20 @@ def zoom(amount, x, y):
     cx = lx - (lx - cx) * old / state.zoom
     cy = ly - (ly - cy) * old / state.zoom
     state.center = cx, cy
+
+    fix_box()
+
+def fix_box():
+    cx, cy = state.center
+    cx = clamp(cx, 400 - 400 * state.zoom, 400 * state.zoom - 400)
+    cy = clamp(cy, 300 - 300 * state.zoom, 300 * state.zoom - 300)
+
+    state.center = cx, cy
+
+
+#-400 +400 / state.zoom = cx
+
+#400 / state.zoom -400 = cx
 
 
 def mouse_to_logical(mx, my):
