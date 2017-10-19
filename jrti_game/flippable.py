@@ -8,30 +8,8 @@ from attr import attrs, attrib
 
 from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
 from jrti_game.data import instruction_font_name, get_instruction_text
-from jrti_game.util import clamp
+from jrti_game.util import clamp, reify, draw_rect
 from jrti_game.state import state
-
-
-def draw_rect(w, h):
-    gl.glBegin(gl.GL_TRIANGLE_FAN)
-    gl.glVertex2f(0, 0)
-    gl.glVertex2f(0, h)
-    gl.glVertex2f(w, h)
-    gl.glVertex2f(w, 0)
-    gl.glVertex2f(0, 0)
-    gl.glEnd()
-
-
-class reify:
-    def __init__(self, func):
-        self.func = func
-
-    def __get__(self, obj, cls):
-        if obj is None:
-            return self
-        value = self.func(obj)
-        setattr(obj, self.func.__name__, value)
-        return value
 
 
 @attrs(repr=False)

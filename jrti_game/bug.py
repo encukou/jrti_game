@@ -1,22 +1,25 @@
 import math
+from math import tau, pi
 import random
 
 from pyglet import gl
 
-from jrti_game.flippable import Flippable
+from jrti_game.flippable import Flippable, Layer
 from jrti_game.data import sprites
-from jrti_game import game
+from jrti_game.util import reify, draw_rect, clamp
+from jrti_game.state import state
 
 MIN_SPEED = 190
 
 class Bug(Flippable):
     transparent = True
+    homing = False
 
     def __init__(self, **kwargs):
         kwargs.setdefault('width', 15)
         kwargs.setdefault('height', 15)
         kwargs.setdefault('instructions', 'Bug')
-        self.rotation = 1
+        self.rotation = random.uniform(-180, 180)
         self.speed = MIN_SPEED
         self.moment = random.uniform(-20, 20)
         super().__init__(**kwargs)
@@ -24,18 +27,20 @@ class Bug(Flippable):
         self.y = random.uniform(0, self.parent.height - self.height * self.scale)
 
     def draw(self):
+        #if self.homing:
+        #    gl.glColor3f(1, 0, 0)
         gl.glPushMatrix()
         gl.glTranslatef(7.5, 7.5, 0)
         gl.glRotatef(self.rotation, 0, 0, 1)
         sprites['bug'].blit(-5.5, -5.5)
 
-        leg_time = game.state.time*32
+        leg_time = state.time*32
 
         legx = math.sin(leg_time) * 0.5
         legy = 0
         if self.flip_params:
             legx /= 2
-            legy = math.cos(leg_time * 4/7) * 0.25
+            legy = math.cos(leg_time * 8/7) * 0.25
         sprites['bugleg'].blit(-3.5+legx, -5.5+legy)
         gl.glScalef(1, -1, 1)
         sprites['bugleg'].blit(-3.5-legx, -5.5+legy)
@@ -43,13 +48,30 @@ class Bug(Flippable):
 
     def tick(self, dt):
         super().tick(dt)
+        angle = math.radians(self.rotation)
+
+        hx, hy = self.parent.home_coords
+        d = (self.y - hy) ** 2 + (self.x - hx) ** 2
+        if d < 16**2:
+            self.homing = False
+            self.homed()
+            if not self.parent:
+                return
+        if self.homing:
+            a = (angle - math.atan2(self.y - hy, self.x - hx) + pi) % tau - pi
+            self.moment *= 0.075 ** dt
+            self.moment += math.degrees(a) * dt * 5
+            self.rotation += math.degrees(a * dt * 3 * (math.exp(-d/1000)))
 
         if not self.flip_params:
-            if random.uniform(0, 1) < dt:
+            if random.uniform(0, 2) < dt:
                 self.rotation = -self.rotation + random.uniform(-90, 90)
+            if random.uniform(0, 0.4) < dt:
+                self.moment += random.uniform(-30, 30)
+            if random.uniform(0, 0.8) < dt:
+                self.moment += random.uniform(-90, 90)
             self.rotation += self.moment * dt
             s = dt * self.speed
-            angle = math.radians(self.rotation)
             dx = math.cos(angle) * self.speed * dt
             dy = math.sin(angle) * self.speed * dt
             nx = self.x + dx
@@ -81,3 +103,40 @@ class Bug(Flippable):
         else:
             if random.uniform(0, 1/10) < dt:
                 self.rotation += random.uniform(-5, 5)
+
+    def homed(self):
+        pass
+
+
+class RangingBug(Bug):
+    def tick(self, dt):
+        super().tick(dt)
+        if random.uniform(0, 10) < dt:
+            self.homing = True
+
+    def homed(self):
+        self.die()
+
+
+class BugArena(Layer):
+    def draw(self):
+        super().draw()
+        letter = self.o_letter
+        scale = letter.scale
+        gl.glColor3f(0, 0, 0)
+        gl.glPushMatrix()
+        gl.glTranslatef(letter.x + scale * 3, letter.y + scale * 2, 0)
+        draw_rect(scale * 1,
+                  scale * 4)
+        gl.glPopMatrix()
+
+    @property
+    def home_coords(self):
+        l = self.o_letter
+        return l.x + l.scale * 3.5, l.y + l.scale * 4
+
+    @reify
+    def o_letter(self):
+        for child in self.children:
+            if child.instructions == 'O':
+                return child

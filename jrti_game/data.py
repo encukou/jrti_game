@@ -26,7 +26,7 @@ spritesheet_data, spritesheet_palette = _load_spritesheet()
 @functools.lru_cache()
 def letter_uvwh(character):
     number = ord(character)
-    if not (ord(' ') <= number <= ord('~')):
+    if number < ord(' '):
         number = 127
     u = 8 * ((number - ord(' ')) % 32)
     v = 8 * ((number - ord(' ')) // 32)

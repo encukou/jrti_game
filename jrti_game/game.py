@@ -8,7 +8,7 @@ import jrti_game.data
 from jrti_game.data import sprites
 import jrti_game.flippable
 from jrti_game.data import spritesheet_texture
-from jrti_game.bug import Bug
+from jrti_game.bug import RangingBug, BugArena
 from jrti_game.util import clamp
 from jrti_game.state import state
 
@@ -29,7 +29,7 @@ main_screen = jrti_game.flippable.Layer(
     x=-400,
     y=-300,
 )
-title_plaque = jrti_game.flippable.Layer(
+title_plaque = BugArena(
     parent=main_screen,
     x=400 - 600//2,
     y=400 - 8*32,
@@ -45,8 +45,8 @@ all(jrti_game.flippable.letters(
 all(jrti_game.flippable.letters(
     "Instructions!", scale=8, y=8*24, x=300, center=True, parent=title_plaque))
 
-for x in range(10):
-    Bug(parent=title_plaque)
+for x in range(2):
+    RangingBug(parent=title_plaque)
 
 all(jrti_game.flippable.letters(
     "They're behind everything!", scale=2, y=8*8, x=400, center=True,
@@ -177,11 +177,6 @@ def fix_box():
     state.center = cx, cy
 
 
-#-400 +400 / state.zoom = cx
-
-#400 / state.zoom -400 = cx
-
-
 def mouse_to_logical(mx, my):
     cx, cy = state.center
     lx = (mx - 400) / state.zoom + cx
@@ -209,6 +204,7 @@ def tick(dt):
         w1 = 1 - w2
         _zoom( (x1**w1 * x2**w2) ** (1/1))
     main_screen.tick(dt)
+    print()
 
 def main():
     pyglet.app.run()
