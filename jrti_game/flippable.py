@@ -9,6 +9,7 @@ from attr import attrs, attrib
 from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
 from jrti_game.data import instruction_font_name, get_instruction_text
 from jrti_game.util import clamp
+from jrti_game.state import state
 
 
 def draw_rect(w, h):
@@ -52,6 +53,7 @@ class Flippable:
     flip_params = None
     flip_direction = None
     flip_counter = 0
+    close_speed = 0
     light_seed = 0
 
     def __attrs_post_init__(self):
@@ -63,7 +65,8 @@ class Flippable:
 
     def tick(self, dt):
         if self.flip_params and self.drag_info[0] is not self:
-            angle = dt * 360 * 2
+            self.close_speed += dt * 500000 / (self.width * self.height)**.5 / self.scale / state.zoom
+            angle = dt * self.close_speed
             print(dt)
             x, y, rx, ry = self.flip_params
             if abs(rx) < angle and abs(ry) < angle:
@@ -160,6 +163,7 @@ class Flippable:
             obj.mouse_release()
         self.flip_direction = None
         self.drag_info = None, None
+        self.close_speed = 0
 
     def hit_test(self, x, y):
         return (0 <= x < self.width) and (0 <= y < self.height)
