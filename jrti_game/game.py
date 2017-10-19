@@ -98,16 +98,6 @@ def on_draw():
     gl.glColor4f(0, 1, 1, 1/state.zoom)
     sprites['eye'].blit(-4.5, -4)
 
-    gl.glLoadIdentity()
-    gl.glTranslatef(*logical_to_mouse(0, 0), 0)
-    sprites['ex'].blit(-4.5, -4)
-    gl.glLoadIdentity()
-    gl.glTranslatef(*logical_to_mouse(400, 300), 0)
-    sprites['crosshair'].blit(-4.5, -4)
-    gl.glLoadIdentity()
-    gl.glTranslatef(*logical_to_mouse(-400, -300), 0)
-    sprites['crosshair'].blit(-4.5, -4)
-
     if os.environ.get('GAME_DEBUG'):
         fps_display.draw()
 
