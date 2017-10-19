@@ -45,8 +45,8 @@ all(jrti_game.flippable.letters(
 all(jrti_game.flippable.letters(
     "Instructions!", scale=8, y=8*24, x=300, center=True, parent=title_plaque))
 
-Bug(parent=title_plaque)
-Bug(parent=title_plaque)
+for x in range(10):
+    Bug(parent=title_plaque)
 
 all(jrti_game.flippable.letters(
     "They're behind everything!", scale=2, y=8*8, x=400, center=True,

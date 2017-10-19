@@ -29,18 +29,25 @@ class Bug(Flippable):
         gl.glRotatef(self.rotation, 0, 0, 1)
         sprites['bug'].blit(-5.5, -5.5)
 
-        leg = math.sin(game.state.time*32) * 0.5
-        sprites['bugleg'].blit(-3.5+leg, -5.5)
+        leg_time = game.state.time*32
+
+        legx = math.sin(leg_time) * 0.5
+        legy = 0
+        if self.flip_params:
+            legx /= 2
+            legy = math.cos(leg_time * 4/7) * 0.25
+        sprites['bugleg'].blit(-3.5+legx, -5.5+legy)
         gl.glScalef(1, -1, 1)
-        sprites['bugleg'].blit(-3.5-leg, -5.5)
+        sprites['bugleg'].blit(-3.5-legx, -5.5+legy)
         gl.glPopMatrix()
 
     def tick(self, dt):
-        self.rotation += self.moment * dt
-        if random.uniform(0, 1) < dt:
-            self.rotation = -self.rotation + random.uniform(-90, 90)
+        super().tick(dt)
 
-        if self.drag_info[0] is not self:
+        if not self.flip_params:
+            if random.uniform(0, 1) < dt:
+                self.rotation = -self.rotation + random.uniform(-90, 90)
+            self.rotation += self.moment * dt
             s = dt * self.speed
             angle = math.radians(self.rotation)
             dx = math.cos(angle) * self.speed * dt
@@ -71,3 +78,6 @@ class Bug(Flippable):
                     self.speed *= 1/2
                 if self.speed < MIN_SPEED:
                     self.speed = MIN_SPEED
+        else:
+            if random.uniform(0, 1/10) < dt:
+                self.rotation += random.uniform(-5, 5)

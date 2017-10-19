@@ -34,7 +34,7 @@ class reify:
         return value
 
 
-@attrs()
+@attrs(repr=False)
 class Flippable:
     transparent = False
 
@@ -52,13 +52,16 @@ class Flippable:
     drag_info = None, None
     flip_params = None
     flip_direction = None
-    flip_counter = 0
+    open_child_counter = 0
     close_speed = 0
     light_seed = 0
 
     def __attrs_post_init__(self):
         if self.parent:
             self.parent.children.append(self)
+
+    def __repr__(self):
+        return '<{}: {}>'.format(type(self).__name__, self.instructions)
 
     def draw(self):
         """Draw this. Needs to be reimplemented in subclasses."""
@@ -67,13 +70,12 @@ class Flippable:
         if self.flip_params and self.drag_info[0] is not self:
             self.close_speed += dt * 500000 / (self.width * self.height)**.5 / self.scale / state.zoom
             angle = dt * self.close_speed
-            print(dt)
             x, y, rx, ry = self.flip_params
             if abs(rx) < angle and abs(ry) < angle:
                 obj = self
                 if obj is self:
                     while obj:
-                        obj.flip_counter -= 1
+                        obj.open_child_counter -= 1
                         obj = obj.parent
                 self.flip_params = None
             else:
@@ -109,7 +111,6 @@ class Flippable:
                     direction = 0, sy - y
                 if dx > 4/zoom or dy > 4/zoom:
                     self.flip_direction = direction
-                    print(dx, dy, zoom)
             else:
                 direction = self.flip_direction
             if direction[0]:
@@ -175,7 +176,7 @@ class Flippable:
 
         obj = self
         while obj:
-            obj.flip_counter += 1
+            obj.open_child_counter += 1
             obj = obj.parent
 
     @contextlib.contextmanager
@@ -351,7 +352,7 @@ class Flippable:
         gl.glEnd()
 
 
-@attrs()
+@attrs(repr=False)
 class Layer(Flippable):
     children = attrib(convert=list)
 
@@ -379,7 +380,7 @@ class Layer(Flippable):
             child.draw_outer()
 
     def draw_flipping(self):
-        if self.flip_counter:
+        if self.open_child_counter:
             if self.flip_params:
                 super().draw_flipping()
             with self.draw_context(bg=False, flipping=self.flip_params):
@@ -396,7 +397,7 @@ class Layer(Flippable):
                            **kwargs)
 
 
-@attrs()
+@attrs(repr=False)
 class Sprite(Flippable):
     u = attrib(0)
     v = attrib(0)
