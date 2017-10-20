@@ -27,7 +27,7 @@ Don't read this file before trying to play the game :)
     Press keys on your keyboard to play.
 
     Reveal instructions and hints to figure out what keys to press.
-    Basic tools and their handling is described behind “I”.
+    Basic tools and their handling are described behind “I”.
 
     Good luck!
 
@@ -132,7 +132,7 @@ Don't read this file before trying to play the game :)
 
 # J
 
-    Press {ESCAPE} to exit the game.
+    Press {ESCAPE} or {X} to exit the game.
 
     Of course, if you do this, you aren't allowed to brag about winning.
 
@@ -193,12 +193,13 @@ Don't read this file before trying to play the game :)
 
 # R
 
-    REASSIGNING
+    REASSIGNING KEYS
 
     By pressing {R} you can reassign other keys.
 
     Press {R} followed by two other keys to swap their function.
 
+    Switching a key with itself – for example, by pressing {R}, {X}, {X} – does nothing.
 
 # S
 
@@ -228,8 +229,14 @@ Don't read this file before trying to play the game :)
 
     Up, up and away!
 
+# X
+
+
+    Press {X} or {ESCAPE} to exit the game.
+
+    Of course, if you do this, you aren't allowed to brag about winning.
+
 # XXX
-    X
     Y
     Z
 
@@ -248,5 +255,8 @@ Don't read this file before trying to play the game :)
 
 # 4
 
-    This software is available under the MIT licence, as shown in the accompanying LICENSE file.
+    This software is available under the MIT license, as shown in the accompanying LICENSE file.
     May it serve you well.
+
+    It is built upon open-source software: Python, Pyglet, PyPNG and attrs.
+    Licenses for all of them are available in the LICENSES file.

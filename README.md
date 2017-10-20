@@ -17,7 +17,7 @@ The game will *NOT* work with Python 2.
 
 ## RUNNING THE GAME
 
-The `pyz` file is self-executable. Try double-clicking it.
+The `pyz` file can be run directly with Python. Try double-clicking it.
 
 
 Othewise open a terminal / console and `cd` to the game directory and run:
@@ -26,7 +26,7 @@ Othewise open a terminal / console and `cd` to the game directory and run:
 
 
 (If running from a git clone, you'll need a virtual environment;
-install with `python -m pip install -r requirements.txt`, then run with
+install with `python3 -m pip install -r requirements.txt`, then run with
 `python3 -m jrti_game`.)
 
 
