@@ -1,3 +1,3 @@
-import jrti_game.game
+import jrti_game
 
-jrti_game.game.main()
+jrti_game.main()
