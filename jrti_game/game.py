@@ -145,7 +145,7 @@ def on_mouse_drag(x, y, dx, dy, button, mod):
         px, py = state.last_drag_pos
         cx, cy = state.center
         state.center = cx + (px - x) / state.zoom, cy + (py - y) / state.zoom
-        fix_box()
+        finish_viewport_change()
         state.last_drag_pos = x, y
     else:
         lx, ly = mouse_to_logical(x, y)
@@ -176,7 +176,11 @@ def on_key_press(sym, mod):
         pressed_keys[key] = state.time
     if key == 'G':
         if mod == pyglet.window.key.MOD_SHIFT:
-            state.tool = tool.Grabby()
+            if state.tool.name != 'grabby':
+                state.tool = tool.Grabby()
+        elif state.tool.name == 'grabby':
+            _full_zoom()
+            state.tool.grab()
     if key == 'K':
         if mod == pyglet.window.key.MOD_SHIFT:
             state.tool = tool.Key()
@@ -204,14 +208,20 @@ def _zoom(amount):
     cy = ly - (ly - cy) * old / state.zoom
     state.center = cx, cy
 
-    fix_box()
+    finish_viewport_change()
 
-def fix_box():
+def _full_zoom():
+    if state.zoom != state.target_zoom:
+        _zoom(state.target_zoom)
+
+def finish_viewport_change():
     cx, cy = state.center
     cx = clamp(cx, 400 - 400 * state.zoom, 400 * state.zoom - 400)
     cy = clamp(cy, 300 - 300 * state.zoom, 300 * state.zoom - 300)
 
     state.center = cx, cy
+
+    state.tool.deactivate()
 
 
 def mouse_to_logical(mx, my):
@@ -232,7 +242,9 @@ def logical_to_mouse(lx, ly):
 @pyglet.clock.schedule
 def tick(dt):
     state.time += dt
-    if 0.999 < state.zoom / state.target_zoom < 1.001:
+    if state.zoom == state.target_zoom:
+        pass
+    elif 0.999 < state.zoom / state.target_zoom < 1.001:
         _zoom(state.target_zoom)
     else:
         x1 = state.zoom
@@ -246,49 +258,55 @@ def tick(dt):
     if random.uniform(0, avg_seconds_to_bug) < dt:
         bug_arena.spawn_bug()
 
-    state.tool.speed = 0
+    tool_size = state.tool.size * state.tool.scale / 2
+    tool_x = state.tool_x
+    tool_y = state.tool_y
     for key, time in ((k, state.time - pressed_keys[k])
                        for k in 'OPWSAD←↑↓→'
                        if k in pressed_keys):
         dz = .1 + (time*4)**3
         dm = 2 + (time*6)**2
-        tool_size = state.tool.size * state.tool.scale / 2
         if key == 'O':
             zoom(dz * dt)
         elif key == 'P':
             zoom(-dz * dt)
         elif key == 'A':
-            state.tool_x = clamp(state.tool_x - dm, tool_size-400, 400-tool_size)
-            state.tool.speed += dm
+            tool_x = clamp(state.tool_x - dm, tool_size-400, 400-tool_size)
         elif key == 'D':
-            state.tool_x = clamp(state.tool_x + dm, tool_size-400, 400-tool_size)
-            state.tool.speed -= dm
+            tool_x = clamp(state.tool_x + dm, tool_size-400, 400-tool_size)
         elif key == 'S':
-            state.tool_y = clamp(state.tool_y - dm, tool_size-300, 300-tool_size)
-            state.tool.speed += dm
+            tool_y = clamp(state.tool_y - dm, tool_size-300, 300-tool_size)
         elif key == 'W':
-            state.tool_y = clamp(state.tool_y + dm, tool_size-300, 300-tool_size)
-            state.tool.speed -= dm
+            tool_y = clamp(state.tool_y + dm, tool_size-300, 300-tool_size)
         elif key == '←':
             cx, cy = state.center
             cx -= dm * state.zoom * dt * 2
             state.center = cx, cy
-            fix_box()
+            finish_viewport_change()
         elif key == '↑':
             cx, cy = state.center
             cy += dm * state.zoom * dt * 2
             state.center = cx, cy
-            fix_box()
+            finish_viewport_change()
         elif key == '↓':
             cx, cy = state.center
             cy -= dm * state.zoom * dt * 2
             state.center = cx, cy
-            fix_box()
+            finish_viewport_change()
         elif key == '→':
             cx, cy = state.center
             cx += dm * state.zoom * dt * 2
             state.center = cx, cy
-            fix_box()
+            finish_viewport_change()
+
+    if tool_x != state.tool_x or tool_y != state.tool_y:
+        state.tool.speed = (tool_x - state.tool_x + tool_y - state.tool_y)
+        state.tool_x = tool_x
+        state.tool_y = tool_y
+    else:
+        state.tool.speed = 0
+
+    state.tool.tick(dt)
 
 def main():
     pyglet.app.run()
