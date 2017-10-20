@@ -10,10 +10,7 @@ pyz_name = 'jrti_game.pyz'
 
 with tempfile.TemporaryDirectory() as tmp:
     subprocess.run([sys.executable, '-m', 'pip', 'install', '--target', tmp,
-                    'pyglet == 1.2.4',
-                    'pypng == 0.0.18',
-                    'attrs == 17.2.0',
-                   ],
+                    '-r', 'requirements.txt'],
                    check=True)
 
     for line in subprocess.run(['git', 'ls-tree', '--name-only', '-r', 'HEAD'],
