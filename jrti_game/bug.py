@@ -1,16 +1,18 @@
 import math
 from math import pi
-tau = pi*2
 import random
 
 from pyglet import gl
 
-from jrti_game.flippable import Flippable, Layer, Letter
+from jrti_game.flippable import Flippable, Layer
+from jrti_game.text import Letter
 from jrti_game.data import sprites
-from jrti_game.util import reify, draw_rect, clamp
+from jrti_game.util import reify, draw_rect
 from jrti_game.state import state
 
+tau = pi*2
 MIN_SPEED = 190
+
 
 class Bug(Flippable):
     transparent = True
@@ -24,13 +26,12 @@ class Bug(Flippable):
         self.speed = MIN_SPEED
         self.moment = random.uniform(-20, 20)
         super().__init__(**kwargs)
-        self.x = random.uniform(0, self.parent.width - self.width * self.scale)
-        self.y = random.uniform(0, self.parent.height - self.height * self.scale)
+        self.x = random.uniform(
+            0, self.parent.width - self.width * self.scale)
+        self.y = random.uniform(
+            0, self.parent.height - self.height * self.scale)
 
     def draw(self):
-        #gl.glColor3f(0, 1, 0)
-        #if self.homing:
-        #    gl.glColor3f(1, 0, 0)
         gl.glPushMatrix()
         gl.glTranslatef(7.5, 7.5, 0)
         gl.glRotatef(self.rotation, 0, 0, 1)
@@ -73,21 +74,23 @@ class Bug(Flippable):
                 self.moment += random.uniform(-180, 180)
             self.rotation += self.moment * dt
             s = dt * self.speed
-            dx = math.cos(angle) * self.speed * dt
-            dy = math.sin(angle) * self.speed * dt
+            dx = math.cos(angle) * s
+            dy = math.sin(angle) * s
             nx = self.x + dx
             ny = self.y + dy
             self.moment += random.uniform(-dt, dt)
-            if (0 <= nx < (self.parent.width - self.width*self.scale) and
-                    0 <= ny < (self.parent.height - self.height*self.scale)):
+
+            max_x = self.parent.width - self.width*self.scale
+            max_y = (self.parent.height - self.height*self.scale)
+
+            if 0 <= nx < max_x and 0 <= ny < max_y:
                 self.x = nx
                 self.y = ny
             else:
                 self.x -= dx
                 self.y -= dy
 
-                if not (0 <= self.x < (self.parent.width - self.width*self.scale) and
-                        0 <= self.y < (self.parent.height - self.height*self.scale)):
+                if not (0 <= self.x < max_x and 0 <= self.y < max_y):
                     self.die()
 
                 self.rotation += 180

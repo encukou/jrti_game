@@ -1,17 +1,17 @@
 import random
 import contextlib
 import math
-tau = math.pi*2
 
 from pyglet import gl
 import pyglet.text
 from attr import attrs, attrib
 
-from jrti_game.data import spritesheet_texture, letter_uvwh, text_width, kerns
+from jrti_game.data import spritesheet_texture
 from jrti_game.data import instruction_font_name, get_instruction_text
-from jrti_game.data import spritesheet_data
 from jrti_game.util import clamp, reify, draw_rect
 from jrti_game.state import state
+
+tau = math.pi*2
 
 
 @attrs(repr=False)
@@ -48,7 +48,8 @@ class Flippable:
 
     def tick(self, dt):
         if self.flip_params and self.drag_info[0] is not self:
-            self.close_speed += dt * 500000 / (self.width * self.height)**.5 / self.scale / state.zoom
+            self.close_speed += (dt * 500000 / (self.width * self.height)**.5 /
+                                 self.scale / state.zoom)
             angle = dt * self.close_speed
             x, y, rx, ry = self.flip_params
             if abs(rx) < angle and abs(ry) < angle:
@@ -96,13 +97,11 @@ class Flippable:
             if direction[0]:
                 mouse = x
                 start = sx
-                d = dx
                 dim = self.width
                 vdir = direction[0]
             else:
                 mouse = y
                 start = sy
-                d = dy
                 dim = self.height
                 vdir = direction[1]
             if vdir < 0 and mouse < start:
@@ -132,7 +131,8 @@ class Flippable:
                 self.flip_params = 0, axis, 0, -angle
 
             z = zoom
-            if abs(angle) > 5 and (z*self.width >= 800 or z*self.height >= 600):
+            if abs(angle) > 5 and (
+                    z*self.width >= 800 or z*self.height >= 600):
                 self.mouse_release()
                 return
 
@@ -390,11 +390,11 @@ class Sprite(Flippable):
     texture_height = attrib()
 
     @texture_width.default
-    def _default(self):
+    def _default_w(self):
         return self.width
 
     @texture_height.default
-    def _default(self):
+    def _default_h(self):
         return self.height
 
     def draw(self):
@@ -406,55 +406,3 @@ class Sprite(Flippable):
             self.texture = texture
 
         texture.blit(0, 0, width=self.width, height=self.height)
-
-class Letter(Sprite):
-    def __init__(self, letter, strim=0, etrim=0, **kwargs):
-        number = ord(letter)
-        u, v, width, height = letter_uvwh(letter)
-        width += 1-etrim-strim
-        kwargs.update(
-            texture_width=width,
-            texture_height=height,
-            u=u-1+strim,
-            v=v,
-        )
-        if 'width' not in kwargs:
-            kwargs['width'] = (kwargs['height'] // 9 * width) or 1
-        kwargs.setdefault('instructions', letter.upper())
-        kwargs.setdefault('margin', 1/2)
-        super().__init__(**kwargs)
-
-    def pixel(self, x, y):
-        return spritesheet_data[self.v+y][self.u+x]
-
-
-def letters(string, x=0, y=0, scale=1, center=False, parent=None):
-    if center:
-        x -= scale * (text_width(string) // 2)
-    starting_x = x
-    last_char = None
-    next_kern = 0
-    for character, next_char in zip(string, string[1:] + ' '):
-        if character == '\n':
-            y -= height
-            x = starting_x
-        else:
-            x += next_kern
-            if next_kern < 0:
-                strim = 1
-                x += scale
-            else:
-                strim = 0
-            next_kern = kerns.get((character, next_char), 0) * scale
-            if next_kern < 0:
-                etrim = 1
-            else:
-                etrim = 0
-            if character == ' ':
-                x += (4 + etrim) * scale
-            else:
-                letter = Letter(character, x=x, y=y, height=9, scale=scale,
-                                strim=strim, etrim=etrim, parent=parent)
-                x += (letter.width + etrim) * scale - scale
-                yield letter
-        last_char = character

@@ -8,7 +8,7 @@ import random
 import jrti_game.data
 from jrti_game.data import sprites
 import jrti_game.flippable
-from jrti_game.data import spritesheet_texture
+import jrti_game.text
 from jrti_game.bug import BugArena
 from jrti_game.util import clamp
 from jrti_game.state import state
@@ -41,21 +41,21 @@ bug_arena = BugArena(
     margin=4,
 )
 
-all(jrti_game.flippable.letters(
+all(jrti_game.text.letters(
     "Just Read the", scale=4, y=8*36, x=300, center=True, parent=bug_arena))
-all(jrti_game.flippable.letters(
+all(jrti_game.text.letters(
     "Instructions!", scale=8, y=8*24, x=300, center=True, parent=bug_arena))
 
 for x in range(2):
     bug_arena.spawn_bug()
 
-all(jrti_game.flippable.letters(
+all(jrti_game.text.letters(
     "They're behind everything!", scale=2, y=8*8, x=400, center=True,
     parent=main_screen))
-all(jrti_game.flippable.letters(
+all(jrti_game.text.letters(
     "PyWeek 24 entry", scale=1, y=8*3, x=400, center=True,
     parent=main_screen))
-all(jrti_game.flippable.letters(
+all(jrti_game.text.letters(
     "https://pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True,
     parent=main_screen))
 
@@ -71,6 +71,7 @@ pressed_keys = {}
 
 state.tool = tool.Tool()
 
+
 @window.event
 def on_draw():
     window.clear()
@@ -83,7 +84,6 @@ def on_draw():
     gl.glScalef(2/window.width, 2/window.height, 1/2048)
     gl.glMatrixMode(gl.GL_MODELVIEW)
 
-
     gl.glLoadIdentity()
 
     gl.glScalef(state.zoom, state.zoom, state.zoom)
@@ -94,8 +94,10 @@ def on_draw():
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
     gl.glEnable(gl.GL_TEXTURE_2D)
     gl.glBindTexture(gl.GL_TEXTURE_2D, jrti_game.data.spritesheet_texture.id)
-    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
-    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER,
+                       gl.GL_NEAREST)
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER,
+                       gl.GL_LINEAR)
 
     gl.glFrontFace(gl.GL_CCW)
     gl.glCullFace(gl.GL_BACK)
@@ -105,13 +107,46 @@ def on_draw():
     main_screen.draw_flipping()
 
     gl.glLoadIdentity()
-    gl.glPushMatrix()
     gl.glTranslatef(state.tool_x, state.tool_y, 0)
     gl.glScalef(state.tool.scale, state.tool.scale, 1)
     state.tool.draw()
-    gl.glPopMatrix()
+
+    if state.reassign_state:
+        time0, sym1, time1, sym2, time2 = state.reassign_state
+        t0 = clamp((state.time - (time0 or state.time)) * 5, 0, 1)
+        t1 = clamp((state.time - (time1 or state.time)) * 5, 0, 1)
+        t2 = clamp((state.time - (time2 or state.time)) * 5, 0, 1)
+        t3 = clamp((state.time - (time2 or state.time)-3/10) * 5, 0, 1)
+        t4 = clamp((state.time - (time2 or state.time)-4/10) * 5, 0, 1)
+        gl.glLoadIdentity()
+        gl.glTranslatef(0, 8, 0)
+        gl.glColor3f(0.9, 0.6, 0.5)
+        size = (t0-t4) * 8
+        gl.glScalef(size, size, 0)
+        gl.glRotatef(t3*180, 0, 0, 1)
+        sep = t1*8
+        sprites['square'].blit(-sep, -10.5, width=sep*2, height=21)
+        sprites['circ3'].blit(-11.5-sep, -11.5)
+        sprites['circ3'].blit(-11.5+sep, -11.5)
+
+        gl.glColor3f(0, 0, 0)
+        if sym1:
+            gl.glPushMatrix()
+            gl.glTranslatef(-sep, 0, 0)
+            gl.glScalef(t1, t1, 0)
+            gl.glRotatef(-t3*180, 0, 0, 1)
+            jrti_game.text.draw_key(sym1)
+            gl.glPopMatrix()
+        if sym2:
+            gl.glPushMatrix()
+            gl.glTranslatef(sep, 0, 0)
+            gl.glScalef(t2, t2, 0)
+            gl.glRotatef(-t3*180, 0, 0, 1)
+            jrti_game.text.draw_key(sym2)
+            gl.glPopMatrix()
 
     if os.environ.get('GAME_DEBUG'):
+        gl.glLoadIdentity()
         fps_display.draw()
 
 
@@ -168,13 +203,29 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
 
 @window.event
 def on_key_press(sym, mod):
+    if sym == pyglet.window.key.C and mod & pyglet.window.key.MOD_CTRL:
+        raise KeyboardInterrupt()
+
+    if state.reassign_state:
+        time0, sym1, time1, sym2, time2 = state.reassign_state
+        if sym1 is None:
+            state.reassign_state = time0, sym, state.time, None, None
+        elif sym2 is None:
+            state.reassign_state = time0, sym1, time1, sym, state.time
+        else:
+            return pyglet.event.EVENT_HANDLED
+
     try:
         key = state.keymap[sym]
     except KeyError:
-        return
+        return pyglet.event.EVENT_HANDLED
+
     if mod == 0:
         pressed_keys[key] = state.time
-    if key == 'G':
+
+    if key == '×':
+        exit()
+    elif key == 'G':
         if mod == pyglet.window.key.MOD_SHIFT:
             if state.tool.name != 'grabby':
                 state.tool = tool.Grabby()
@@ -184,6 +235,12 @@ def on_key_press(sym, mod):
     if key == 'K':
         if mod == pyglet.window.key.MOD_SHIFT:
             state.tool = tool.Key()
+    if key == 'R':
+        if state.reassign_state is None:
+            state.reassign_state = state.time, None, None, None, None
+
+    return pyglet.event.EVENT_HANDLED
+
 
 @window.event
 def on_key_release(sym, mod):
@@ -196,6 +253,7 @@ def on_key_release(sym, mod):
 
 def zoom(amount, x=None, y=None):
     state.target_zoom = clamp(state.target_zoom * 1.1 ** amount, 1, 800)
+
 
 def _zoom(amount):
     cx, cy = state.center
@@ -210,9 +268,11 @@ def _zoom(amount):
 
     finish_viewport_change()
 
+
 def _full_zoom():
     if state.zoom != state.target_zoom:
         _zoom(state.target_zoom)
+
 
 def finish_viewport_change():
     cx, cy = state.center
@@ -251,7 +311,7 @@ def tick(dt):
         x2 = state.target_zoom
         w2 = 1 - math.exp(-dt) ** (10)
         w1 = 1 - w2
-        _zoom( (x1**w1 * x2**w2) ** (1/1))
+        _zoom((x1**w1 * x2**w2) ** (1/1))
     main_screen.tick(dt)
 
     avg_seconds_to_bug = clamp((bug_arena.num_bugs-1/2)*4, 1, 100)
@@ -262,8 +322,8 @@ def tick(dt):
     tool_x = state.tool_x
     tool_y = state.tool_y
     for key, time in ((k, state.time - pressed_keys[k])
-                       for k in 'OPWSAD←↑↓→'
-                       if k in pressed_keys):
+                      for k in 'OPWSAD←↑↓→'
+                      if k in pressed_keys):
         dz = .1 + (time*4)**3
         dm = 2 + (time*6)**2
         if key == 'O':
@@ -306,7 +366,13 @@ def tick(dt):
     else:
         state.tool.speed = 0
 
+    if state.reassign_state:
+        time0, sym1, time1, sym2, time2 = state.reassign_state
+        if time2 and time2 < state.time - 6/10:
+            state.reassign_state = None
+
     state.tool.tick(dt)
+
 
 def main():
     pyglet.app.run()

@@ -6,6 +6,7 @@ from jrti_game.data import sprites
 from jrti_game.state import state
 from jrti_game.util import clamp, interp
 
+
 class Tool:
     size = 0
     scale = 0

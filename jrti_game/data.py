@@ -1,8 +1,6 @@
-import functools
 import textwrap
 import pkgutil
 from pathlib import Path
-import io
 import tempfile
 
 import pyglet.image
@@ -13,8 +11,10 @@ import jrti_game
 
 data_path = Path(jrti_game.__file__).parent / 'data'
 
+
 def get_data(name):
     return pkgutil.get_data('jrti_game', str(Path('data') / name))
+
 
 with tempfile.TemporaryDirectory() as tmp:
     tmp_path = Path(tmp)
@@ -43,33 +43,6 @@ with tempfile.TemporaryDirectory() as tmp:
     instruction_font_name = "Itim"
 
 
-@functools.lru_cache()
-def letter_uvwh(character):
-    number = ord(character)
-    if number < ord(' '):
-        number = 127
-    u = 8 * ((number - ord(' ')) % 32)
-    v = 8 * ((number - ord(' ')) // 32)
-    for width in range(8, 0, -1):
-        if any(spritesheet_data[v+7-i][u+width-1]
-               for i in range(8)):
-            break
-    return u, v, width+1, 9
-
-
-def text_width(string):
-    width = 0
-    last_char = None
-    for character in string:
-        u, v, w, h = letter_uvwh(character)
-        width += w + kerns.get((last_char, character), 0)
-    return width
-
-kerns = {
-    ('s', 't'): -1,
-    ('/', '/'): -1,
-}
-
 def load_instructions():
     instruction_texts = {}
 
@@ -91,12 +64,16 @@ def load_instructions():
 
     return instruction_texts
 
+
 instruction_texts = load_instructions()
+
 
 def get_instruction_text(key):
     return instruction_texts.get(key, instruction_texts['None'])
 
+
 sprites = {
+    'square': spritesheet_texture.get_region(0, 0, 1, 1),
     'eye': spritesheet_texture.get_region(0, 3*8, 9, 8),
     'crosshair': spritesheet_texture.get_region(10, 3*8, 8, 8),
     'ex': spritesheet_texture.get_region(18, 3*8, 8, 8),
@@ -107,5 +84,5 @@ sprites = {
     'grabtooth': spritesheet_texture.get_region(56, 3*8, 7, 11),
     'key': spritesheet_texture.get_region(63, 3*8, 18, 10),
     'keyhole': spritesheet_texture.get_region(80, 3*8+1, 16, 32),
+    'circ3': spritesheet_texture.get_region(96, 3*8+1, 23, 23),
 }
-

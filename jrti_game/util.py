@@ -1,5 +1,6 @@
 from pyglet import gl
 
+
 def clamp(value, minimum=0, maximum=1):
     if value < minimum:
         return minimum
@@ -28,6 +29,7 @@ def draw_rect(w, h):
     gl.glVertex2f(w, 0)
     gl.glVertex2f(0, 0)
     gl.glEnd()
+
 
 def interp(a, b, t):
     t = clamp(t, 0, 1)
