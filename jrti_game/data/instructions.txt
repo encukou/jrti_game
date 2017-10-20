@@ -167,9 +167,7 @@ Don't read this file before trying to play the game :)
     There are several ways to zoom out:
 
     You can scroll down with the mouse wheel.
-
     If you don't have a mouse wheel, hold Shift and drag down.
-
     Alternately, you can press {O} on your keyboard.
 
     When zoomed out, you can look behind larger things.
@@ -181,9 +179,7 @@ Don't read this file before trying to play the game :)
     There are several ways to zoom in:
 
     You can scroll up with the mouse wheel.
-
     If you don't have a mouse wheel, hold Shift and drag up.
-
     Alternately, you can press {P} on your keyboard.
 
     Once zoomed in, navigate the scene by right-dragging; look behind an E for details.

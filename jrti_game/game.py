@@ -333,9 +333,9 @@ def tick(dt):
         dz = .2 + (time*4)**3
         dm = 2 + (time*6)**2
         if key == 'Zoom Out':
-            zoom(dz * dt)
-        elif key == 'Zoom In':
             zoom(-dz * dt)
+        elif key == 'Zoom In':
+            zoom(dz * dt)
         elif key == 'Tool Left':
             tool_x = clamp(state.tool_x - dm, tool_size-400, 400-tool_size)
         elif key == 'Tool Right':
