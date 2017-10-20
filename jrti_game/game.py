@@ -248,7 +248,7 @@ def tick(dt):
 
     state.tool.speed = 0
     for key, time in ((k, state.time - pressed_keys[k])
-                       for k in 'OPWSAD'
+                       for k in 'OPWSAD←↑↓→'
                        if k in pressed_keys):
         dz = .1 + (time*4)**3
         dm = 2 + (time*6)**2
@@ -269,6 +269,26 @@ def tick(dt):
         elif key == 'W':
             state.tool_y = clamp(state.tool_y + dm, tool_size-300, 300-tool_size)
             state.tool.speed -= dm
+        elif key == '←':
+            cx, cy = state.center
+            cx -= dm * state.zoom * dt * 2
+            state.center = cx, cy
+            fix_box()
+        elif key == '↑':
+            cx, cy = state.center
+            cy += dm * state.zoom * dt * 2
+            state.center = cx, cy
+            fix_box()
+        elif key == '↓':
+            cx, cy = state.center
+            cy -= dm * state.zoom * dt * 2
+            state.center = cx, cy
+            fix_box()
+        elif key == '→':
+            cx, cy = state.center
+            cx += dm * state.zoom * dt * 2
+            state.center = cx, cy
+            fix_box()
 
 def main():
     pyglet.app.run()

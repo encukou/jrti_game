@@ -15,7 +15,13 @@ state = types.SimpleNamespace(
     tool_x=0,
     tool_y=0,
     keymap={
-        getattr(pyglet.window.key, k): k
-        for k in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        pyglet.window.key.LEFT: '←',
+        pyglet.window.key.UP: '↑',
+        pyglet.window.key.DOWN: '↓',
+        pyglet.window.key.RIGHT: '→',
+        **{
+            getattr(pyglet.window.key, k): k
+            for k in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        }
     },
 )

@@ -95,6 +95,16 @@ Don't read this file before trying to play the game :)
 
     This only moves the tool to the right. Figuring out the right tool to use, and the right way to use it, is up to you.
 
+# E
+
+    PANNING
+
+    To navigate the scene, drag with the right (or middle) mouse button.
+
+    Alternately, use the arrow keys: {←}, {↑}, {↓}, {↑}.
+
+    Panning is only possible when zoomed in. Look behind a P to see how to do this.
+
 # XXX
     E
     F
@@ -119,7 +129,7 @@ Don't read this file before trying to play the game :)
 
     Tools can be used to interact with the game. They are controlled by the “WASD” keys.
 
-    Instructions for specific tools can be found under G or K.
+    Instructions for specific tools can be found under a G or a K.
 
 # XXX
     J
@@ -152,7 +162,7 @@ Don't read this file before trying to play the game :)
 
     ZOOMING OUT
 
-    There are several way to zoom out:
+    There are several ways to zoom out:
 
     You can scroll down with the mouse wheel.
 
@@ -160,17 +170,21 @@ Don't read this file before trying to play the game :)
 
     Alternately, you can press the {O} key.
 
+    When zoomed out, you can look behind larger things.
+
 # P
 
     ZOOMING IN
 
-    There are several way to zoom in:
+    There are several ways to zoom in:
 
     You can scroll up with the mouse wheel.
 
     If you don't have a mouse wheel, hold Shift and drag up.
 
     Alternately, you can press the {P} key.
+
+    Once zoomed in, navigate the scene by right-dragging; look behind an E for details.
 
 # XXX
     Q
@@ -228,3 +242,12 @@ Don't read this file before trying to play the game :)
         {state.code[2]}
         {state.code[3]}
 
+# 2
+
+    Set the environment variable GAME_DEBUG to enable debugging mode.
+    No cheat codes are documented in these instructions.
+
+# 4
+
+    This software is available under the MIT licence, as shown in the accompanying LICENSE file.
+    May it serve you well.
