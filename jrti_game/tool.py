@@ -13,6 +13,7 @@ class Tool:
     scale = 0
     speed = 0
     name = 'none'
+    grabbing = None
 
     def draw(self):
         pass
@@ -31,7 +32,6 @@ class Grabby(Tool):
     grab_time = 0
     name = 'grabby'
     grab_duration = 1/8
-    grabbing = False
 
     def draw(self):
         gt = clamp((state.time - self.grab_time) / self.grab_duration, 0, 1)
@@ -81,7 +81,7 @@ class Grabby(Tool):
                 x, y = tool_to_main_screen(state.tool_x, state.tool_y)
                 for obj, x, y in state.main_screen.hit_test_all(x, y):
                     if obj.hit_test_grab(x, y):
-                        self.grabbing = True
+                        self.grabbing = obj
                         break
                 else:
                     self.deactivate()

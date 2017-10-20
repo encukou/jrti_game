@@ -107,6 +107,8 @@ def on_draw():
     gl.glDisable(gl.GL_CULL_FACE)
 
     main_screen.draw_outer()
+    if state.tool.grabbing:
+        state.tool.grabbing.draw_grab()
     main_screen.draw_flipping()
 
     gl.glLoadIdentity()

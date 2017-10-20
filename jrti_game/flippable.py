@@ -162,6 +162,17 @@ class Flippable:
         if self.hit_test(x, y):
             yield self, x, y
 
+    def draw_grab(self):
+        parents = []
+        obj = self
+        while obj:
+            parents.append(obj)
+            obj = obj.parent
+        with contextlib.ExitStack() as stack:
+            for obj in reversed(parents):
+                stack.enter_context(obj.draw_context(bg=False))
+            self.draw_outline((0.1, 0.9, 0.4), 0.7)
+
     def drag_start(self, x, y, **kwargs):
         self.drag_info = self, (x, y)
         self.flip_direction = None
@@ -336,13 +347,15 @@ class Flippable:
                 (w+pw, -ph),
             ]
 
-    def draw_outline(self):
-        if self.flip_direction is None:
+    def draw_outline(self, color=None, alpha=1/2):
+        if self.flip_params is None:
+            dx = dy = 0
+        elif self.flip_direction is None:
             dummy, rummy, dx, dy = self.flip_params
         else:
             dx, dy = self.flip_direction
         points = self.get_light_points(dx, dy, 0, 0)
-        gl.glColor4f(*self.instructions_color, 1/2)
+        gl.glColor4f(*(color or self.instructions_color), alpha)
         gl.glBegin(gl.GL_LINE_STRIP)
         for point in points:
             gl.glVertex2f(*point)
