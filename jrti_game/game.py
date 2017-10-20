@@ -112,17 +112,19 @@ def on_draw():
     state.tool.draw()
 
     if state.reassign_state:
+        gl.glLoadIdentity()
         time0, sym1, time1, sym2, time2 = state.reassign_state
         t0 = clamp((state.time - (time0 or state.time)) * 5, 0, 1)
         t1 = clamp((state.time - (time1 or state.time)) * 5, 0, 1)
         t2 = clamp((state.time - (time2 or state.time)) * 5, 0, 1)
-        t3 = clamp((state.time - (time2 or state.time)-3/10) * 5, 0, 1)
-        t4 = clamp((state.time - (time2 or state.time)-4/10) * 5, 0, 1)
+        t3 = clamp((state.time - (time2 or state.time)-4/10) * 5, 0, 1)
+        t4 = clamp((state.time - (time2 or state.time)-7/10) * 5, 0, 1)
         gl.glLoadIdentity()
         gl.glTranslatef(0, 8, 0)
-        gl.glColor3f(0.9, 0.6, 0.5)
+        gl.glColor3f(0.6, 0.5, 0.4)
         size = (t0-t4) * 8
         gl.glScalef(size, size, 0)
+        gl.glPushMatrix()
         gl.glRotatef(t3*180, 0, 0, 1)
         sep = t1*8
         sprites['square'].blit(-sep, -10.5, width=sep*2, height=21)
@@ -132,18 +134,26 @@ def on_draw():
         gl.glColor3f(0, 0, 0)
         if sym1:
             gl.glPushMatrix()
-            gl.glTranslatef(-sep, 0, 0)
+            gl.glTranslatef(-8, 0, 0)
             gl.glScalef(t1, t1, 0)
             gl.glRotatef(-t3*180, 0, 0, 1)
             jrti_game.text.draw_key(sym1)
             gl.glPopMatrix()
         if sym2:
             gl.glPushMatrix()
-            gl.glTranslatef(sep, 0, 0)
+            gl.glTranslatef(8, 0, 0)
             gl.glScalef(t2, t2, 0)
             gl.glRotatef(-t3*180, 0, 0, 1)
             jrti_game.text.draw_key(sym2)
             gl.glPopMatrix()
+        gl.glPopMatrix()
+        gl.glScalef(1/8, 1/8, 0)
+        if sym1:
+            jrti_game.text.draw_string(state.keymap.get(sym1, ''),
+                                       center=True, x=-8*8, y=-8*5)
+        if sym2:
+            jrti_game.text.draw_string(state.keymap.get(sym2, ''),
+                                       center=True, x=8*8, y=-8*5)
 
     if os.environ.get('GAME_DEBUG'):
         gl.glLoadIdentity()
@@ -212,8 +222,7 @@ def on_key_press(sym, mod):
             state.reassign_state = time0, sym, state.time, None, None
         elif sym2 is None:
             state.reassign_state = time0, sym1, time1, sym, state.time
-        else:
-            return pyglet.event.EVENT_HANDLED
+        return pyglet.event.EVENT_HANDLED
 
     try:
         key = state.keymap[sym]
@@ -223,19 +232,19 @@ def on_key_press(sym, mod):
     if mod == 0:
         pressed_keys[key] = state.time
 
-    if key == '×':
+    if key == 'Exit':
         exit()
-    elif key == 'G':
+    elif key == 'Grabby':
         if mod == pyglet.window.key.MOD_SHIFT:
             if state.tool.name != 'grabby':
                 state.tool = tool.Grabby()
         elif state.tool.name == 'grabby':
             _full_zoom()
             state.tool.grab()
-    if key == 'K':
+    if key == 'Key':
         if mod == pyglet.window.key.MOD_SHIFT:
             state.tool = tool.Key()
-    if key == 'R':
+    if key == 'Reassign':
         if state.reassign_state is None:
             state.reassign_state = state.time, None, None, None, None
 
@@ -322,40 +331,39 @@ def tick(dt):
     tool_x = state.tool_x
     tool_y = state.tool_y
     for key, time in ((k, state.time - pressed_keys[k])
-                      for k in 'OPWSAD←↑↓→'
-                      if k in pressed_keys):
-        dz = .1 + (time*4)**3
+                      for k in pressed_keys):
+        dz = .2 + (time*4)**3
         dm = 2 + (time*6)**2
-        if key == 'O':
+        if key == 'Zoom Out':
             zoom(dz * dt)
-        elif key == 'P':
+        elif key == 'Zoom In':
             zoom(-dz * dt)
-        elif key == 'A':
+        elif key == 'Tool Left':
             tool_x = clamp(state.tool_x - dm, tool_size-400, 400-tool_size)
-        elif key == 'D':
+        elif key == 'Tool Right':
             tool_x = clamp(state.tool_x + dm, tool_size-400, 400-tool_size)
-        elif key == 'S':
+        elif key == 'Tool Down':
             tool_y = clamp(state.tool_y - dm, tool_size-300, 300-tool_size)
-        elif key == 'W':
+        elif key == 'Tool Up':
             tool_y = clamp(state.tool_y + dm, tool_size-300, 300-tool_size)
-        elif key == '←':
+        elif key == 'View Left':
             cx, cy = state.center
-            cx -= dm * state.zoom * dt * 2
+            cx -= dm / state.zoom * dt * 5
             state.center = cx, cy
             finish_viewport_change()
-        elif key == '↑':
+        elif key == 'View Up':
             cx, cy = state.center
-            cy += dm * state.zoom * dt * 2
+            cy += dm / state.zoom * dt * 5
             state.center = cx, cy
             finish_viewport_change()
-        elif key == '↓':
+        elif key == 'View Down':
             cx, cy = state.center
-            cy -= dm * state.zoom * dt * 2
+            cy -= dm / state.zoom * dt * 5
             state.center = cx, cy
             finish_viewport_change()
-        elif key == '→':
+        elif key == 'View Right':
             cx, cy = state.center
-            cx += dm * state.zoom * dt * 2
+            cx += dm / state.zoom * dt * 5
             state.center = cx, cy
             finish_viewport_change()
 
@@ -368,7 +376,9 @@ def tick(dt):
 
     if state.reassign_state:
         time0, sym1, time1, sym2, time2 = state.reassign_state
-        if time2 and time2 < state.time - 6/10:
+        if time2 and time2 < state.time - 9/10:
+            state.keymap[sym1], state.keymap[sym2] = (
+                state.keymap.get(sym2, ''), state.keymap.get(sym1, ''))
             state.reassign_state = None
 
     state.tool.tick(dt)

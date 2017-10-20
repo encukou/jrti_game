@@ -85,18 +85,16 @@ def draw_string(string, center=False, hcenter=False, x=0, y=0):
 
 
 def draw_key(key, x=0, y=0):
-    print(key)
     if key in key_symbols:
         txt = key_symbols[key]
         draw_string(txt, center=True, hcenter=True, x=x, y=y)
-        print(txt)
     else:
         gl.glPushMatrix()
-        gl.glScalef(1/2, 1/2, 1)
+        gl.glScalef(1/4, 1/4, 1)
         txt = '{0:016x}'.format(key).replace('0', '⌀')
         draw_string(txt[-16:-12], center=True, hcenter=True, x=x, y=y+12)
         draw_string(txt[-12:-8], center=True, hcenter=True, x=x, y=y+4)
-        draw_string(txt[-8:-4], center=True, hcenter=True, x=x, y=y+-4)
+        draw_string(txt[-8:-4], center=True, hcenter=True, x=x, y=y-4)
         draw_string(txt[-4:], center=True, hcenter=True, x=x, y=y+-12)
         gl.glPopMatrix()
 

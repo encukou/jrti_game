@@ -9,7 +9,7 @@ state = types.SimpleNamespace(
     alt_zoom_start=None,
     last_drag_pos=None,
     center=[0, 0],
-    last_mouse_pos=(0, 0),
+    last_mouse_pos=(400, 300),
     time=0,
     tool=None,
     tool_x=0,
@@ -17,18 +17,20 @@ state = types.SimpleNamespace(
     reassign_state=None,
     reassign_anim_start=0,
     keymap={
-        pyglet.window.key.LEFT: '←',
-        pyglet.window.key.UP: '↑',
-        pyglet.window.key.DOWN: '↓',
-        pyglet.window.key.RIGHT: '→',
-        pyglet.window.key.ESCAPE: '×',
-        **{
-            getattr(pyglet.window.key, k): k
-            for k in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        },
-        **{
-            getattr(pyglet.window.key, '_' + k): k
-            for k in '0123456789'
-        },
+        pyglet.window.key.LEFT: 'View Left',
+        pyglet.window.key.UP: 'View Up',
+        pyglet.window.key.DOWN: 'View Down',
+        pyglet.window.key.RIGHT: 'View Right',
+        pyglet.window.key.ESCAPE: 'Exit',
+        pyglet.window.key.X: 'Exit',
+        pyglet.window.key.R: 'Reassign',
+        pyglet.window.key.G: 'Grabby',
+        pyglet.window.key.K: 'Key',
+        pyglet.window.key.O: 'Zoom Out',
+        pyglet.window.key.P: 'Zoom In',
+        pyglet.window.key.W: 'Tool Up',
+        pyglet.window.key.A: 'Tool Left',
+        pyglet.window.key.S: 'Tool Down',
+        pyglet.window.key.D: 'Tool Right',
     },
 )
