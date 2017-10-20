@@ -86,7 +86,7 @@ def draw_string(string, center=False, hcenter=False, x=0, y=0):
 
 def draw_key(key, x=0, y=0):
     if key in key_symbols:
-        txt = key_symbols[key]
+        txt = key_symbols[key][0]
         draw_string(txt, center=True, hcenter=True, x=x, y=y)
     else:
         gl.glPushMatrix()

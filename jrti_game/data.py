@@ -7,10 +7,6 @@ import pyglet.image
 import pyglet.font
 import png
 
-import jrti_game
-
-data_path = Path(jrti_game.__file__).parent / 'data'
-
 
 def get_data(name):
     return pkgutil.get_data('jrti_game', str(Path('data') / name))
@@ -65,13 +61,6 @@ def load_instructions():
     return instruction_texts
 
 
-instruction_texts = load_instructions()
-
-
-def get_instruction_text(key):
-    return instruction_texts.get(key, instruction_texts['None'])
-
-
 sprites = {
     'square': spritesheet_texture.get_region(0, 0, 1, 1),
     'eye': spritesheet_texture.get_region(0, 3*8, 9, 8),
@@ -85,4 +74,22 @@ sprites = {
     'key': spritesheet_texture.get_region(63, 3*8, 18, 10),
     'keyhole': spritesheet_texture.get_region(80, 3*8+1, 16, 32),
     'circ3': spritesheet_texture.get_region(96, 3*8+1, 23, 23),
+}
+
+default_keymap = {
+    'LEFT': 'View Left',
+    'UP': 'View Up',
+    'DOWN': 'View Down',
+    'RIGHT': 'View Right',
+    'ESCAPE': 'Exit',
+    'X': 'Exit',
+    'R': 'Reassign',
+    'G': 'Grabby',
+    'K': 'Key',
+    'O': 'Zoom Out',
+    'P': 'Zoom In',
+    'W': 'Tool Up',
+    'A': 'Tool Left',
+    'S': 'Tool Down',
+    'D': 'Tool Right',
 }

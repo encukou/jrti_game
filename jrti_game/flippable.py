@@ -7,7 +7,8 @@ import pyglet.text
 from attr import attrs, attrib
 
 from jrti_game.data import spritesheet_texture
-from jrti_game.data import instruction_font_name, get_instruction_text
+from jrti_game.data import instruction_font_name
+from jrti_game.instructions import get_instruction_text
 from jrti_game.util import clamp, reify, draw_rect
 from jrti_game.state import state
 
@@ -254,6 +255,12 @@ class Flippable:
         layout._jrti_scale = scale
         return layout
 
+    def update_instructions(self):
+        try:
+            del self.instruction_label
+        except AttributeError:
+            pass
+
     def draw_light(self):
         if self.flip_params:
             x, y, rx, ry = self.flip_params
@@ -351,7 +358,7 @@ class Layer(Flippable):
             child.tick(dt)
 
     def drag_start(self, x, y, *, zoom=1, **kwargs):
-        for child in self.children:
+        for child in reversed(self.children):
             cx = (x - child.x) / child.scale
             cy = (y - child.y) / child.scale
             if child.hit_test(cx, cy):
@@ -380,6 +387,11 @@ class Layer(Flippable):
             obj.mouse_drag((x - obj.x) / obj.scale, (y - obj.y) / obj.scale,
                            zoom=zoom * obj.scale,
                            **kwargs)
+
+    def update_instructions(self):
+        super().update_instructions()
+        for child in self.children:
+            child.update_instructions()
 
 
 @attrs(repr=False)

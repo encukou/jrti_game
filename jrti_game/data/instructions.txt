@@ -27,7 +27,7 @@ Don't read this file before trying to play the game :)
     Press keys on your keyboard to play.
 
     Reveal instructions and hints to figure out what keys to press.
-    If this is your first time here, try what's under “I”.
+    Basic tools and their handling is described behind “I”.
 
     Good luck!
 
@@ -101,12 +101,11 @@ Don't read this file before trying to play the game :)
 
     To navigate the scene, drag with the right (or middle) mouse button.
 
-    Alternately, use the arrow keys: {←}, {↑}, {↓}, {↑}.
+    Alternately, use the arrow keys: {LEFT}, {UP}, {DOWN}, {RIGHT}.
 
-    Panning is only possible when zoomed in. Look behind a P to see how to do this.
+    Panning is only possible when zoomed in. Look behind a P for instructions on zooming in.
 
 # XXX
-    E
     F
 
 # G
@@ -127,12 +126,15 @@ Don't read this file before trying to play the game :)
 
     TOOLS
 
-    Tools can be used to interact with the game. They are controlled by the “WASD” keys.
+    Tools can be used to interact with the game. They are controlled by {W}, {A}, {S}, and {D}.
 
-    Instructions for specific tools can be found under a G or a K.
+    Instructions for specific tools can be found behind a G or a K.
 
-# XXX
-    J
+# J
+
+    Press {ESCAPE} to exit the game.
+
+    Of course, if you do this, you aren't allowed to brag about winning.
 
 # K
 
@@ -168,7 +170,7 @@ Don't read this file before trying to play the game :)
 
     If you don't have a mouse wheel, hold Shift and drag down.
 
-    Alternately, you can press the {O} key.
+    Alternately, you can press {O} on your keyboard.
 
     When zoomed out, you can look behind larger things.
 
@@ -182,7 +184,7 @@ Don't read this file before trying to play the game :)
 
     If you don't have a mouse wheel, hold Shift and drag up.
 
-    Alternately, you can press the {P} key.
+    Alternately, you can press {P} on your keyboard.
 
     Once zoomed in, navigate the scene by right-dragging; look behind an E for details.
 
@@ -191,9 +193,9 @@ Don't read this file before trying to play the game :)
 
 # R
 
-    [XXX] REASSIGNING
+    REASSIGNING
 
-    The {R} key reassigns other keys.
+    By pressing {R} you can reassign other keys.
 
     Press {R} followed by two other keys to swap their function.
 
@@ -237,10 +239,7 @@ Don't read this file before trying to play the game :)
 
     The key parameters for the main wall lock have been chosen as:
 
-        {state.code[0]}
-        {state.code[1]}
-        {state.code[2]}
-        {state.code[3]}
+        {state.code[0]} – {state.code[1]} – {state.code[2]} — {state.code[3]}
 
 # 2
 

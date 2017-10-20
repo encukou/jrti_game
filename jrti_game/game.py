@@ -174,8 +174,9 @@ def on_mouse_press(x, y, button, mod):
     if mod & pyglet.window.key.MOD_CTRL:
         button = pyglet.window.mouse.RIGHT
     if button == pyglet.window.mouse.LEFT:
-        lx, ly = mouse_to_logical(x, y)
-        main_screen.mouse_press(lx + 400, ly + 300, zoom=state.zoom)
+        if not state.reassign_state:
+            lx, ly = mouse_to_logical(x, y)
+            main_screen.mouse_press(lx + 400, ly + 300, zoom=state.zoom)
     else:
         state.last_drag_pos = x, y
 
@@ -217,6 +218,7 @@ def on_key_press(sym, mod):
         raise KeyboardInterrupt()
 
     if state.reassign_state:
+        main_screen.mouse_release()
         time0, sym1, time1, sym2, time2 = state.reassign_state
         if sym1 is None:
             state.reassign_state = time0, sym, state.time, None, None
@@ -348,22 +350,22 @@ def tick(dt):
             tool_y = clamp(state.tool_y + dm, tool_size-300, 300-tool_size)
         elif key == 'View Left':
             cx, cy = state.center
-            cx -= dm / state.zoom * dt * 5
+            cx -= dm / state.zoom * dt * 15
             state.center = cx, cy
             finish_viewport_change()
         elif key == 'View Up':
             cx, cy = state.center
-            cy += dm / state.zoom * dt * 5
+            cy += dm / state.zoom * dt * 15
             state.center = cx, cy
             finish_viewport_change()
         elif key == 'View Down':
             cx, cy = state.center
-            cy -= dm / state.zoom * dt * 5
+            cy -= dm / state.zoom * dt * 15
             state.center = cx, cy
             finish_viewport_change()
         elif key == 'View Right':
             cx, cy = state.center
-            cx += dm / state.zoom * dt * 5
+            cx += dm / state.zoom * dt * 15
             state.center = cx, cy
             finish_viewport_change()
 
@@ -379,6 +381,7 @@ def tick(dt):
         if time2 and time2 < state.time - 9/10:
             state.keymap[sym1], state.keymap[sym2] = (
                 state.keymap.get(sym2, ''), state.keymap.get(sym1, ''))
+            main_screen.update_instructions()
             state.reassign_state = None
 
     state.tool.tick(dt)
