@@ -1,26 +1,46 @@
 import functools
 import textwrap
+import pkgutil
+from pathlib import Path
+import io
+import tempfile
 
 import pyglet.image
 import pyglet.font
 import png
 
-from pathlib import Path
+import jrti_game
 
-data_path = Path(__file__).parent / 'data'
+data_path = Path(jrti_game.__file__).parent / 'data'
 
-spritesheet_path = data_path / 'spritesheet.png'
-spritesheet_image = pyglet.image.load(str(spritesheet_path))
-spritesheet_texture = spritesheet_image.get_texture()
+def get_data(name):
+    return pkgutil.get_data('jrti_game', str(Path('data') / name))
 
-def _load_spritesheet():
-    with spritesheet_path.open('rb') as f:
-        width, height, data, metadata = png.Reader(f).read()
-        data = list(data)
-        data.reverse()
-    return data, metadata['palette']
+with tempfile.TemporaryDirectory() as tmp:
+    tmp_path = Path(tmp)
 
-spritesheet_data, spritesheet_palette = _load_spritesheet()
+    def unpack_file(name):
+        dest = tmp_path / name
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with open(str(dest), 'wb') as f:
+            f.write(get_data(name))
+        return str(dest)
+
+    spritesheet_filename = unpack_file('spritesheet.png')
+    spritesheet_image = pyglet.image.load(spritesheet_filename)
+    spritesheet_texture = spritesheet_image.get_texture()
+
+    def _load_spritesheet():
+        with open(spritesheet_filename, 'rb') as f:
+            width, height, data, metadata = png.Reader(f).read()
+            data = list(data)
+            data.reverse()
+        return data, metadata['palette']
+
+    spritesheet_data, spritesheet_palette = _load_spritesheet()
+
+    pyglet.font.add_file(unpack_file('font/Itim-Regular.ttf'))
+    instruction_font_name = "Itim"
 
 
 @functools.lru_cache()
@@ -50,30 +70,25 @@ kerns = {
     ('/', '/'): -1,
 }
 
-pyglet.font.add_file(str(data_path / 'font' / 'Itim-Regular.ttf'))
-
-instruction_font_name = "Itim"
-
-
 def load_instructions():
     instruction_texts = {}
 
-    with (data_path / 'instructions.txt').open() as f:
-        current_text = []
-        current_heading = ''
+    current_text = []
+    current_heading = ''
 
-        def _load_instruction():
-            text = textwrap.dedent(''.join(current_text)).strip()
-            instruction_texts[current_heading] = text
-            current_text.clear()
+    def _load_instruction():
+        text = textwrap.dedent('\n'.join(current_text)).strip()
+        instruction_texts[current_heading] = text
+        current_text.clear()
 
-        for line in f:
-            if line.startswith('#'):
-                _load_instruction()
-                current_heading = line[1:].strip()
-            else:
-                current_text.append(line)
-        _load_instruction()
+    for line in get_data('instructions.txt').decode().splitlines():
+        if line.startswith('#'):
+            _load_instruction()
+            current_heading = line[1:].strip()
+        else:
+            current_text.append(line)
+    _load_instruction()
+
     return instruction_texts
 
 instruction_texts = load_instructions()

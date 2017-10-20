@@ -1,5 +1,6 @@
 import math
-from math import tau, pi
+from math import pi
+tau = pi*2
 import random
 
 from pyglet import gl

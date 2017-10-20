@@ -1,6 +1,7 @@
 import random
 import contextlib
 import math
+tau = math.pi*2
 
 from pyglet import gl
 import pyglet.text
@@ -266,9 +267,9 @@ class Flippable:
                 r.seed(self.light_seed)
                 for i in range(int(N)):
                     p = (angle / 60 / N * i) ** 1.1 / 5
-                    diag_angle = math.tau/8
-                    diag_angle += r.normalvariate(0, math.tau/16)
-                    diag_angle += random.normalvariate(0, math.tau/256)
+                    diag_angle = tau/8
+                    diag_angle += r.normalvariate(0, tau/16)
+                    diag_angle += random.normalvariate(0, tau/256)
                     pw = p * wph * math.cos(diag_angle)
                     ph = p * wph * math.sin(diag_angle)
                     points = self.get_light_points(rx, ry, pw, ph)
