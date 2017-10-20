@@ -6,7 +6,7 @@ from pyglet import gl
 
 from jrti_game.flippable import Flippable, Layer
 from jrti_game.text import Letter
-from jrti_game.data import sprites
+from jrti_game.data import sprites, spritesheet_data
 from jrti_game.util import reify, draw_rect
 from jrti_game.state import state
 
@@ -48,6 +48,7 @@ class Bug(Flippable):
         gl.glScalef(1, -1, 1)
         sprites['bugleg'].blit(-3.5-legx, -5.5+legy)
         gl.glPopMatrix()
+
 
     def tick(self, dt):
         super().tick(dt)
@@ -108,6 +109,21 @@ class Bug(Flippable):
             if random.uniform(0, 1/10) < dt:
                 self.rotation += random.uniform(-5, 5)
 
+    def hit_test_grab(self, x, y):
+        print(x, y)
+        x -= self.width / 2
+        y -= self.height / 2
+        s = math.sin(math.radians(self.rotation))
+        c = math.cos(math.radians(self.rotation))
+        x = x * c - y * s
+        y = x * s + y * c
+        x += self.width / 2 + 1
+        y += self.height / 2 - 5
+
+        if x > 11 or y > 11:
+            return False
+        return spritesheet_data[28 + int(y)][3*8+1 + int(x)]
+
     def homed(self):
         pass
 
@@ -147,6 +163,9 @@ class BugArena(Layer):
                        for xx in (0, 1) for yy in (0, 1)):
                     bug.x = letter.x + x * letter.scale
                     bug.y = letter.y + y * letter.scale
+                    bug.rotation = random.normalvariate(90, 30)
+                    if random.randrange(2):
+                        bug.rotation = -bug.rotation
                     return bug
 
     @property

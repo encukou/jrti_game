@@ -13,6 +13,8 @@ from jrti_game.bug import BugArena
 from jrti_game.util import clamp
 from jrti_game.state import state
 from jrti_game import tool
+from jrti_game.coords import mouse_to_logical
+from jrti_game.coords import mouse_to_main_screen
 
 window_style = getattr(
     pyglet.window.Window,
@@ -31,6 +33,7 @@ main_screen = jrti_game.flippable.Layer(
     x=-400,
     y=-300,
 )
+state.main_screen = main_screen
 bug_arena = BugArena(
     parent=main_screen,
     x=400 - 600//2,
@@ -175,8 +178,8 @@ def on_mouse_press(x, y, button, mod):
         button = pyglet.window.mouse.RIGHT
     if button == pyglet.window.mouse.LEFT:
         if not state.reassign_state:
-            lx, ly = mouse_to_logical(x, y)
-            main_screen.mouse_press(lx + 400, ly + 300, zoom=state.zoom)
+            main_screen.mouse_press(*mouse_to_main_screen(x, y),
+                                    zoom=state.zoom)
     else:
         state.last_drag_pos = x, y
 
@@ -194,8 +197,7 @@ def on_mouse_drag(x, y, dx, dy, button, mod):
         finish_viewport_change()
         state.last_drag_pos = x, y
     else:
-        lx, ly = mouse_to_logical(x, y)
-        main_screen.mouse_drag(lx + 400, ly + 300, zoom=state.zoom)
+        main_screen.mouse_drag(*mouse_to_main_screen(x, y), zoom=state.zoom)
     state.last_mouse_pos = x, y
 
 
@@ -300,21 +302,6 @@ def finish_viewport_change():
     state.center = cx, cy
 
     state.tool.deactivate()
-
-
-def mouse_to_logical(mx, my):
-    cx, cy = state.center
-    lx = (mx - 400) / state.zoom + cx
-    ly = (my - 300) / state.zoom + cy
-    return lx, ly
-
-
-def logical_to_mouse(lx, ly):
-    cx, cy = state.center
-    mx = (lx - cx) * state.zoom + 400
-    my = (ly - cy) * state.zoom + 300
-
-    return mx, my
 
 
 @pyglet.clock.schedule

@@ -6,7 +6,7 @@ from pyglet import gl
 import pyglet.text
 from attr import attrs, attrib
 
-from jrti_game.data import spritesheet_texture
+from jrti_game.data import spritesheet_texture, spritesheet_data
 from jrti_game.data import instruction_font_name
 from jrti_game.instructions import get_instruction_text
 from jrti_game.util import clamp, reify, draw_rect
@@ -154,6 +154,13 @@ class Flippable:
 
     def hit_test(self, x, y):
         return (0 <= x < self.width) and (0 <= y < self.height)
+
+    def hit_test_grab(self, x, y):
+        return False
+
+    def hit_test_all(self, x, y):
+        if self.hit_test(x, y):
+            yield self, x, y
 
     def drag_start(self, x, y, **kwargs):
         self.drag_info = self, (x, y)
@@ -393,6 +400,13 @@ class Layer(Flippable):
         for child in self.children:
             child.update_instructions()
 
+    def hit_test_all(self, x, y):
+        if self.hit_test(x, y):
+            for child in self.children:
+                yield from child.hit_test_all((x - child.x) / child.scale,
+                                              (y - child.y) / child.scale)
+            yield from super().hit_test_all(x, y)
+
 
 @attrs(repr=False)
 class Sprite(Flippable):
@@ -418,3 +432,9 @@ class Sprite(Flippable):
             self.texture = texture
 
         texture.blit(0, 0, width=self.width, height=self.height)
+
+    def pixel(self, x, y):
+        return spritesheet_data[self.v+y][self.u+x]
+
+    def hit_test_grab(self, x, y):
+        return self.pixel(int(x), int(y))

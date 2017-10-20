@@ -60,9 +60,9 @@ Don't read this file before trying to play the game :)
 
     UNLOCKING
 
-    The master lock may be unlocked with a device bearing a one-time password.
+    The lock needs a key. The key unlocks the lock.
 
-    Make sure to configure the device properly, to avoid damage to the locking mechanism.
+    Make sure to use the right key – a wrong key may damage to the locking mechanism.
 
 # A
 
@@ -114,7 +114,7 @@ Don't read this file before trying to play the game :)
 
     The Grabby Tool can be selected by Shift+{G}.
 
-    When it's selected, you can grab and release things with the {G} key.
+    When it's selected, you can grab and release white things with the {G} key.
     The grabbed object will move with the tool.
 
     Moving things may scare creatures hiding underneath them.
@@ -143,7 +143,7 @@ Don't read this file before trying to play the game :)
     The Key Tool can be selected by Shift+{K}.
     Place the key over a lock, and press {K} to unlock.
 
-    Combinations for specific locks can be found in buggy areas.
+    The key can unlock any rectangular object. And maybe others…?
 
 # XXX
     L
@@ -211,7 +211,7 @@ Don't read this file before trying to play the game :)
 
 # T
 
-    ZOOMING OUT
+    EXCESSIVE MAGNIFICATION
 
     If something is too big, it will be impossible to reveal instructions from under it.
     In that case, zoom out and try again.

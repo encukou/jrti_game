@@ -115,9 +115,6 @@ class Letter(Sprite):
         kwargs.setdefault('margin', 1/2)
         super().__init__(**kwargs)
 
-    def pixel(self, x, y):
-        return spritesheet_data[self.v+y][self.u+x]
-
 
 def letters(string, x=0, y=0, scale=1, center=False, parent=None):
     if center:

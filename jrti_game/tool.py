@@ -5,6 +5,7 @@ from pyglet import gl
 from jrti_game.data import sprites
 from jrti_game.state import state
 from jrti_game.util import clamp, interp
+from jrti_game.coords import tool_to_main_screen
 
 
 class Tool:
@@ -30,6 +31,7 @@ class Grabby(Tool):
     grab_time = 0
     name = 'grabby'
     grab_duration = 1/8
+    grabbing = False
 
     def draw(self):
         gt = clamp((state.time - self.grab_time) / self.grab_duration, 0, 1)
@@ -62,17 +64,27 @@ class Grabby(Tool):
     def deactivate(self):
         if self.active:
             self.active = False
+            self.grabbing = False
             if self.grab_time < state.time - self.grab_duration:
                 self.grab_time = state.time
 
     def grab(self):
         self.active = not self.active
+        if not self.active:
+            self.grabbing = False
         if self.grab_time < state.time - self.grab_duration:
             self.grab_time = state.time
 
     def tick(self, dt):
-        if self.grab_time < state.time - self.grab_duration and self.active:
-            self.deactivate()
+        if self.grab_time < state.time - self.grab_duration:
+            if self.active and not self.grabbing:
+                x, y = tool_to_main_screen(state.tool_x, state.tool_y)
+                for obj, x, y in state.main_screen.hit_test_all(x, y):
+                    if obj.hit_test_grab(x, y):
+                        self.grabbing = True
+                        break
+                else:
+                    self.deactivate()
 
 
 class Key(Tool):

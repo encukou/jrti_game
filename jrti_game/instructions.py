@@ -1,8 +1,6 @@
 import sys
 import traceback
 
-import pyglet
-
 from jrti_game.data import load_instructions, default_keymap
 from jrti_game.state import state
 from jrti_game.key_names import key_symbols
