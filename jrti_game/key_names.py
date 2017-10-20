@@ -100,16 +100,16 @@ if __name__ == '__main__':
             symbol = NAMES[name]
             label = LABELS[name]
         elif name.startswith('L') and name[1:] in NAMES:
-            symbol = NAMES[name[1:]] + ' '
+            symbol = NAMES[name[1:]]
             label = 'Left ' + LABELS[name[1:]]
         elif name.startswith('R') and name[1:] in NAMES:
-            symbol = ' ' + NAMES[name[1:]]
+            symbol = NAMES[name[1:]]
             label = 'Right ' + LABELS[name[1:]]
         elif name.startswith('NUM_') and name[4:] in NAMES:
-            symbol = ' ' + NAMES[name[4:]]
+            symbol = NAMES[name[4:]]
             label = 'Numpad ' + LABELS[name[4:]]
         elif name.startswith('NUM_') and name[4:].isnumeric():
-            symbol = ' ' + name[4:]
+            symbol = 'n ' + name[4:]
             label = 'Numpad ' + name[4:]
         elif name.startswith('F') and name[1:].isnumeric():
             symbol = label = name
@@ -206,59 +206,59 @@ key_symbols = {
     key.J: ('J', 'J'),
     key.K: ('K', 'K'),
     key.L: ('L', 'L'),
-    key.LALT: ('Ａ ', 'Left Alt'),
-    key.LCOMMAND: ('⌘ ', 'Left Command'),
-    key.LCTRL: ('⌃ ', 'Left Ctrl'),
+    key.LALT: ('Ａ', 'Left Alt'),
+    key.LCOMMAND: ('⌘', 'Left Command'),
+    key.LCTRL: ('⌃', 'Left Ctrl'),
     key.LEFT: ('←', '←'),
     key.LESS: ('<', '<'),
     key.LINEFEED: ('lin', 'Linefeed'),            # ? linefeed
-    key.LMETA: ('⌃ ', 'Left ⌃'),
-    key.LOPTION: ('⌥ ', 'Left Option'),
-    key.LSHIFT: ('⇧ ', 'Left Shift'),
-    key.LWINDOWS: ('⊞ ', 'Left Windows'),
+    key.LMETA: ('⌃', 'Left ⌃'),
+    key.LOPTION: ('⌥', 'Left Option'),
+    key.LSHIFT: ('⇧', 'Left Shift'),
+    key.LWINDOWS: ('⊞', 'Left Windows'),
     key.M: ('M', 'M'),
     key.MENU: ('☰', 'Menu'),
     key.MINUS: ('-', '-'),
     key.MODESWITCH: ('mod', 'Modeswitch'),            # ? modeswitch
     key.N: ('N', 'N'),
     key.NUMLOCK: ('num', 'Numlock'),            # ? numlock
-    key.NUM_0: (' 0', 'Numpad 0'),
-    key.NUM_1: (' 1', 'Numpad 1'),
-    key.NUM_2: (' 2', 'Numpad 2'),
-    key.NUM_3: (' 3', 'Numpad 3'),
-    key.NUM_4: (' 4', 'Numpad 4'),
-    key.NUM_5: (' 5', 'Numpad 5'),
-    key.NUM_6: (' 6', 'Numpad 6'),
-    key.NUM_7: (' 7', 'Numpad 7'),
-    key.NUM_8: (' 8', 'Numpad 8'),
-    key.NUM_9: (' 9', 'Numpad 9'),
-    key.NUM_ADD: (' +', 'Numpad +'),
+    key.NUM_0: ('n 0', 'Numpad 0'),
+    key.NUM_1: ('n 1', 'Numpad 1'),
+    key.NUM_2: ('n 2', 'Numpad 2'),
+    key.NUM_3: ('n 3', 'Numpad 3'),
+    key.NUM_4: ('n 4', 'Numpad 4'),
+    key.NUM_5: ('n 5', 'Numpad 5'),
+    key.NUM_6: ('n 6', 'Numpad 6'),
+    key.NUM_7: ('n 7', 'Numpad 7'),
+    key.NUM_8: ('n 8', 'Numpad 8'),
+    key.NUM_9: ('n 9', 'Numpad 9'),
+    key.NUM_ADD: ('+', 'Numpad +'),
     key.NUM_BEGIN: ('nbe', 'NUM_BEGIN'),            # ? num_begin
-    key.NUM_DECIMAL: (' ,', 'Numpad ,'),
-    key.NUM_DELETE: (' ⌦', 'Numpad Delete'),
-    key.NUM_DIVIDE: (' ÷', 'Numpad ÷'),
-    key.NUM_DOWN: (' ↓', 'Numpad ↓'),
-    key.NUM_END: (' ⇲', 'Numpad End'),
-    key.NUM_ENTER: (' ⏎', 'Numpad Enter'),
-    key.NUM_EQUAL: (' =', 'Numpad ='),
+    key.NUM_DECIMAL: (',', 'Numpad ,'),
+    key.NUM_DELETE: ('⌦', 'Numpad Delete'),
+    key.NUM_DIVIDE: ('÷', 'Numpad ÷'),
+    key.NUM_DOWN: ('↓', 'Numpad ↓'),
+    key.NUM_END: ('⇲', 'Numpad End'),
+    key.NUM_ENTER: ('⏎', 'Numpad Enter'),
+    key.NUM_EQUAL: ('=', 'Numpad ='),
     key.NUM_F1: ('nf1', 'NUM_F1'),            # ? num_f1
     key.NUM_F2: ('nf2', 'NUM_F2'),            # ? num_f2
     key.NUM_F3: ('nf3', 'NUM_F3'),            # ? num_f3
     key.NUM_F4: ('nf4', 'NUM_F4'),            # ? num_f4
-    key.NUM_HOME: (' ⇱', 'Numpad Home'),
-    key.NUM_INSERT: (' Ｉ', 'Numpad Insert'),
-    key.NUM_LEFT: (' ←', 'Numpad ←'),
-    key.NUM_MULTIPLY: (' ×', 'Numpad ×'),
+    key.NUM_HOME: ('⇱', 'Numpad Home'),
+    key.NUM_INSERT: ('Ｉ', 'Numpad Insert'),
+    key.NUM_LEFT: ('←', 'Numpad ←'),
+    key.NUM_MULTIPLY: ('×', 'Numpad ×'),
     key.NUM_NEXT: ('nne', 'NUM_NEXT'),            # ? num_next
-    key.NUM_PAGE_DOWN: (' ⇓', 'Numpad Page Down'),
-    key.NUM_PAGE_UP: (' ⇑', 'Numpad Page Up'),
+    key.NUM_PAGE_DOWN: ('⇓', 'Numpad Page Down'),
+    key.NUM_PAGE_UP: ('⇑', 'Numpad Page Up'),
     key.NUM_PRIOR: ('npr', 'NUM_PRIOR'),            # ? num_prior
-    key.NUM_RIGHT: (' →', 'Numpad →'),
-    key.NUM_SEPARATOR: (' \xa0', 'Numpad Separator'),
-    key.NUM_SPACE: (' ␣', 'Numpad Space'),
-    key.NUM_SUBTRACT: (' -', 'Numpad -'),
-    key.NUM_TAB: (' ⇥', 'Numpad Tab'),
-    key.NUM_UP: (' ↑', 'Numpad ↑'),
+    key.NUM_RIGHT: ('→', 'Numpad →'),
+    key.NUM_SEPARATOR: ('\xa0', 'Numpad Separator'),
+    key.NUM_SPACE: ('␣', 'Numpad Space'),
+    key.NUM_SUBTRACT: ('-', 'Numpad -'),
+    key.NUM_TAB: ('⇥', 'Numpad Tab'),
+    key.NUM_UP: ('↑', 'Numpad ↑'),
     key.O: ('O', 'O'),
     key.P: ('P', 'P'),
     key.PAGEDOWN: ('⇓', 'Page Down'),
@@ -275,16 +275,16 @@ key_symbols = {
     key.QUESTION: ('?', '?'),
     key.QUOTELEFT: ('`', '`'),
     key.R: ('R', 'R'),
-    key.RALT: (' Ａ', 'Right Alt'),
-    key.RCOMMAND: (' ⌘', 'Right Command'),
-    key.RCTRL: (' ⌃', 'Right Ctrl'),
+    key.RALT: ('Ａ', 'Right Alt'),
+    key.RCOMMAND: ('⌘', 'Right Command'),
+    key.RCTRL: ('⌃', 'Right Ctrl'),
     key.REDO: ('red', 'Redo'),            # ? redo
     key.RETURN: ('⏎', 'Return'),
     key.RIGHT: ('→', '→'),
-    key.RMETA: (' ⌃', 'Right ⌃'),
-    key.ROPTION: (' ⌥', 'Right Option'),
-    key.RSHIFT: (' ⇧', 'Right Shift'),
-    key.RWINDOWS: (' ⊞', 'Right Windows'),
+    key.RMETA: ('⌃', 'Right ⌃'),
+    key.ROPTION: ('⌥', 'Right Option'),
+    key.RSHIFT: ('⇧', 'Right Shift'),
+    key.RWINDOWS: ('⊞', 'Right Windows'),
     key.S: ('S', 'S'),
     key.SCRIPTSWITCH: ('scr', 'Scriptswitch'),            # ? scriptswitch
     key.SCROLLLOCK: ('scr', 'Scroll Lock'),            # ? scrolllock
