@@ -43,7 +43,7 @@ bug_arena = BugArena(
     width=600,
     height=8*48,
     instructions='Main Plaque',
-    margin=4,
+    margin=8,
     bgcolor=(.1, .1, .1, 1)
 )
 

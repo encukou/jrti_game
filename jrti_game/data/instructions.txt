@@ -62,7 +62,7 @@ Don't read this file before trying to play the game :)
 
     The lock needs a key. The key unlocks the lock.
 
-    Make sure to use the right key – a wrong key may damage to the locking mechanism.
+    Make sure to use the right key – obviously, a wrong key won't open the lock.
 
 # A
 
@@ -76,7 +76,7 @@ Don't read this file before trying to play the game :)
 
     BUGS
 
-    Bugs are various wriggly organisms that frequently appear in all kinds of virtual environments.
+    Bugs are colorful wriggly organisms that frequently appear in all kinds of virtual environments.
     Some humans specialize in exterminating them; others expend significant effort to reproduce them.
 
     Examination of a bug can reveal useful information about the structure and operation of its environment.
@@ -122,8 +122,16 @@ Don't read this file before trying to play the game :)
 
     Moving things may scare creatures hiding underneath them.
 
-# XXX
-    H
+# H
+
+    Like many of your peers, you are quite bored with the outside world. Unlike many of your peers, you try to pass the time hacking into protected systems of the Empire.
+
+    Usually, the protection is easy to break. Sometimes, there are traps – but so far, you seem to have managed to escape all of them.
+
+    At first glance, the particular trap you are stuck in now doesn't seem too different from the others. But something is off. It is too designed; too colorful; too… entertaining.
+
+    Is getting out of here even what you want?
+    Or is it what THEY want?
 
 # I
 
@@ -131,8 +139,10 @@ Don't read this file before trying to play the game :)
 
     Tools can be used to interact with the game. They are controlled by {W}, {A}, {S}, and {D}.
 
-    Tools are activated by pressing {G} and {K}.
-    Instructions for specific tools can be found behind a G or a K.
+    Tools are activated by pressing {G} and {K} on the keyboard.
+    Instructions for specific tools can be found behind a G or a K in the game.
+
+    Instructions related to a particular keyboard key are behind matching letters – until you use {R}.
 
 # J
 
@@ -142,15 +152,16 @@ Don't read this file before trying to play the game :)
 
 # K
 
-    [XXX] KEY TOOL
+    KEY TOOL
 
     The Key Tool can be selected by pressing {K}.
     When it's selected, press {K} again to turn the key.
 
-    Rectangular objects tend to have keyholes.
-    When you find one, move the key to the keyhole, then press {D} to insert it.
+    When you find a keyhole, move the key to the it, then press {D} to insert.
 
-    A used key sticks in the lock – but don't worry; you can always get a new one!
+    A used key sticks in the lock – but don't worry: you can always get a new one!
+
+    Square objects tend to have keyholes.
 
 # XXX
     L
@@ -202,7 +213,7 @@ Don't read this file before trying to play the game :)
 
     Press {R} followed by two other keys to swap their function.
 
-    Switching a key with itself – for example, by pressing {R}, {X}, {X} – does nothing.
+    Switching a key with itself – for example, by pressing {R}, {X}, {X} – does nothing. But it can be used to check what {X} does.
 
 # S
 
@@ -219,6 +230,7 @@ Don't read this file before trying to play the game :)
     If something is too big, it will be impossible to reveal instructions from under it.
     In that case, zoom out and try again.
 
+    Larger is not always better.
 
 # U
 
@@ -230,8 +242,15 @@ Don't read this file before trying to play the game :)
 
     When one door opens, another closes…
 
-# XXX
-    V
+# V
+
+    VICTORY
+
+    To win the game, escape.
+
+    To escape, unlock the lock.
+
+    It's that easy. Are any further instructions necessary?
 
 # W
 
@@ -248,8 +267,17 @@ Don't read this file before trying to play the game :)
 
     Of course, if you do this, you aren't allowed to brag about winning.
 
+# Y
+
+    You feel like you are being watched.
+
+    Watched? No. Monitored.
+
+    Monitored. That's the word. This is a challenge; a test.
+
+    Is this room a left over toy? A toy for a bored child – a child that is now a soldier?
+
 # XXX
-    Y
     Z
 
 # Bug
@@ -285,4 +313,4 @@ Don't read this file before trying to play the game :)
     May it serve you well.
 
     It is built upon open-source software: Python, Pyglet, PyPNG and attrs.
-    Licenses for all of them are available in the LICENSES file.
+    Licenses for those distributed with the game are available in the LICENSES file.
