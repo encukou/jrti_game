@@ -144,9 +144,10 @@ Don't read this file before trying to play the game :)
     [XXX] KEY TOOL
 
     The Key Tool can be selected by Shift+{K}.
-    Place the key over a lock, and press {K} to unlock.
+    Press {K} to turn the key.
 
     Rectangular objects tend to have keyholes.
+    When you find one, move the key to the keyhole, then press {D} to insert it.
 
 # XXX
     L

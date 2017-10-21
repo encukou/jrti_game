@@ -163,7 +163,35 @@ class Grabby(Tool):
 class Key(Tool):
     size = 7
     scale = 3
+    anim_start = 0
+    name = 'key'
+    locked = None
+    locking = False
 
     def draw(self):
+        anim = clamp((state.time - self.anim_start) * 4, 0, 1)
+        print(self.anim_start, state.time, 1-anim*2)
+        if not self.locking:
+            anim = 1+anim
+        gl.glRotatef(anim * 180, 1, 0, 0)
         gl.glColor3f(0.4, 0.9, 0.1)
         sprites['key'].blit(-4.5, -4.5)
+        for i, num in enumerate(state.key_config):
+            if num < 5:
+                y = -0.75+(num-5)/2
+                height = 1-(num-5)/2+.25
+            else:
+                y = -0.75
+                height = 1+(num-5)/2
+            sprites['square'].blit(x=15-4.5+i, y=y, width=1, height=height)
+
+    def lock(self):
+        if self.anim_start < state.time - 1/4:
+            self.locking = not self.locked
+            self.anim_start = state.time
+
+    def tick(self, dt):
+        if self.anim_start and self.anim_start < state.time - 1/4:
+            if self.locking:
+                self.locking = False
+                self.anim_start = state.time

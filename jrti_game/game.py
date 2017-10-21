@@ -253,6 +253,9 @@ def on_key_press(sym, mod):
     elif key == 'Key':
         if mod == pyglet.window.key.MOD_SHIFT:
             state.tool = tool.Key()
+        elif state.tool.name == 'key':
+            _full_zoom()
+            state.tool.lock()
     elif key == 'Reassign':
         if state.reassign_state is None:
             state.reassign_state = state.time, None, None, None, None

@@ -22,4 +22,5 @@ state = types.SimpleNamespace(
     keymap={getattr(pyglet.window.key, k): v
             for k, v in default_keymap.items()},
     code=[random.randrange(10) for i in range(10)],
+    key_config=[0, 4, 2, 0]
 )
