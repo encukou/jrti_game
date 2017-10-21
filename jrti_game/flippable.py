@@ -27,6 +27,7 @@ class Flippable:
     parent = attrib(None)
     color = attrib((1, 1, 1))
     bgcolor = attrib((0, 0, 0, 1))
+    instructions_color=attrib((0.4, 0.9, 1))
     instructions = attrib('None')
     margin = attrib(1)
 
@@ -104,6 +105,9 @@ class Flippable:
     def spawn_bug(self, *args, **kwargs):
         pass
 
+    def grab_move(self, dx, dy):
+        pass
+
     def mouse_press(self, x, y, **kwargs):
         if self.drag_info[0] or self.unlocked:
             self.mouse_release()
@@ -177,13 +181,6 @@ class Flippable:
                 self.flip_params = axis, 0, -angle, 0
             else:
                 self.flip_params = 0, axis, 0, -angle
-
-    @property
-    def instructions_color(self):
-        if self.instruction_label is None:
-            return 1/2, 1/2, 1/2
-        else:
-            return 0.4, 0.9, 1
 
     def mouse_release(self, **kwargs):
         obj, start = self.drag_info
@@ -488,9 +485,6 @@ class Sprite(Flippable):
 
     def hit_test_grab(self, x, y):
         return self.pixel(int(x), int(y))
-
-    def grab_move(self, dx, dy):
-        pass
 
     def hit_test_overlap(self, s, a, b, mode):
         dists = []

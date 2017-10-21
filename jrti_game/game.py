@@ -34,6 +34,7 @@ main_screen = jrti_game.flippable.Layer(
     y=-300,
     margin=32,
     instructions='End',
+    instructions_color=(1, 0.9, 0.5),
 )
 state.main_screen = main_screen
 bug_arena = BugArena(

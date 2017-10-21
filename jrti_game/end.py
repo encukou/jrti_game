@@ -12,6 +12,7 @@ class Keyhole(Sprite):
     keyhole = 2, 18, 6.5, 13
     keyhole_params = 10, 800
     endgen = None
+    instructions_color = 0.9, 0.8, 0.1
 
     def unlock(self, key):
         super().unlock(key)
