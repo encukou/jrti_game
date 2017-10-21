@@ -50,7 +50,7 @@ class Flippable:
     def __repr__(self):
         return '<{}: {}>'.format(type(self).__name__, self.instructions)
 
-    def draw(self):
+    def draw(self, **kwargs):
         """Draw this. Needs to be reimplemented in subclasses."""
 
     def tick(self, dt):
@@ -182,7 +182,7 @@ class Flippable:
         if self.hit_test(x, y):
             yield self, x, y
 
-    def draw_grab(self):
+    def draw_grab(self, **kwargs):
         parents = []
         obj = self
         while obj:
@@ -210,7 +210,7 @@ class Flippable:
             obj = obj.parent
 
     @contextlib.contextmanager
-    def draw_context(self, bg=True, flipping=False):
+    def draw_context(self, bg=True, flipping=False, **kwargs):
         gl.glPushMatrix()
         try:
             gl.glTranslatef(self.x, self.y, 0)
@@ -233,19 +233,19 @@ class Flippable:
         finally:
             gl.glPopMatrix()
 
-    def draw_outer(self):
-        with self.draw_context(bg=False):
+    def draw_outer(self, **kwargs):
+        with self.draw_context(bg=False, **kwargs):
             if not self.flip_params:
-                self.draw()
+                self.draw(**kwargs)
 
-    def draw_flipping(self):
+    def draw_flipping(self, **kwargs):
         if self.flip_params:
-            with self.draw_context():
-                self.draw_light()
-                self.draw_instructions()
-            with self.draw_context(flipping=True, bg=True):
-                self.draw()
-                self.draw_outline()
+            with self.draw_context(**kwargs):
+                self.draw_light(**kwargs)
+                self.draw_instructions(**kwargs)
+            with self.draw_context(flipping=True, bg=True, **kwargs):
+                self.draw(**kwargs)
+                self.draw_outline(**kwargs)
 
                 gl.glEnable(gl.GL_CULL_FACE)
                 gl.glColor4f(*self.instructions_color,
@@ -253,7 +253,7 @@ class Flippable:
                 draw_rect(self.width, self.height)
                 gl.glDisable(gl.GL_CULL_FACE)
 
-    def draw_instructions(self):
+    def draw_instructions(self, **kwargs):
         gl.glColor4f(*self.instructions_color,
                      clamp(random.normalvariate(1, 1/120), 0, 1))
         draw_rect(self.width, self.height)
@@ -305,7 +305,7 @@ class Flippable:
         except AttributeError:
             pass
 
-    def draw_light(self):
+    def draw_light(self, **kwargs):
         if self.flip_params:
             x, y, rx, ry = self.flip_params
             angle = abs(rx + ry)
@@ -373,7 +373,7 @@ class Flippable:
                 (w+pw, -ph),
             ]
 
-    def draw_outline(self, color=None, alpha=1/2):
+    def draw_outline(self, color=None, alpha=1/2, **kwargs):
         if self.flip_params is None:
             dx = dy = 0
         elif self.flip_direction is None:
@@ -413,17 +413,18 @@ class Layer(Flippable):
                 return
         super().drag_start(x, y, zoom=zoom, **kwargs)
 
-    def draw(self):
+    def draw(self, zoom, **kwargs):
         for child in self.children:
-            child.draw_outer()
+            child.draw_outer(zoom=zoom*child.scale, **kwargs)
 
-    def draw_flipping(self):
+    def draw_flipping(self, zoom, **kwargs):
         if self.open_child_counter:
             if self.flip_params:
-                super().draw_flipping()
-            with self.draw_context(bg=False, flipping=self.flip_params):
+                super().draw_flipping(zoom=zoom, **kwargs)
+            with self.draw_context(bg=False, flipping=self.flip_params,
+                                   zoom=zoom):
                 for obj in self.children:
-                    obj.draw_flipping()
+                    obj.draw_flipping(zoom=zoom*obj.scale, **kwargs)
 
     def mouse_drag(self, x, y, *, zoom=1, **kwargs):
         obj, start = self.drag_info
@@ -462,7 +463,7 @@ class Sprite(Flippable):
     def _default_h(self):
         return self.height
 
-    def draw(self):
+    def draw(self, **kwargs):
         try:
             texture = self.texture
         except AttributeError:

@@ -155,25 +155,28 @@ def letters(string, x=0, y=0, scale=1, center=False, parent=None,
                 x += (letter.width + etrim) * scale - scale
                 yield letter
 
+
 class Oh(Letter):
-    def draw(self):
-        super().draw()
+    def draw(self, **kwargs):
+        super().draw(**kwargs)
         gl.glPushMatrix()
         gl.glColor4f(*self.bgcolor)
         gl.glTranslatef(3, 2, 0)
         draw_rect(1, 4)
         gl.glPopMatrix()
 
+
 class Eye(Letter):
     keyhole = 2, 7.25, 2/32, 1/2
-    def draw(self):
-        super().draw()
-        x, y, w, h = self.keyhole
-        gl.glColor4f(*self.bgcolor)
-        gl.glBegin(gl.GL_TRIANGLE_FAN)
-        gl.glVertex2f(x, y-w)
-        gl.glVertex2f(x, y+h+w)
-        gl.glVertex2f(x+w, y+h)
-        gl.glVertex2f(x+w, y)
-        gl.glVertex2f(x, y-w)
-        gl.glEnd()
+    def draw(self, zoom, **kwargs):
+        super().draw(zoom=zoom, **kwargs)
+        if zoom > 9:
+            x, y, w, h = self.keyhole
+            gl.glColor4f(*self.bgcolor)
+            gl.glBegin(gl.GL_TRIANGLE_FAN)
+            gl.glVertex2f(x, y-w)
+            gl.glVertex2f(x, y+h+w)
+            gl.glVertex2f(x+w, y+h)
+            gl.glVertex2f(x+w, y)
+            gl.glVertex2f(x, y-w)
+            gl.glEnd()

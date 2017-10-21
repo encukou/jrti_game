@@ -106,10 +106,10 @@ def on_draw():
     gl.glCullFace(gl.GL_BACK)
     gl.glDisable(gl.GL_CULL_FACE)
 
-    main_screen.draw_outer()
+    main_screen.draw_outer(zoom=state.zoom)
     if state.tool.grabbing:
         state.tool.grabbing.draw_grab()
-    main_screen.draw_flipping()
+    main_screen.draw_flipping(zoom=state.zoom)
 
     gl.glLoadIdentity()
     gl.glTranslatef(state.tool_x, state.tool_y, 0)
@@ -163,6 +163,8 @@ def on_draw():
     if os.environ.get('GAME_DEBUG'):
         gl.glLoadIdentity()
         fps_display.draw()
+
+    print()
 
 
 @window.event

@@ -38,7 +38,7 @@ class Bug(Flippable):
         self.y = random.uniform(
             0, self.parent.height - self.height * self.scale)
 
-    def draw(self):
+    def draw(self, **kwargs):
         gl.glPushMatrix()
         gl.glTranslatef(7.5, 7.5, 0)
         gl.glRotatef(self.rotation, 0, 0, 1)
@@ -153,10 +153,10 @@ class Bug(Flippable):
 
 
 class BugArena(Layer):
-    def draw(self):
+    def draw(self, **kwargs):
         gl.glColor3f(.1, .1, .1)
         draw_rect(self.width, self.height)
-        super().draw()
+        super().draw(**kwargs)
 
     def add_child(self, child):
         super().add_child(child)
