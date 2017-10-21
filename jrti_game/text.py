@@ -3,7 +3,7 @@ import contextlib
 
 from pyglet import gl
 
-from jrti_game.data import spritesheet_data, spritesheet_texture
+from jrti_game.data import spritesheet_data, spritesheet_texture, sprites
 from jrti_game.flippable import Sprite
 from jrti_game.key_names import key_symbols
 from jrti_game.util import draw_rect, draw_rect_xy, clamp
@@ -166,16 +166,18 @@ class Oh(Letter):
 @contextlib.contextmanager
 def draw_opening(self):
     gl.glPushMatrix()
-    gl.glColor3f(0, 0, 0)
     draw_rect_xy(*self.innards)
     gl.glColor3f(1, 1, 1)
     draw_rect_xy(*self.innards, mode=gl.GL_LINE_STRIP, last=False)
+    gl.glPushMatrix()
     yield
+    gl.glPopMatrix()
     right = self.innards[0] + self.innards[2]
     gl.glTranslatef(right, 0, 0)
-    t = clamp((state.time - self.unlocked.anim_start)*2, 0, 1)**3
+    t = clamp((state.time - self.unlocked.open_anim_start)*2, 0, 1)**3
     gl.glRotatef(-t*100, 0, 1, 0)
     gl.glTranslatef(-right, 0, 0)
+    gl.glColor3f(1, 1, 1)
     draw_rect_xy(*self.innards)
     gl.glColor4f(0, 0, 0, 1/2)
     draw_rect_xy(*self.innards, mode=gl.GL_LINE_STRIP, last=False)
@@ -183,12 +185,13 @@ def draw_opening(self):
 
 
 class Eye(Letter):
-    keyhole = 2, 7.25, 2/32, 1/2
+    keyhole = 2, 7.125, 2/64, 3/4
     innards = 2+1/8, 7+1/16, 2-3/16, 1-2/16
 
     def draw(self, zoom, **kwargs):
         super().draw(zoom=zoom, **kwargs)
         if self.unlocked:
+            gl.glColor3f(0, 0, 0)
             with draw_opening(self):
                 pass
 
@@ -200,8 +203,12 @@ class Exclamation(Letter):
     def draw(self, zoom, **kwargs):
         super().draw(zoom=zoom, **kwargs)
         if self.unlocked:
+            gl.glColor3f(0.1, 0.2, 0.5)
             with draw_opening(self):
-                pass
+                gl.glTranslatef(1, 1, 0)
+                gl.glScalef(1/8, 1/8, 1)
+                gl.glColor3f(0.4, 1, 0.2)
+                sprites['eye_big'].blit(1.75, 1.5)
 
 
 class Dot(Letter):
@@ -211,8 +218,42 @@ class Dot(Letter):
     def draw(self, zoom, **kwargs):
         super().draw(zoom=zoom, **kwargs)
         if self.unlocked:
+            gl.glColor3f(0.1, 0.2, 0.5)
             with draw_opening(self):
-                pass
+                gl.glTranslatef(1, 1, 0)
+                gl.glScalef(1/8, 1/8, 1)
+                gl.glColor3f(0.4, 1, 0.2)
+                sprites['bug_o'].blit(1.75, 1.5)
 
 
-SPECIAL_LETTER_CLASSES = {'i': Eye, 'o': Oh, '!': Exclamation, '.': Dot}
+class Colon(Letter):
+    keyhole = 1, 6.25, 2/32, 1/2
+    innards = 1+1/8, 2+1/16, 2-3/16, 2-2/16
+
+    def draw(self, zoom, **kwargs):
+        super().draw(zoom=zoom, **kwargs)
+        if self.unlocked:
+            gl.glColor3f(0.1, 0.2, 0.5)
+            with draw_opening(self):
+                gl.glTranslatef(1, 2, 0)
+                gl.glScalef(1/8, 1/8, 1)
+                gl.glColor3f(0.4, 1, 0.2)
+                sprites['hint_a'].blit(1.75, 1.5)
+
+            gl.glTranslatef(0, 3, 0)
+            gl.glColor3f(0.1, 0.2, 0.5)
+            with draw_opening(self):
+                gl.glTranslatef(1, 2, 0)
+                gl.glScalef(1/8, 1/8, 1)
+                gl.glColor3f(0.4, 1, 0.2)
+                sprites['hint_b'].blit(1.75, 1.5)
+            gl.glTranslatef(0, -3, 0)
+
+
+SPECIAL_LETTER_CLASSES = {
+    'i': Eye,
+    'o': Oh,
+    '!': Exclamation,
+    '.': Dot,
+    ':': Colon,
+}

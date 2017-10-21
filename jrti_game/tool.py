@@ -172,6 +172,7 @@ class Key(Tool):
     visible_len = 19
     fully_inserted = False
     lock_zoom = 0
+    open_anim_start = 0
 
     def draw(self):
         anim = clamp((state.time - self.anim_start) * 4, 0, 1)
@@ -218,7 +219,7 @@ class Key(Tool):
                     if self.lock and self.fully_inserted:
                         self.lock.unlock(self)
                         self.unlocked = True
-                        self.anim_start = state.time
+                        self.anim_start = self.open_anim_start = state.time
                         state.tool = Tool()
                     else:
                         self.locking = False
@@ -287,9 +288,9 @@ class Key(Tool):
         gl.glTranslatef(x, y, 0)
         gl.glScalef(3/z, 3/z, 1)
         gl.glColor3f(
-            clamp((state.time - self.anim_start)/2, 0.1, 1),
-            clamp((state.time - self.anim_start)/2, 0.9, 1),
-            clamp((state.time - self.anim_start)/2, 0.9, 1),
+            clamp((state.time - self.anim_start)*2, 0.1, 1),
+            clamp((state.time - self.anim_start)*2, 0.9, 1),
+            clamp((state.time - self.anim_start)*2, 0.9, 1),
         )
         sprites['key_head'].blit(-9, -4.5)
         gl.glPopMatrix()

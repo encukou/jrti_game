@@ -75,6 +75,10 @@ sprites = {
     'key_head': spritesheet_texture.get_region(63, 3*8, 9, 10),
     'keyhole': spritesheet_texture.get_region(80, 3*8+1, 16, 32),
     'circ3': spritesheet_texture.get_region(96, 3*8+1, 23, 23),
+    'eye_big': spritesheet_texture.get_region(0, 4*8+1, 13, 13),
+    'bug_o': spritesheet_texture.get_region(0, 6*8+1, 13, 13),
+    'hint_a': spritesheet_texture.get_region(16, 6*8+1, 13, 13),
+    'hint_b': spritesheet_texture.get_region(32, 6*8+1, 13, 13),
 }
 
 default_keymap = {
