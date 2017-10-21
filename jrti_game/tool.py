@@ -104,7 +104,6 @@ class Grabby(Tool):
                 obj = obj.parent
 
         if self.grabbing and self.grabbing.grab_move(dx/scale, dy/scale):
-            print(scale)
             pass
         elif self.grabbing:
             gdx = dx
@@ -263,9 +262,6 @@ class Key(Tool):
                         kx -= dx / zoom
                         kw += dx / zoom
                         kmin, kmax = obj.keyhole_params
-                        print(kmin, kh * zoom, kmax)
-                        print(kx < x < kx+kw)
-                        print(ky < y < ky+kh)
                         if (kx < x < kx+kw and ky < y < ky+kh and
                                 kmin < kh * zoom < kmax):
                             self.lock = obj
@@ -281,7 +277,6 @@ class Key(Tool):
                 for obj in reversed(parents):
                     x = (x - obj.x) / obj.scale
                     y = (y - obj.y) / obj.scale
-                    print(obj, x, y, obj.x, obj.y, obj.scale)
 
                 insert_remaining = (kx+kw - x)*self.lock_zoom
                 if dx > insert_remaining:

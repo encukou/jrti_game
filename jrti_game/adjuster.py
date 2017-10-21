@@ -9,6 +9,8 @@ from jrti_game.util import clamp
 
 
 class Adjuster(Flippable):
+    endgen = None
+
     def draw(self, zoom, **kwargs):
         gl.glColor3f(1, 1, 1)
         if zoom > 1:
@@ -32,9 +34,7 @@ class Adjuster(Flippable):
 
     def grab_move(self, dx, dy):
         pos = state.key_config[self.index]
-        print(pos, dy)
         pos = clamp(pos + dy*16, 0, 9)
-        print(pos)
         state.key_config[self.index] = pos
         return True
 

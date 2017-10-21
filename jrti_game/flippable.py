@@ -44,6 +44,7 @@ class Flippable:
     keyhole = None
     unlocked = None
     keyhole_params = 10, 400
+    flip_locked = False
 
     children = attrib(convert=list)
 
@@ -64,7 +65,9 @@ class Flippable:
                 child.draw_outer(zoom=zoom*child.scale, **kwargs)
 
     def tick(self, dt):
-        if self.flip_params and self.drag_info[0] is not self:
+        if (self.flip_params and
+                self.drag_info[0] is not self and
+                not self.flip_locked):
             self.close_speed += (dt * 500000 / (self.width * self.height)**.5 /
                                  self.scale / state.zoom)
             angle = dt * self.close_speed
@@ -228,6 +231,7 @@ class Flippable:
             self.draw_outline((0.1, 0.9, 0.4), 0.7)
 
     def drag_start(self, x, y, zoom, **kwargs):
+        self.flip_locked = False
         for child in reversed(self.children):
             cx = (x - child.x) / child.scale
             cy = (y - child.y) / child.scale

@@ -32,6 +32,8 @@ main_screen = jrti_game.flippable.Layer(
     height=600,
     x=-400,
     y=-300,
+    margin=32,
+    instructions='End',
 )
 state.main_screen = main_screen
 bug_arena = BugArena(
@@ -40,7 +42,7 @@ bug_arena = BugArena(
     y=400 - 8*32,
     width=600,
     height=8*48,
-    instructions='main_plaque',
+    instructions='Main Plaque',
     margin=4,
     bgcolor=(.1, .1, .1, 1)
 )
@@ -174,6 +176,8 @@ def on_mouse_motion(x, y, button, mod):
 @window.event
 def on_mouse_press(x, y, button, mod):
     main_screen.mouse_release()
+    if state.ending:
+        return
     if mod & pyglet.window.key.MOD_SHIFT:
         state.alt_zoom_start = [y, (x, y)]
         return
@@ -190,6 +194,8 @@ def on_mouse_press(x, y, button, mod):
 
 @window.event
 def on_mouse_drag(x, y, dx, dy, button, mod):
+    if state.ending:
+        return
     if state.alt_zoom_start is not None:
         azs = state.alt_zoom_start
         zoom((y - azs[0]) / 2, *azs[1])
@@ -214,14 +220,26 @@ def on_mouse_release(x, y, button, mod):
 
 @window.event
 def on_mouse_scroll(x, y, scroll_x, scroll_y):
-    zoom(scroll_y, x, y)
     main_screen.mouse_release()
+    if state.ending:
+        return
+    zoom(scroll_y, x, y)
 
 
 @window.event
 def on_key_press(sym, mod):
     if sym == pyglet.window.key.C and mod & pyglet.window.key.MOD_CTRL:
         raise KeyboardInterrupt()
+
+    try:
+        key = state.keymap[sym]
+    except KeyError:
+        return pyglet.event.EVENT_HANDLED
+
+    if state.ending:
+        if key in ('Exit', 'Quit'):
+            exit()
+        return pyglet.event.EVENT_HANDLED
 
     if state.reassign_state:
         main_screen.mouse_release()
@@ -230,11 +248,6 @@ def on_key_press(sym, mod):
             state.reassign_state = time0, sym, state.time, None, None
         elif sym2 is None:
             state.reassign_state = time0, sym1, time1, sym, state.time
-        return pyglet.event.EVENT_HANDLED
-
-    try:
-        key = state.keymap[sym]
-    except KeyError:
         return pyglet.event.EVENT_HANDLED
 
     if mod == 0:
@@ -278,7 +291,8 @@ def on_key_release(sym, mod):
 
 
 def zoom(amount, x=None, y=None):
-    state.target_zoom = clamp(state.target_zoom * 1.1 ** amount, 1, 800)
+    state.target_zoom = clamp(state.target_zoom * 1.1 ** amount,
+                              state.min_zoom, 800)
 
 
 def _zoom(amount):
@@ -302,8 +316,11 @@ def _full_zoom():
 
 def finish_viewport_change():
     cx, cy = state.center
-    cx = clamp(cx, 400 - 400 * state.zoom, 400 * state.zoom - 400)
-    cy = clamp(cy, 300 - 300 * state.zoom, 300 * state.zoom - 300)
+    if state.zoom <= 1:
+        cx, cy = 0, 0
+    else:
+        cx = clamp(cx, 400 - 400 * state.zoom, 400 * state.zoom - 400)
+        cy = clamp(cy, 300 - 300 * state.zoom, 300 * state.zoom - 300)
 
     state.center = cx, cy
 

@@ -13,7 +13,7 @@ Don't read this file before trying to play the game :)
     There are no instructions here.
 
 
-# main_plaque
+# Main Plaque
 
     THE INSTRUCTIONS
 
@@ -265,6 +265,14 @@ Don't read this file before trying to play the game :)
     ADJUSTING THE KEY
 
     By dragging one of the adjustment sliders found in the dot of an I, the Key Tool can be reconfigured.
+
+# End
+
+    CONGRATULATIONS
+
+    As you unlock the main lock, the wall opens. You are free!
+
+    You have finished the game in {end_time}.
 
 # 2
 

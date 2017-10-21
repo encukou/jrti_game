@@ -24,4 +24,7 @@ state = types.SimpleNamespace(
     code=[random.randrange(10) for i in range(10)],
     key_config=[0, 3, 4, 0],
     stuck_keys=[],
+    ending=False,
+    min_zoom=1,
+    end_time=None,
 )
