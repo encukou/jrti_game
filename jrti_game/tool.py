@@ -167,6 +167,7 @@ class Key(Tool):
     name = 'key'
     locked = None
     locking = False
+    unlocked = False
     lock = None
     visible_len = 19
     fully_inserted = False
@@ -176,17 +177,12 @@ class Key(Tool):
         anim = clamp((state.time - self.anim_start) * 4, 0, 1)
         length = self.visible_len
         if not self.locking:
-            anim = 1+anim
+            anim = 1-anim
+        if self.unlocked:
+            anim = 1
         gl.glRotatef(anim * 180, 1, 0, 0)
         if self.fully_inserted:
-            gl.glColor3f(0.7, 0.9, 0.3)
-        elif self.lock:
-            gl.glColor3f(0.5, 0.9, 0.2)
-        else:
-            gl.glColor3f(0.1, 0.9, 0.1)
-
-        if self.fully_inserted:
-            gl.glColor3f(0.1, 0.9, 0.1)
+            gl.glColor3f(0.1, 0.9, 0.1 + anim*0.9)
         else:
             t = (self.visible_len-9) / 10
             gl.glColor3f(0.9, 0.9 - t*0.8, 0.1)
@@ -215,17 +211,33 @@ class Key(Tool):
             self.anim_start = state.time
 
     def tick(self, dt):
-        if self.anim_start and self.anim_start < state.time - 1/4:
-            if self.locking:
-                self.locking = False
-                self.anim_start = state.time
+        if self.anim_start:
+            t = state.time - self.anim_start
+            if t > 1/4:
+                if self.locking:
+                    if self.lock and self.fully_inserted:
+                        self.lock.unlock(self)
+                        self.unlocked = True
+                    else:
+                        self.locking = False
+                        self.anim_start = state.time
+            elif t > 1/16 and not self.fully_inserted:
+                if self.locking:
+                    if self.lock and self.visible_len < 19:
+                        self.locking = False
+                        self.anim_start = state.time - (1/4-t)
 
     def deactivate(self):
+        if self.unlocked:
+            state.tool = Tool()
         self.lock = None
         self.visible_len = 19
         self.fully_inserted = False
 
     def move(self, dx, dy):
+        if self.unlocked:
+            return
+
         if dx < 0 or dy:
             self.deactivate()
 

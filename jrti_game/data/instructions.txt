@@ -150,6 +150,8 @@ Don't read this file before trying to play the game :)
     Rectangular objects tend to have keyholes.
     When you find one, move the key to the keyhole, then press {D} to insert it.
 
+    A used key sticks in the lock – but don't worry; you can always get a new one!
+
 # XXX
     L
     M

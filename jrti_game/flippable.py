@@ -392,6 +392,9 @@ class Flippable:
             gl.glVertex2f(*points[0])
         gl.glEnd()
 
+    def unlock(self, key):
+        pass
+
 
 @attrs(repr=False)
 class Layer(Flippable):
