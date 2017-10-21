@@ -115,10 +115,10 @@ Don't read this file before trying to play the game :)
 
     GRABBY TOOL
 
-    The Grabby Tool can be selected by Shift+{G}.
+    The Grabby Tool can be selected by pressing {G}.
 
-    When it's selected, you can grab and release white things with the {G} key.
-    The grabbed object will move with the tool.
+    When it's selected, you can grab or release white things by pressing the {G} key again.
+    Any grabbed object will move with the tool.
 
     Moving things may scare creatures hiding underneath them.
 
@@ -131,6 +131,7 @@ Don't read this file before trying to play the game :)
 
     Tools can be used to interact with the game. They are controlled by {W}, {A}, {S}, and {D}.
 
+    Tools are activated by pressing {G} and {K}.
     Instructions for specific tools can be found behind a G or a K.
 
 # J
@@ -143,8 +144,8 @@ Don't read this file before trying to play the game :)
 
     [XXX] KEY TOOL
 
-    The Key Tool can be selected by Shift+{K}.
-    Press {K} to turn the key.
+    The Key Tool can be selected by pressing {K}.
+    When it's selected, press {K} again to turn the key.
 
     Rectangular objects tend to have keyholes.
     When you find one, move the key to the keyhole, then press {D} to insert it.

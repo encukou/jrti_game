@@ -195,12 +195,10 @@ class Key(Tool):
             texture = texture.get_region(0, 0, width=min(length, 15), height=8)
         texture.blit(-4.5, -4.5)
         for i, num in enumerate(state.key_config):
-            print(i, i+14, i+15, length)
             if i + 15 > length:
                 break
             if i + 16 > length:
                 width = length % 1
-                print(length, width)
             else:
                 width = 1
             if num < 5:

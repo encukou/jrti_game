@@ -242,18 +242,17 @@ def on_key_press(sym, mod):
     if key in ('Exit', 'Quit'):
         exit()
     elif key == 'Grabby':
-        if mod == pyglet.window.key.MOD_SHIFT:
-            if state.tool.name != 'grabby':
-                state.tool = tool.Grabby()
-        elif state.tool.name == 'grabby':
+        if state.tool.name == 'grabby':
             _full_zoom()
             state.tool.grab()
+        else:
+            state.tool = tool.Grabby()
     elif key == 'Key':
-        if mod == pyglet.window.key.MOD_SHIFT:
-            state.tool = tool.Key()
-        elif state.tool.name == 'key':
+        if state.tool.name == 'key':
             _full_zoom()
             state.tool.turn()
+        else:
+            state.tool = tool.Key()
     elif key == 'Reassign':
         if state.reassign_state is None:
             state.reassign_state = state.time, None, None, None, None
