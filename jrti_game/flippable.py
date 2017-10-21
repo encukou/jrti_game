@@ -473,10 +473,10 @@ class Sprite(Flippable):
             texture = self.texture
         except AttributeError:
             texture = spritesheet_texture.get_region(
-                self.u, self.v, self.texture_width, self.texture_height)
+                self.u, self.v, self.texture_width, self.texture_height-1)
             self.texture = texture
 
-        texture.blit(0, 0, width=self.width, height=self.height)
+        texture.blit(0, 0, width=self.width, height=self.height-1)
 
         super().draw(zoom=zoom, **kwargs)
 
