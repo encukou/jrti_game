@@ -168,30 +168,48 @@ class Key(Tool):
     locked = None
     locking = False
     lock = None
-    insert_remaining = 0
+    visible_len = 19
     fully_inserted = False
     lock_zoom = 0
 
     def draw(self):
         anim = clamp((state.time - self.anim_start) * 4, 0, 1)
+        length = self.visible_len
         if not self.locking:
             anim = 1+anim
         gl.glRotatef(anim * 180, 1, 0, 0)
         if self.fully_inserted:
-            gl.glColor3f(0, 1, 0)
+            gl.glColor3f(0.7, 0.9, 0.3)
         elif self.lock:
-            gl.glColor3f(1, 1, 1)
+            gl.glColor3f(0.5, 0.9, 0.2)
         else:
-            gl.glColor3f(0.4, 0.9, 0.1)
-        sprites['key'].blit(-4.5, -4.5)
+            gl.glColor3f(0.1, 0.9, 0.1)
+
+        if self.fully_inserted:
+            gl.glColor3f(0.1, 0.9, 0.1)
+        else:
+            t = (self.visible_len-9) / 10
+            gl.glColor3f(0.9, 0.9 - t*0.8, 0.1)
+        texture = sprites['key']
+        if length < 15:
+            texture = texture.get_region(0, 0, width=min(length, 15), height=8)
+        texture.blit(-4.5, -4.5)
         for i, num in enumerate(state.key_config):
+            print(i, i+14, i+15, length)
+            if i + 15 > length:
+                break
+            if i + 16 > length:
+                width = length % 1
+                print(length, width)
+            else:
+                width = 1
             if num < 5:
                 y = -0.75+(num-5)/2
                 height = 1-(num-5)/2+.25
             else:
                 y = -0.75
                 height = 1+(num-5)/2
-            sprites['square'].blit(x=15-4.5+i, y=y, width=1, height=height)
+            sprites['square'].blit(x=15-4.5+i, y=y, width=width, height=height)
 
     def turn(self):
         if self.anim_start < state.time - 1/4:
@@ -206,7 +224,7 @@ class Key(Tool):
 
     def deactivate(self):
         self.lock = None
-        self.insert_remaining = 0
+        self.visible_len = 19
         self.fully_inserted = False
 
     def move(self, dx, dy):
@@ -228,22 +246,24 @@ class Key(Tool):
                         kx -= dx / zoom
                         kw += dx / zoom
                         if (kx < x < kx+kw and ky < y < ky+kh and
-                                kh * zoom > 10):
+                                10 < kh * zoom < 400):
                             self.lock = obj
                             break
             if self.lock:
                 kx, ky, kw, kh = self.lock.keyhole
-                x, y = tool_to_main_screen(state.tool_x+5.5*3, state.tool_y)
+                x, y = tool_to_main_screen(state.tool_x+4.5*3, state.tool_y)
                 for obj, x, y in state.main_screen.hit_test_all(x, y):
                     if obj is self.lock:
-                        self.insert_remaining = (kx+kw - x)*self.lock_zoom
-                        if dx > self.insert_remaining:
-                            dx = self.insert_remaining
+                        insert_remaining = (kx+kw - x)*self.lock_zoom
+                        if dx > insert_remaining:
+                            dx = insert_remaining
                             self.fully_inserted = True
                         elif y < ky+kh/2:
                             dy += min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
                         elif y > ky+kh/2:
                             dy -= min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
+                        insert_remaining = (kx+kw - x)*self.lock_zoom - dx
+                        self.visible_len = 9 + insert_remaining / 3
                         break
                 else:
                     self.lock = None
