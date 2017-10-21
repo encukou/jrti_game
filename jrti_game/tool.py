@@ -101,6 +101,9 @@ class Grabby(Tool):
                 scale *= obj.scale
                 obj = obj.parent
 
+            gdx = dx
+            gdy = dy
+
             # Find appropriate distances to all siblings
             # - If negative - overlapping, don't care
             # - If distance is less than dN, limit dN to that
@@ -111,26 +114,27 @@ class Grabby(Tool):
                 y = (g.y - sibling.y) / sibling.scale
                 w = g.width * g.scale / sibling.scale
                 h = g.height * g.scale / sibling.scale
-                if dx < 0:
+                if gdx < 0:
                     dist = sibling.hit_test_overlap(x, y, y+h, 'x+') * sibling.scale
-                    if e0 <= dist <= -dx:
-                        dx = -dist
-                if dx > 0:
+                    if e0 <= dist <= -gdx:
+                        gdx = -dist
+                if gdx > 0:
                     dist = sibling.hit_test_overlap(x+w, y, y+h, 'x-') * sibling.scale
-                    if e0 <= dist <= dx:
-                        dx = dist
-                if dy < 0:
+                    if e0 <= dist <= gdx:
+                        gdx = dist
+                if gdy < 0:
                     dist = sibling.hit_test_overlap(y, x, x+w, 'y+') * sibling.scale
-                    if e0 <= dist <= -dy:
-                        dy = -dist
-                if dy > 0:
+                    if e0 <= dist <= -gdy:
+                        gdy = -dist
+                if gdy > 0:
                     dist = sibling.hit_test_overlap(y+h, x, x+w, 'y-') * sibling.scale
-                    if e0 <= dist <= dy:
-                        dy = dist
+                    if e0 <= dist <= gdy:
+                        gdy = dist
 
-            g.x += dx / scale
-            g.y += dy / scale
-            print(g.x, g.y)
+            g.x = clamp(g.x + gdx / scale, 0,
+                        g.parent.width - g.width * g.scale)
+            g.y = clamp(g.y + gdy / scale,
+                        0, g.parent.height - g.height * g.scale)
         super().move(dx, dy)
         x, y = tool_to_main_screen(state.tool_x, state.tool_y)
         for obj, x, y in state.main_screen.hit_test_all(x, y):
