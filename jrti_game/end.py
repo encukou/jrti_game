@@ -12,7 +12,6 @@ class Keyhole(Sprite):
     keyhole = 2, 18, 6.5, 13
     keyhole_params = 10, 800
     endgen = None
-    instructions_color = 0.9, 0.8, 0.1
 
     def unlock(self, key):
         super().unlock(key)
@@ -57,9 +56,9 @@ class Keyhole(Sprite):
         speed = 0
         state.main_screen.flip_locked = True
         while angle < 150:
-            state.main_screen.flip_params = 0, 0, angle, 0
             angle = clamp(angle+speed, 0, 150)
             speed += (yield) * 5
+            state.main_screen.flip_params = 0, 0, angle, 0
 
     def accepts_key(self, key):
         return all(int(a) == int(b)

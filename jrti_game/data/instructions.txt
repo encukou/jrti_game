@@ -157,7 +157,7 @@ Don't read this file before trying to play the game :)
     The Key Tool can be selected by pressing {K}.
     When it's selected, press {K} again to turn the key.
 
-    When you find a keyhole, move the key to the it, then press {D} to insert.
+    When you find a keyhole, move the key to it, then press {D} to insert.
 
     A used key sticks in the lock – but don't worry: you can always get a new one!
 
