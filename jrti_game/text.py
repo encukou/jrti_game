@@ -5,6 +5,7 @@ from pyglet import gl
 from jrti_game.data import spritesheet_data, spritesheet_texture
 from jrti_game.flippable import Sprite
 from jrti_game.key_names import key_symbols
+from jrti_game.util import draw_rect
 
 
 @functools.lru_cache()
@@ -124,8 +125,6 @@ def letters(string, x=0, y=0, scale=1, center=False, parent=None,
     next_kern = 0
     for character, next_char in zip(string, string[1:] + ' '):
         instructions = character.upper()
-        if replace:
-            character = replace.get(character, character)
         if character == '\n':
             y -= scale * 8
             x = starting_x
@@ -144,8 +143,37 @@ def letters(string, x=0, y=0, scale=1, center=False, parent=None,
             if character == ' ':
                 x += (4 + etrim) * scale
             else:
-                letter = Letter(character, x=x, y=y, height=9, scale=scale,
-                                strim=strim, etrim=etrim, parent=parent,
-                                instructions=instructions)
+                if character == 'i':
+                    cls = Eye
+                elif character == 'o':
+                    cls = Oh
+                else:
+                    cls = Letter
+                letter = cls(character, x=x, y=y, height=9, scale=scale,
+                             strim=strim, etrim=etrim, parent=parent,
+                             instructions=instructions)
                 x += (letter.width + etrim) * scale - scale
                 yield letter
+
+class Oh(Letter):
+    def draw(self):
+        super().draw()
+        gl.glPushMatrix()
+        gl.glColor4f(*self.bgcolor)
+        gl.glTranslatef(3, 2, 0)
+        draw_rect(1, 4)
+        gl.glPopMatrix()
+
+class Eye(Letter):
+    keyhole = 2, 7.25, 2/32, 1/2
+    def draw(self):
+        super().draw()
+        x, y, w, h = self.keyhole
+        gl.glColor4f(*self.bgcolor)
+        gl.glBegin(gl.GL_TRIANGLE_FAN)
+        gl.glVertex2f(x, y-w)
+        gl.glVertex2f(x, y+h+w)
+        gl.glVertex2f(x+w, y+h)
+        gl.glVertex2f(x+w, y)
+        gl.glVertex2f(x, y-w)
+        gl.glEnd()

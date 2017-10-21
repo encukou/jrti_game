@@ -41,6 +41,8 @@ class Flippable:
     num_hiding_bugs = 0
     last_moved = 0
 
+    keyhole = None
+
     def __attrs_post_init__(self):
         if self.parent:
             self.parent.add_child(self)

@@ -63,6 +63,12 @@ class Bug(Flippable):
         super().tick(dt)
         angle = math.radians(self.rotation)
 
+        ox, oy = self.parent.o_coords
+        if (((self.y - oy)/1.5) ** 2 + (self.x - ox) ** 2) < 16**2:
+            self.parent.at_o(self)
+            if not self.parent:
+                return
+
         hx, hy = self.parent.home_coords
         d = (self.y - hy) ** 2 + (self.x - hx) ** 2
         self.home_distance2 = d
@@ -71,9 +77,6 @@ class Bug(Flippable):
             if not self.homed:
                 self.homed = True
                 self.speed = 1
-                self.parent.homed(self)
-                if not self.parent:
-                    return
         if (((self.y - hy) / 1.5) ** 2 + (self.x - hx) ** 2) < 5**2:
             self.min_speed = self.speed = 5
         elif self.homing:
@@ -160,6 +163,7 @@ class BugArena(Layer):
         if isinstance(child, Letter):
             child.hides_bugs = True
             child.num_hiding_bugs = 2
+            child.bgcolor = self.bgcolor
 
     def spawn_bug(self, letter=None, s_to_homing=30):
         orig_letter = letter
@@ -195,6 +199,9 @@ class BugArena(Layer):
                     bug.rotation = random.uniform(0, 180)
                 if random.randrange(2):
                     bug.rotation = -bug.rotation
+                if letter is self.o_letter:
+                    bug.x += math.sin(math.radians(bug.rotation)) * 16
+                    bug.y += math.sin(math.radians(bug.rotation)) * 24
                 bug.s_to_homing = s_to_homing
                 self.children.sort(key=lambda c: -isinstance(c, Bug))
                 return bug
@@ -207,17 +214,20 @@ class BugArena(Layer):
         if random.uniform(0, s_to_bug) < dt:
             self.spawn_bug()
 
+    @property
+    def o_coords(self):
+        l = self.o_letter
+        return l.x + l.scale * 2.5, l.y + l.scale * 3
+
     @reify
     def home_coords(self):
-        l = self.o_letter
-        l.num_hiding_bugs += 10
-        return l.x + l.scale * 2.5, l.y + l.scale * 3
+        return self.o_coords
 
     @reify
     def o_letter(self):
         for child in self.children:
             if child.instructions == 'O':
-                self.o_coords = child.x, child.y
+                child.num_hiding_bugs += 10
                 return child
 
     def hit_test_overlap(self, s, a, b, mode):
@@ -238,8 +248,7 @@ class BugArena(Layer):
                 return -s
         return -100
 
-    def homed(self, bug):
-        if (self.o_letter.x, self.o_letter.y) == self.o_coords:
-            bug.die()
-            self.o_letter.num_hiding_bugs = clamp(
-                self.o_letter.num_hiding_bugs + 1, 0, 20)
+    def at_o(self, bug):
+        bug.die()
+        self.o_letter.num_hiding_bugs = clamp(
+            self.o_letter.num_hiding_bugs + 1, 0, 20)

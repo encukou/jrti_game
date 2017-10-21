@@ -41,13 +41,13 @@ bug_arena = BugArena(
     height=8*48,
     instructions='main_plaque',
     margin=4,
+    bgcolor=(.1, .1, .1, 1)
 )
 
 all(jrti_game.text.letters(
     "Just Read the", scale=4, y=8*36, x=300, center=True, parent=bug_arena))
 all(jrti_game.text.letters(
-    "Instructions!", replace={'o': '\x8f'},
-    scale=8, y=8*24, x=300, center=True, parent=bug_arena))
+    "Instructions!", scale=8, y=8*24, x=300, center=True, parent=bug_arena))
 
 for x in range(2):
     bug_arena.spawn_bug()
