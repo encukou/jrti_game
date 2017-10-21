@@ -189,11 +189,31 @@ class Eye(Letter):
     innards = 2+1/8, 7+1/16, 2-3/16, 1-2/16
 
     def draw(self, zoom, **kwargs):
-        super().draw(zoom=zoom, **kwargs)
+        super().draw(zoom=zoom, children=False, **kwargs)
         if self.unlocked:
-            gl.glColor3f(0, 0, 0)
+            if zoom > 4:
+                gl.glColor3f(0, 0, 0)
+            else:
+                gl.glColor3f(1, 1, 1)
             with draw_opening(self):
-                pass
+                if zoom > 4:
+                    for child in self.children:
+                        child.draw_outer(zoom=zoom*child.scale, **kwargs)
+
+    def unlock(self, key):
+        from jrti_game.adjuster import Adjuster
+        super().unlock(key)
+        for i in range(4):
+            a = Adjuster(
+                parent=self,
+                x=2+3/8+i*3/8,
+                y=7+6/64,
+                scale=1/128,
+                width=24,
+                height=80+24,
+                instructions='Adjusting',
+            )
+            a.index = i
 
 
 class Exclamation(Letter):

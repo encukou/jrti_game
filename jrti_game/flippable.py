@@ -57,9 +57,10 @@ class Flippable:
     def __repr__(self):
         return '<{}: {}>'.format(type(self).__name__, self.instructions)
 
-    def draw(self, zoom, **kwargs):
-        for child in self.children:
-            child.draw_outer(zoom=zoom*child.scale, **kwargs)
+    def draw(self, zoom, children=True, **kwargs):
+        if children:
+            for child in self.children:
+                child.draw_outer(zoom=zoom*child.scale, **kwargs)
 
     def tick(self, dt):
         if self.flip_params and self.drag_info[0] is not self:
@@ -481,6 +482,9 @@ class Sprite(Flippable):
 
     def hit_test_grab(self, x, y):
         return self.pixel(int(x), int(y))
+
+    def grab_move(self, dx, dy):
+        pass
 
     def hit_test_overlap(self, s, a, b, mode):
         dists = []

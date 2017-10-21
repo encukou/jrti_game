@@ -85,7 +85,10 @@ class Grabby(Tool):
             if self.active and not self.grabbing:
                 x, y = tool_to_main_screen(state.tool_x, state.tool_y)
                 for obj, x, y in state.main_screen.hit_test_all(x, y):
-                    if obj.hit_test_grab(x, y) and not obj.unlocked:
+                    if obj.hit_test_grab(x, y):
+                        if obj.unlocked:
+                            obj.unlocked.anim_start = state.time
+                            continue
                         self.grabbing = obj
                         break
                 else:
@@ -100,6 +103,10 @@ class Grabby(Tool):
                 scale *= obj.scale
                 obj = obj.parent
 
+        if self.grabbing and self.grabbing.grab_move(dx/scale, dy/scale):
+            print(scale)
+            pass
+        elif self.grabbing:
             gdx = dx
             gdy = dy
 

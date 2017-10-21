@@ -254,11 +254,17 @@ Don't read this file before trying to play the game :)
 
 # Bug
 
-    [XXX] SCRATCH MEMORY LEAK
+    SCRATCH MEMORY LEAK
 
     The key parameters for the main wall lock have been chosen as:
 
         {state.code[0]} – {state.code[1]} – {state.code[2]} — {state.code[3]}
+
+# Adjusting
+
+    ADJUSTING THE KEY
+
+    By dragging one of the adjustment sliders found in the dot of an I, the Key Tool can be reconfigured.
 
 # 2
 
