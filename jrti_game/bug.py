@@ -41,7 +41,7 @@ class Bug(Flippable):
 
         legx = math.sin(leg_time) * 0.5
         legy = 0
-        if self.flip_params:
+        if self.flip_params or state.tool.grabbing is self:
             legx /= 2
             legy = math.cos(leg_time * 8/7) * 0.25
         sprites['bugleg'].blit(-3.5+legx, -5.5+legy)
@@ -67,7 +67,7 @@ class Bug(Flippable):
             self.moment += math.degrees(a) * dt * 5
             self.rotation += math.degrees(a * dt * 3 * (math.exp(-d/1000)))
 
-        if not self.flip_params:
+        if not self.flip_params and state.tool.grabbing is not self:
             self.moment *= 0.25 ** dt
             if random.uniform(0, 0.1) < dt:
                 self.moment += random.uniform(-60, 60)
@@ -123,6 +123,9 @@ class Bug(Flippable):
         if x > 11 or y > 11:
             return False
         return spritesheet_data[28 + int(y)][3*8+1 + int(x)]
+
+    def hit_test_slab(self, x, y, w, h):
+        return False
 
     def homed(self):
         pass

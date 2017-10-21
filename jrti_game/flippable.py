@@ -158,6 +158,13 @@ class Flippable:
     def hit_test_grab(self, x, y):
         return False
 
+    def hit_test_slab(self, x, y, w, h):
+        for ex in range(int(x), int(x) + int(math.ceil(w)) or 1):
+            for ey in range(int(y), int(y) + int(math.ceil(h)) or 1):
+                if self.hit_test(ex, ey) and self.hit_test_grab(ex, ey):
+                    return True
+        return False
+
     def hit_test_all(self, x, y):
         if self.hit_test(x, y):
             yield self, x, y
@@ -171,12 +178,18 @@ class Flippable:
         with contextlib.ExitStack() as stack:
             for obj in reversed(parents):
                 stack.enter_context(obj.draw_context(bg=False))
+            if self.bgcolor[:3] == (0, 0, 0):
+                gl.glColor4f(0.2, 0.3, 0.5, 1 / 4)
+                draw_rect(self.width, self.height)
             self.draw_outline((0.1, 0.9, 0.4), 0.7)
 
     def drag_start(self, x, y, **kwargs):
         self.drag_info = self, (x, y)
         self.flip_direction = None
         self.light_seed = random.randint(0, 2**32)
+
+        if state.tool.grabbing is self:
+            state.tool.deactivate()
 
         obj = self
         while obj:
@@ -208,7 +221,7 @@ class Flippable:
             gl.glPopMatrix()
 
     def draw_outer(self):
-        with self.draw_context(bg=not self.transparent):
+        with self.draw_context(bg=False):
             if not self.flip_params:
                 self.draw()
 
@@ -415,7 +428,7 @@ class Layer(Flippable):
 
     def hit_test_all(self, x, y):
         if self.hit_test(x, y):
-            for child in self.children:
+            for child in reversed(self.children):
                 yield from child.hit_test_all((x - child.x) / child.scale,
                                               (y - child.y) / child.scale)
             yield from super().hit_test_all(x, y)

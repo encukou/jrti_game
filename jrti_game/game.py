@@ -331,7 +331,7 @@ def tick(dt):
     for key, time in ((k, state.time - pressed_keys[k])
                       for k in pressed_keys):
         dz = .2 + (time*4)**3
-        dm = 2 + (time*6)**2
+        dm = clamp(2 + (time*6)**2, 0, 40)
         if key == 'Zoom Out':
             zoom(-dz * dt)
         elif key == 'Zoom In':
@@ -366,9 +366,9 @@ def tick(dt):
             finish_viewport_change()
 
     if tool_x != state.tool_x or tool_y != state.tool_y:
-        state.tool.speed = (tool_x - state.tool_x + tool_y - state.tool_y)
-        state.tool_x = tool_x
-        state.tool_y = tool_y
+        dx = tool_x - state.tool_x
+        dy = tool_y - state.tool_y
+        state.tool.move(dx, dy)
     else:
         state.tool.speed = 0
 

@@ -24,6 +24,11 @@ class Tool:
     def tick(self, dt):
         pass
 
+    def move(self, dx, dy):
+        state.tool_x += dx
+        state.tool_y += dy
+        self.speed = dx + dy
+
 
 class Grabby(Tool):
     size = 8*2-2
@@ -85,6 +90,50 @@ class Grabby(Tool):
                         break
                 else:
                     self.deactivate()
+
+    def move(self, dx, dy, recursing=False):
+        blocker = False
+        if self.grabbing:
+            moved = False
+            scale = state.zoom
+            g = self.grabbing
+            obj = g.parent
+            while obj:
+                scale *= obj.scale
+                obj = obj.parent
+            new_x = g.x + dx / scale
+            new_y = g.y + dy / scale
+            gs = g.scale
+            blocker = self.calc_hit(new_x, new_y)
+            if not blocker:
+                g.x += dx / scale
+                g.y += dy / scale
+                moved = True
+        super().move(dx, dy)
+        x, y = tool_to_main_screen(state.tool_x, state.tool_y)
+        for obj, x, y in state.main_screen.hit_test_all(x, y):
+            if obj is self.grabbing and obj.hit_test(x, y):
+                break
+        else:
+            self.deactivate()
+        return
+
+    def calc_hit(self, new_x, new_y):
+        g = self.grabbing
+        children = g.parent.children
+        for sibling in children:
+            if sibling is not g:
+                x = (new_x - sibling.x) / sibling.scale
+                y = (new_y - sibling.y) / sibling.scale
+                w = g.width * g.scale / sibling.scale
+                h = g.height * g.scale / sibling.scale
+                if sibling.hit_test_slab(x, y, w, h):
+                    print('Hit', sibling, x, y, w, h)
+                    return sibling
+        return False
+
+    def try_move(self, dx, dy, scale):
+            g = self.grabbing
 
 
 class Key(Tool):

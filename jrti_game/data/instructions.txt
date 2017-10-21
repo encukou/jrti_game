@@ -84,8 +84,11 @@ Don't read this file before trying to play the game :)
     The best time to catch a bug is when it is feeding.
     As feeding spots are some of their favorite places, bugs tend to scurry towards food when disturbed.
 
-# XXX
-    C
+# C
+
+    TOOL DEACTIVATION
+
+    For safety reasons, tools are deactivated whenever you zoom, move around the screen, or interact with the object the tool is operating on.
 
 # D
 
