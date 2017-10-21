@@ -18,6 +18,7 @@ class Bug(Flippable):
     transparent = True
     homing = False
     homed = False
+    s_to_homing = 30
 
     def __init__(self, **kwargs):
         kwargs.setdefault('width', 15)
@@ -43,7 +44,10 @@ class Bug(Flippable):
         gl.glRotatef(self.rotation, 0, 0, 1)
         sprites['bug'].blit(-5.5, -5.5)
 
-        leg_time = state.time*32
+        if self.min_speed > 100:
+            leg_time = state.time*32
+        else:
+            leg_time = state.time*16
 
         legx = math.sin(leg_time) * 0.5
         legy = 0
@@ -55,24 +59,28 @@ class Bug(Flippable):
         sprites['bugleg'].blit(-3.5-legx, -5.5+legy)
         gl.glPopMatrix()
 
-
     def tick(self, dt):
         super().tick(dt)
         angle = math.radians(self.rotation)
 
         hx, hy = self.parent.home_coords
         d = (self.y - hy) ** 2 + (self.x - hx) ** 2
+        self.home_distance2 = d
         homed = d < 7**2
         if homed:
-            self.homed()
-            if not self.parent:
-                return
+            if not self.homed:
+                self.homed = True
+                self.speed = 1
+                self.parent.homed(self)
+                if not self.parent:
+                    return
         if (((self.y - hy) / 1.5) ** 2 + (self.x - hx) ** 2) < 5**2:
             self.min_speed = self.speed = 5
         elif self.homing:
             a = (angle - math.atan2(self.y - hy, self.x - hx) + pi) % tau - pi
             self.moment *= 0.075 ** dt
-            self.moment += math.degrees(a) * dt * 5
+            if a > tau/180:
+                self.moment += math.degrees(a) * dt * 5
             self.rotation += clamp(
                 math.degrees(a * dt * 3 * (math.exp(-d/5000))),
                 -abs(a), abs(a))
@@ -120,6 +128,9 @@ class Bug(Flippable):
             if random.uniform(0, 1/10) < dt:
                 self.rotation += random.uniform(-5, 5)
 
+        if random.uniform(0, self.s_to_homing) < dt:
+            self.homing = True
+
     def hit_test_grab(self, x, y):
         x -= self.width / 2
         y -= self.height / 2
@@ -137,77 +148,79 @@ class Bug(Flippable):
     def hit_test_slab(self, x, y, w, h):
         return False
 
-    def homed(self):
-        pass
-
-
-class RangingBug(Bug):
-    def tick(self, dt):
-        super().tick(dt)
-        if random.uniform(0, 30) < dt:
-            self.homing = True
-
-    def homed(self):
-        self.homing = True
-        self.speed = 1
-
 
 class BugArena(Layer):
     def draw(self):
+        gl.glColor3f(.1, .1, .1)
+        draw_rect(self.width, self.height)
         super().draw()
-        letter = self.o_letter
-        scale = letter.scale
-        gl.glColor3f(0, 0, 0)
-        gl.glPushMatrix()
-        gl.glTranslatef(letter.x + scale * 3, letter.y + scale * 2, 0)
-        draw_rect(scale * 1,
-                  scale * 4)
-        gl.glPopMatrix()
 
-    def spawn_bug(self):
-        bug = RangingBug(parent=self)
-        while True:
+    def add_child(self, child):
+        super().add_child(child)
+        if isinstance(child, Letter):
+            child.hides_bugs = True
+            child.num_hiding_bugs = 2
+
+    def spawn_bug(self, letter=None, s_to_homing=30):
+        orig_letter = letter
+        while not isinstance(letter, Letter):
             letter = random.choice(self.children)
-            if isinstance(letter, Letter):
-                if letter.scale < 8 and random.randrange(0, 6):
-                    continue
-                x = random.randrange(0, letter.width)
-                y = random.randrange(0, letter.height)
-                if all(letter.pixel(x+xx, y+yy)
-                       for xx in (0, 1) for yy in (0, 1)):
-                    bug.x = letter.x + x * letter.scale
-                    bug.y = letter.y + y * letter.scale
+
+        closest = 1000
+        closest_i = 0
+        num_close_bugs = 0
+        for i, child in enumerate(self.children):
+            dist2 = getattr(child, 'home_distance2', 1000)
+            if dist2 < 8**2:
+                num_close_bugs += 1
+                if dist2 < closest:
+                    closest = dist2 + i/10
+                    closest_i = i
+
+        if num_close_bugs > 15:
+            self.children[closest_i].die()
+        bug = Bug(parent=self)
+        while True:
+            if letter.scale < 8 and random.randrange(0, 6):
+                continue
+            x = random.randrange(0, letter.width)
+            y = random.randrange(0, letter.height)
+            if all(letter.pixel(x+xx, y+yy)
+                    for xx in (0, 1) for yy in (0, 1)):
+                bug.x = letter.x + x * letter.scale
+                bug.y = letter.y + y * letter.scale
+                if orig_letter is None:
                     bug.rotation = random.normalvariate(90, 30)
-                    if random.randrange(2):
-                        bug.rotation = -bug.rotation
-                    self.children.sort(key=lambda c: -isinstance(c, Bug))
-                    return bug
+                else:
+                    bug.rotation = random.uniform(0, 180)
+                if random.randrange(2):
+                    bug.rotation = -bug.rotation
+                bug.s_to_homing = s_to_homing
+                self.children.sort(key=lambda c: -isinstance(c, Bug))
+                return bug
 
     def tick(self, dt):
         super().tick(dt)
-        num_bugs = len([c for c in self.children if isinstance(c, Bug)])
-        avg_seconds_to_bug = clamp((num_bugs-1/2)*4, 1, 100)
-        if random.uniform(0, avg_seconds_to_bug) < dt:
+        num_bugs = len([c for c in self.children
+                        if isinstance(c, Bug) and not c.homed])
+        s_to_bug = clamp((num_bugs-1/2)*4, 1, 100)
+        if random.uniform(0, s_to_bug) < dt:
             self.spawn_bug()
 
-    @property
+    @reify
     def home_coords(self):
         l = self.o_letter
+        l.num_hiding_bugs += 10
         return l.x + l.scale * 2.5, l.y + l.scale * 3
 
     @reify
     def o_letter(self):
         for child in self.children:
             if child.instructions == 'O':
+                self.o_coords = child.x, child.y
                 return child
 
-    def draw(self):
-        gl.glColor3f(.1, .1, .1)
-        draw_rect(self.width, self.height)
-        super().draw()
-
     def hit_test_overlap(self, s, a, b, mode):
-      def d(s,a,b):
         a += 0.0001
         a -= 1
         b -= 0.0001
@@ -224,5 +237,9 @@ class BugArena(Layer):
             if a < self.width and 0 <= b:
                 return -s
         return -100
-      d= d(s,a,b)
-      return d
+
+    def homed(self, bug):
+        if (self.o_letter.x, self.o_letter.y) == self.o_coords:
+            bug.die()
+            self.o_letter.num_hiding_bugs = clamp(
+                self.o_letter.num_hiding_bugs + 1, 0, 20)

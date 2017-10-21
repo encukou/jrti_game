@@ -3,7 +3,6 @@ import pyglet
 from pyglet import gl
 import ctypes
 import math
-import random
 
 import jrti_game.data
 from jrti_game.data import sprites

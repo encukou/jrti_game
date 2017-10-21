@@ -1,4 +1,5 @@
 import math
+import random
 
 from pyglet import gl
 
@@ -92,7 +93,6 @@ class Grabby(Tool):
                     self.deactivate()
 
     def move(self, dx, dy, recursing=False):
-        blocker = False
         if self.grabbing:
             scale = state.zoom
             g = self.grabbing
@@ -107,7 +107,6 @@ class Grabby(Tool):
             # Find appropriate distances to all siblings
             # - If negative - overlapping, don't care
             # - If distance is less than dN, limit dN to that
-            dists = []
             e0 = -0.0001
             for sibling in g.parent.children:
                 x = (g.x - sibling.x) / sibling.scale
@@ -115,19 +114,23 @@ class Grabby(Tool):
                 w = g.width * g.scale / sibling.scale
                 h = g.height * g.scale / sibling.scale
                 if gdx < 0:
-                    dist = sibling.hit_test_overlap(x, y, y+h, 'x+') * sibling.scale
+                    dist = sibling.hit_test_overlap(x, y, y+h, 'x+')
+                    dist *= sibling.scale
                     if e0 <= dist <= -gdx:
                         gdx = -dist
                 if gdx > 0:
-                    dist = sibling.hit_test_overlap(x+w, y, y+h, 'x-') * sibling.scale
+                    dist = sibling.hit_test_overlap(x+w, y, y+h, 'x-')
+                    dist *= sibling.scale
                     if e0 <= dist <= gdx:
                         gdx = dist
                 if gdy < 0:
-                    dist = sibling.hit_test_overlap(y, x, x+w, 'y+') * sibling.scale
+                    dist = sibling.hit_test_overlap(y, x, x+w, 'y+')
+                    dist *= sibling.scale
                     if e0 <= dist <= -gdy:
                         gdy = -dist
                 if gdy > 0:
-                    dist = sibling.hit_test_overlap(y+h, x, x+w, 'y-') * sibling.scale
+                    dist = sibling.hit_test_overlap(y+h, x, x+w, 'y-')
+                    dist *= sibling.scale
                     if e0 <= dist <= gdy:
                         gdy = dist
 
@@ -135,6 +138,19 @@ class Grabby(Tool):
                         g.parent.width - g.width * g.scale)
             g.y = clamp(g.y + gdy / scale,
                         0, g.parent.height - g.height * g.scale)
+
+            if gdx or gdy and g.hides_bugs:
+                if (state.time - g.last_moved) > 0.5:
+                    g.num_hiding_bugs += (state.time - g.last_moved) ** (1/3)
+                g.last_moved = state.time
+
+                hb = g.num_hiding_bugs
+                db = abs(gdx + gdy) / self.scale
+                left = clamp(hb - db, 0, 10)
+                for i in range(int(left), int(hb)):
+                    g.parent.spawn_bug(g, s_to_homing=4)
+                g.num_hiding_bugs = left
+
         super().move(dx, dy)
         x, y = tool_to_main_screen(state.tool_x, state.tool_y)
         for obj, x, y in state.main_screen.hit_test_all(x, y):
@@ -142,9 +158,6 @@ class Grabby(Tool):
                 break
         else:
             self.deactivate()
-
-    def try_move(self, dx, dy, scale):
-            g = self.grabbing
 
 
 class Key(Tool):

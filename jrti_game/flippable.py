@@ -37,9 +37,13 @@ class Flippable:
     close_speed = 0
     light_seed = 0
 
+    hides_bugs = False
+    num_hiding_bugs = 0
+    last_moved = 0
+
     def __attrs_post_init__(self):
         if self.parent:
-            self.parent.children.append(self)
+            self.parent.add_child(self)
 
     def __repr__(self):
         return '<{}: {}>'.format(type(self).__name__, self.instructions)
@@ -70,6 +74,10 @@ class Flippable:
                 elif ry < 0:
                     ry += angle
                 self.flip_params = x, y, rx, ry
+
+    def add_child(self, child):
+        self.children.append(child)
+        child.parent = self
 
     def die(self):
         self.parent.children.remove(self)
