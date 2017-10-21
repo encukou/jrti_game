@@ -164,8 +164,6 @@ def on_draw():
         gl.glLoadIdentity()
         fps_display.draw()
 
-    print()
-
 
 @window.event
 def on_mouse_motion(x, y, button, mod):
@@ -255,7 +253,7 @@ def on_key_press(sym, mod):
             state.tool = tool.Key()
         elif state.tool.name == 'key':
             _full_zoom()
-            state.tool.lock()
+            state.tool.turn()
     elif key == 'Reassign':
         if state.reassign_state is None:
             state.reassign_state = state.time, None, None, None, None

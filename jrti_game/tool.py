@@ -92,7 +92,7 @@ class Grabby(Tool):
                 else:
                     self.deactivate()
 
-    def move(self, dx, dy, recursing=False):
+    def move(self, dx, dy):
         if self.grabbing:
             scale = state.zoom
             g = self.grabbing
@@ -167,14 +167,19 @@ class Key(Tool):
     name = 'key'
     locked = None
     locking = False
+    lock = None
+    insert_size = 0
+    fully_inserted = False
 
     def draw(self):
         anim = clamp((state.time - self.anim_start) * 4, 0, 1)
-        print(self.anim_start, state.time, 1-anim*2)
         if not self.locking:
             anim = 1+anim
         gl.glRotatef(anim * 180, 1, 0, 0)
-        gl.glColor3f(0.4, 0.9, 0.1)
+        if self.lock:
+            gl.glColor3f(1, 1, 1)
+        else:
+            gl.glColor3f(0.4, 0.9, 0.1)
         sprites['key'].blit(-4.5, -4.5)
         for i, num in enumerate(state.key_config):
             if num < 5:
@@ -185,7 +190,7 @@ class Key(Tool):
                 height = 1+(num-5)/2
             sprites['square'].blit(x=15-4.5+i, y=y, width=1, height=height)
 
-    def lock(self):
+    def turn(self):
         if self.anim_start < state.time - 1/4:
             self.locking = not self.locked
             self.anim_start = state.time
@@ -195,3 +200,46 @@ class Key(Tool):
             if self.locking:
                 self.locking = False
                 self.anim_start = state.time
+
+    def deactivate(self):
+        self.lock = None
+        fully_inserted = False
+
+    def move(self, dx, dy):
+        if dx < 0 or dy:
+            self.deactivate()
+
+        if dx > 0:
+            if not self.lock:
+                x, y = tool_to_main_screen(state.tool_x+14.5*3, state.tool_y)
+                for obj, x, y in state.main_screen.hit_test_all(x, y):
+                    if obj.keyhole:
+                        zoom = state.zoom
+                        par = obj
+                        while par:
+                            zoom *= par.scale
+                            par = par.parent
+                        kx, ky, kw, kh = obj.keyhole
+                        kx -= dx / zoom
+                        kw += dx / zoom
+                        if (kx < x < kx+kw and ky < y < ky+kh and
+                                kh * zoom > 5):
+                            self.lock = obj
+                            break
+            else:
+                kx, ky, kw, kh = self.lock.keyhole
+                x, y = tool_to_main_screen(state.tool_x+5.5*3, state.tool_y)
+                for obj, x, y in state.main_screen.hit_test_all(x, y):
+                    if obj is self.lock:
+                        if x > kx+kw:
+                            dx = 0
+                            fully_inserted = True
+                        elif y < ky+kh/2-.001:
+                            dy += dx/2
+                        elif y > ky+kh/2+.001:
+                            dy -= dx/2
+                        break
+                else:
+                    self.lock = None
+
+        super().move(dx, dy)
