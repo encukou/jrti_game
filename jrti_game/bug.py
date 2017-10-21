@@ -185,3 +185,30 @@ class BugArena(Layer):
         for child in self.children:
             if child.instructions == 'O':
                 return child
+
+    def draw(self):
+        gl.glColor3f(.1, .1, .1)
+        draw_rect(self.width, self.height)
+        super().draw()
+
+    def hit_test_overlap(self, s, a, b, mode):
+      def d(s,a,b):
+        a += 0.0001
+        a -= 1
+        b -= 0.0001
+        if mode == 'x+':
+            if a < self.height and 0 < b:
+                return s-self.width-1
+        elif mode == 'x-':
+            if a < self.height and 0 <= b:
+                return -s
+        elif mode == 'y+':
+            if a < self.width and 0 <= b:
+                return s-self.height-1
+        elif mode == 'y-':
+            if a < self.width and 0 <= b:
+                return -s
+        return -100
+      d= d(s,a,b)
+      print(d,s,a,b)
+      return d
