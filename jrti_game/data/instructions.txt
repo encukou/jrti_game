@@ -88,7 +88,7 @@ Don't read this file before trying to play the game :)
 
     TOOL DEACTIVATION
 
-    For safety reasons, tools are deactivated whenever you zoom, move around the screen, or interact with the object the tool is operating on.
+    For safety reasons, tools are deactivated whenever you click, zoom, or move around the screen.
 
 # D
 

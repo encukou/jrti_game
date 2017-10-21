@@ -182,6 +182,7 @@ def on_mouse_press(x, y, button, mod):
         if not state.reassign_state:
             main_screen.mouse_press(*mouse_to_main_screen(x, y),
                                     zoom=state.zoom)
+            state.tool.deactivate()
     else:
         state.last_drag_pos = x, y
 
