@@ -34,11 +34,32 @@ class Keyhole(Sprite):
     def end_animation(self):
         yield
         state.min_zoom = 0.5
+        state.zoom_easing = 1/40
+        prev_zoom = state.target_zoom
+
+        state.target_zoom = 1
+        while state.zoom != state.target_zoom:
+            yield
+
+        if prev_zoom != 1:
+            target = state.time + 0.25
+            while state.time < target:
+                yield
+
         state.target_zoom = 0.5
         while state.zoom != state.target_zoom:
             yield
+
+        state.zoom_easing = 1
         angle = 0
+        speed = 0
         state.main_screen.flip_locked = True
         while angle < 150:
             state.main_screen.flip_params = 0, 0, angle, 0
-            angle += (yield) * 90
+            angle = clamp(angle+speed, 0, 150)
+            speed += (yield) * 5
+
+    def accepts_key(self, key):
+        return all(int(a) == int(b)
+                   for a, b
+                   in zip(state.key_config, state.code))

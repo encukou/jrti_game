@@ -6,7 +6,7 @@ from pyglet import gl
 from jrti_game.data import spritesheet_data, spritesheet_texture, sprites
 from jrti_game.flippable import Sprite
 from jrti_game.key_names import key_symbols
-from jrti_game.util import draw_rect, draw_rect_xy, clamp
+from jrti_game.util import draw_rect, draw_rect_xy, clamp, draw_keyhole
 from jrti_game.state import state
 
 
@@ -117,6 +117,12 @@ class Letter(Sprite):
         kwargs.setdefault('instructions', letter.upper())
         kwargs.setdefault('margin', 1/2)
         super().__init__(**kwargs)
+
+    def draw(self, zoom, **kwargs):
+        super().draw(zoom=zoom, **kwargs)
+        if self.keyhole and zoom > 9:
+            gl.glColor4f(*self.bgcolor)
+            draw_keyhole(self.keyhole)
 
 
 def letters(string, x=0, y=0, scale=1, center=False, parent=None,

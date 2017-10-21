@@ -445,6 +445,9 @@ class Flippable:
             gl.glVertex2f(*points[0])
         gl.glEnd()
 
+    def accepts_key(self, key):
+        return bool(self.keyhole)
+
     def unlock(self, key):
         if self.keyhole:
             self.unlocked = key
@@ -479,9 +482,6 @@ class Sprite(Flippable):
         texture.blit(0, 0, width=self.width, height=self.height)
 
         super().draw(zoom=zoom, **kwargs)
-        if self.keyhole and zoom > 9:
-            gl.glColor4f(*self.bgcolor)
-            draw_keyhole(self.keyhole)
 
     def pixel(self, x, y):
         return spritesheet_data[self.v+y][self.u+x]

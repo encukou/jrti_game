@@ -21,10 +21,11 @@ state = types.SimpleNamespace(
     reassign_anim_start=0,
     keymap={getattr(pyglet.window.key, k): v
             for k, v in default_keymap.items()},
-    code=[random.randrange(10) for i in range(10)],
+    code=[random.randrange(10) for i in range(4)],
     key_config=[0, 3, 4, 0],
     stuck_keys=[],
     ending=False,
     min_zoom=1,
     end_time=None,
+    zoom_easing=1,
 )

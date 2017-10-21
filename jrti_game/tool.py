@@ -219,8 +219,9 @@ class Key(Tool):
     def tick(self, dt):
         if self.anim_start:
             t = state.time - self.anim_start
-            if t > 1/4:
-                if self.locking:
+            if self.locking:
+                accepts = not self.lock or self.lock.accepts_key(self)
+                if t > 1/4 and accepts:
                     if self.lock and self.fully_inserted:
                         self.lock.unlock(self)
                         self.unlocked = True
@@ -229,8 +230,7 @@ class Key(Tool):
                     else:
                         self.locking = False
                         self.anim_start = state.time
-            elif t > 1/16 and not self.fully_inserted:
-                if self.locking:
+                elif t > 1/16 and (not accepts or not self.fully_inserted):
                     if self.lock and self.visible_len < 19:
                         self.locking = False
                         self.anim_start = state.time - (1/4-t)
@@ -284,9 +284,9 @@ class Key(Tool):
                     self.fully_inserted = True
                     self.obj_pos = x, y, self.lock_zoom
                 elif y < ky+kh/2:
-                    dy += min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
+                    dy += min(dx, abs(ky+kh/2 - y)*self.lock_zoom)
                 elif y > ky+kh/2:
-                    dy -= min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
+                    dy -= min(dx, abs(ky+kh/2 - y)*self.lock_zoom)
                 insert_remaining = (kx+kw - x)*self.lock_zoom - dx
                 self.visible_len = 9 + insert_remaining / 3
 
