@@ -44,6 +44,12 @@ class Flippable:
     keyhole = None
     unlocked = None
 
+    children = attrib(convert=list)
+
+    @children.default
+    def _default(self):
+        return []
+
     def __attrs_post_init__(self):
         if self.parent:
             self.parent.add_child(self)
@@ -51,8 +57,9 @@ class Flippable:
     def __repr__(self):
         return '<{}: {}>'.format(type(self).__name__, self.instructions)
 
-    def draw(self, **kwargs):
-        """Draw this. Needs to be reimplemented in subclasses."""
+    def draw(self, zoom, **kwargs):
+        for child in self.children:
+            child.draw_outer(zoom=zoom*child.scale, **kwargs)
 
     def tick(self, dt):
         if self.flip_params and self.drag_info[0] is not self:
@@ -78,6 +85,9 @@ class Flippable:
                     ry += angle
                 self.flip_params = x, y, rx, ry
 
+        for child in self.children:
+            child.tick(dt)
+
     def add_child(self, child):
         self.children.append(child)
         child.parent = self
@@ -96,6 +106,17 @@ class Flippable:
         self.mouse_drag(x, y, **kwargs)
 
     def mouse_drag(self, x, y, *, zoom=1, **kwargs):
+        obj, start = self.drag_info
+        if obj is self:
+            pass
+        elif obj is not None:
+            obj.mouse_drag((x - obj.x) / obj.scale, (y - obj.y) / obj.scale,
+                           zoom=zoom * obj.scale,
+                           **kwargs)
+            return
+        else:
+            return
+
         if self.drag_info[1]:
             sx, sy = self.drag_info[1]
             dx = abs(sx - x)
@@ -185,6 +206,9 @@ class Flippable:
 
     def hit_test_all(self, x, y):
         if self.hit_test(x, y):
+            for child in reversed(self.children):
+                yield from child.hit_test_all((x - child.x) / child.scale,
+                                              (y - child.y) / child.scale)
             yield self, x, y
 
     def draw_grab(self, **kwargs):
@@ -201,7 +225,15 @@ class Flippable:
                 draw_rect(self.width, self.height)
             self.draw_outline((0.1, 0.9, 0.4), 0.7)
 
-    def drag_start(self, x, y, **kwargs):
+    def drag_start(self, x, y, zoom, **kwargs):
+        for child in reversed(self.children):
+            cx = (x - child.x) / child.scale
+            cy = (y - child.y) / child.scale
+            if child.hit_test(cx, cy):
+                child.mouse_press(cx, cy, zoom=zoom*child.scale, **kwargs)
+                self.drag_info = child, (x, y)
+                return
+
         self.drag_info = self, (x, y)
         self.flip_direction = None
         self.light_seed = random.randint(0, 2**32)
@@ -245,22 +277,29 @@ class Flippable:
                 if self.unlocked:
                     self.unlocked.draw_stuck()
 
-    def draw_flipping(self, **kwargs):
+    def draw_flipping(self, zoom, **kwargs):
         if self.flip_params:
-            with self.draw_context(**kwargs):
-                self.draw_light(**kwargs)
-                self.draw_instructions(**kwargs)
-            with self.draw_context(flipping=True, bg=True, **kwargs):
-                self.draw(**kwargs)
+            with self.draw_context(zoom=zoom, **kwargs):
+                self.draw_light(zoom=zoom, **kwargs)
+                self.draw_instructions(zoom=zoom, **kwargs)
+            with self.draw_context(flipping=True, bg=True, zoom=zoom,
+                                   **kwargs):
+                self.draw(zoom=zoom, **kwargs)
                 if self.unlocked:
                     self.unlocked.draw_stuck()
-                self.draw_outline(**kwargs)
+                self.draw_outline(zoom=zoom, **kwargs)
 
                 gl.glEnable(gl.GL_CULL_FACE)
                 gl.glColor4f(*self.instructions_color,
                              clamp(random.normalvariate(3/4, 1/120), 0, 1))
                 draw_rect(self.width, self.height)
                 gl.glDisable(gl.GL_CULL_FACE)
+
+        if self.children and self.open_child_counter:
+            with self.draw_context(bg=False, flipping=self.flip_params,
+                                   zoom=zoom):
+                for obj in self.children:
+                    obj.draw_flipping(zoom=zoom*obj.scale, **kwargs)
 
     def draw_instructions(self, **kwargs):
         gl.glColor4f(*self.instructions_color,
@@ -313,6 +352,8 @@ class Flippable:
             del self.instruction_label
         except AttributeError:
             pass
+        for child in self.children:
+            child.update_instructions()
 
     def draw_light(self, **kwargs):
         if self.flip_params:
@@ -403,62 +444,7 @@ class Flippable:
             self.unlocked = key
 
 
-@attrs(repr=False)
-class Layer(Flippable):
-    children = attrib(convert=list)
-
-    @children.default
-    def _default(self):
-        return []
-
-    def tick(self, dt):
-        super().tick(dt)
-        for child in self.children:
-            child.tick(dt)
-
-    def drag_start(self, x, y, *, zoom=1, **kwargs):
-        for child in reversed(self.children):
-            cx = (x - child.x) / child.scale
-            cy = (y - child.y) / child.scale
-            if child.hit_test(cx, cy):
-                child.mouse_press(cx, cy, zoom=zoom*child.scale, **kwargs)
-                self.drag_info = child, (x, y)
-                return
-        super().drag_start(x, y, zoom=zoom, **kwargs)
-
-    def draw(self, zoom, **kwargs):
-        for child in self.children:
-            child.draw_outer(zoom=zoom*child.scale, **kwargs)
-
-    def draw_flipping(self, zoom, **kwargs):
-        if self.open_child_counter:
-            if self.flip_params:
-                super().draw_flipping(zoom=zoom, **kwargs)
-            with self.draw_context(bg=False, flipping=self.flip_params,
-                                   zoom=zoom):
-                for obj in self.children:
-                    obj.draw_flipping(zoom=zoom*obj.scale, **kwargs)
-
-    def mouse_drag(self, x, y, *, zoom=1, **kwargs):
-        obj, start = self.drag_info
-        if obj is self:
-            super().mouse_drag(x, y, zoom=zoom, **kwargs)
-        elif obj is not None:
-            obj.mouse_drag((x - obj.x) / obj.scale, (y - obj.y) / obj.scale,
-                           zoom=zoom * obj.scale,
-                           **kwargs)
-
-    def update_instructions(self):
-        super().update_instructions()
-        for child in self.children:
-            child.update_instructions()
-
-    def hit_test_all(self, x, y):
-        if self.hit_test(x, y):
-            for child in reversed(self.children):
-                yield from child.hit_test_all((x - child.x) / child.scale,
-                                              (y - child.y) / child.scale)
-            yield from super().hit_test_all(x, y)
+Layer = Flippable
 
 
 @attrs(repr=False)

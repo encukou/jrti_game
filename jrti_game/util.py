@@ -52,6 +52,7 @@ def draw_keyhole(xywh):
     gl.glVertex2f(x, y-w)
     gl.glEnd()
 
+
 def interp(a, b, t):
     t = clamp(t, 0, 1)
     return a * (1-t) + b * t
