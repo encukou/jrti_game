@@ -200,13 +200,23 @@ class Eye(Letter):
                     for child in self.children:
                         child.draw_outer(zoom=zoom*child.scale, **kwargs)
 
+                gl.glPushMatrix()
+                gl.glColor3f(1, 1, 1)
+                x, y, z = self.unlocked.obj_pos
+                gl.glTranslatef(x, y, 0)
+                gl.glScalef(1/64, 1/64, 0)
+                for i, num in enumerate(state.key_config):
+                    draw_string(str(int(num)), x=i*14/32*64+12, y=-5)
+                gl.glPopMatrix()
+
+
     def unlock(self, key):
         from jrti_game.adjuster import Adjuster
         super().unlock(key)
         for i in range(4):
             a = Adjuster(
                 parent=self,
-                x=2+3/8+i*3/8,
+                x=2+3/8+i*14/32,
                 y=7+6/64,
                 scale=1/128,
                 width=24,
