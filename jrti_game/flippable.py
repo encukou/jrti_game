@@ -42,6 +42,7 @@ class Flippable:
     last_moved = 0
 
     keyhole = None
+    unlocked = None
 
     def __attrs_post_init__(self):
         if self.parent:
@@ -89,7 +90,7 @@ class Flippable:
         pass
 
     def mouse_press(self, x, y, **kwargs):
-        if self.drag_info[0]:
+        if self.drag_info[0] or self.unlocked:
             self.mouse_release()
         self.drag_start(x, y, **kwargs)
         self.mouse_drag(x, y, **kwargs)
@@ -240,6 +241,8 @@ class Flippable:
         with self.draw_context(bg=False, **kwargs):
             if not self.flip_params:
                 self.draw(**kwargs)
+                if self.unlocked:
+                    self.unlocked.draw_stuck()
 
     def draw_flipping(self, **kwargs):
         if self.flip_params:
@@ -248,6 +251,8 @@ class Flippable:
                 self.draw_instructions(**kwargs)
             with self.draw_context(flipping=True, bg=True, **kwargs):
                 self.draw(**kwargs)
+                if self.unlocked:
+                    self.unlocked.draw_stuck()
                 self.draw_outline(**kwargs)
 
                 gl.glEnable(gl.GL_CULL_FACE)
@@ -393,7 +398,8 @@ class Flippable:
         gl.glEnd()
 
     def unlock(self, key):
-        pass
+        if self.keyhole:
+            self.unlocked = key
 
 
 @attrs(repr=False)

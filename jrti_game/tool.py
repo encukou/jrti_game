@@ -86,7 +86,7 @@ class Grabby(Tool):
             if self.active and not self.grabbing:
                 x, y = tool_to_main_screen(state.tool_x, state.tool_y)
                 for obj, x, y in state.main_screen.hit_test_all(x, y):
-                    if obj.hit_test_grab(x, y):
+                    if obj.hit_test_grab(x, y) and not obj.unlocked:
                         self.grabbing = obj
                         break
                 else:
@@ -218,6 +218,8 @@ class Key(Tool):
                     if self.lock and self.fully_inserted:
                         self.lock.unlock(self)
                         self.unlocked = True
+                        self.anim_start = state.time
+                        state.tool = Tool()
                     else:
                         self.locking = False
                         self.anim_start = state.time
@@ -228,8 +230,6 @@ class Key(Tool):
                         self.anim_start = state.time - (1/4-t)
 
     def deactivate(self):
-        if self.unlocked:
-            state.tool = Tool()
         self.lock = None
         self.visible_len = 19
         self.fully_inserted = False
@@ -245,7 +245,7 @@ class Key(Tool):
             if not self.lock:
                 x, y = tool_to_main_screen(state.tool_x+14.5*3, state.tool_y)
                 for obj, x, y in state.main_screen.hit_test_all(x, y):
-                    if obj.keyhole:
+                    if obj.keyhole and not obj.unlocked:
                         zoom = state.zoom
                         par = obj
                         while par:
@@ -268,6 +268,7 @@ class Key(Tool):
                         if dx > insert_remaining:
                             dx = insert_remaining
                             self.fully_inserted = True
+                            self.obj_pos = x, y, self.lock_zoom
                         elif y < ky+kh/2:
                             dy += min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
                         elif y > ky+kh/2:
@@ -279,3 +280,16 @@ class Key(Tool):
                     self.lock = None
 
         super().move(dx, dy)
+
+    def draw_stuck(self):
+        gl.glPushMatrix()
+        x, y, z = self.obj_pos
+        gl.glTranslatef(x, y, 0)
+        gl.glScalef(3/z, 3/z, 1)
+        gl.glColor3f(
+            clamp((state.time - self.anim_start)/2, 0.1, 1),
+            clamp((state.time - self.anim_start)/2, 0.9, 1),
+            clamp((state.time - self.anim_start)/2, 0.9, 1),
+        )
+        sprites['key_head'].blit(-9, -4.5)
+        gl.glPopMatrix()

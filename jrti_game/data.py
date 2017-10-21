@@ -72,6 +72,7 @@ sprites = {
     'grabshadow': spritesheet_texture.get_region(48, 4*8+1, 8, 8),
     'grabtooth': spritesheet_texture.get_region(56, 3*8, 7, 11),
     'key': spritesheet_texture.get_region(63, 3*8, 18, 10),
+    'key_head': spritesheet_texture.get_region(63, 3*8, 9, 10),
     'keyhole': spritesheet_texture.get_region(80, 3*8+1, 16, 32),
     'circ3': spritesheet_texture.get_region(96, 3*8+1, 23, 23),
 }
