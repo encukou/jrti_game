@@ -168,15 +168,18 @@ class Key(Tool):
     locked = None
     locking = False
     lock = None
-    insert_size = 0
+    insert_remaining = 0
     fully_inserted = False
+    lock_zoom = 0
 
     def draw(self):
         anim = clamp((state.time - self.anim_start) * 4, 0, 1)
         if not self.locking:
             anim = 1+anim
         gl.glRotatef(anim * 180, 1, 0, 0)
-        if self.lock:
+        if self.fully_inserted:
+            gl.glColor3f(0, 1, 0)
+        elif self.lock:
             gl.glColor3f(1, 1, 1)
         else:
             gl.glColor3f(0.4, 0.9, 0.1)
@@ -203,7 +206,8 @@ class Key(Tool):
 
     def deactivate(self):
         self.lock = None
-        fully_inserted = False
+        self.insert_remaining = 0
+        self.fully_inserted = False
 
     def move(self, dx, dy):
         if dx < 0 or dy:
@@ -219,25 +223,27 @@ class Key(Tool):
                         while par:
                             zoom *= par.scale
                             par = par.parent
+                        self.lock_zoom = zoom
                         kx, ky, kw, kh = obj.keyhole
                         kx -= dx / zoom
                         kw += dx / zoom
                         if (kx < x < kx+kw and ky < y < ky+kh and
-                                kh * zoom > 5):
+                                kh * zoom > 10):
                             self.lock = obj
                             break
-            else:
+            if self.lock:
                 kx, ky, kw, kh = self.lock.keyhole
                 x, y = tool_to_main_screen(state.tool_x+5.5*3, state.tool_y)
                 for obj, x, y in state.main_screen.hit_test_all(x, y):
                     if obj is self.lock:
-                        if x > kx+kw:
-                            dx = 0
-                            fully_inserted = True
-                        elif y < ky+kh/2-.001:
-                            dy += dx/2
-                        elif y > ky+kh/2+.001:
-                            dy -= dx/2
+                        self.insert_remaining = (kx+kw - x)*self.lock_zoom
+                        if dx > self.insert_remaining:
+                            dx = self.insert_remaining
+                            self.fully_inserted = True
+                        elif y < ky+kh/2:
+                            dy += min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
+                        elif y > ky+kh/2:
+                            dy -= min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
                         break
                 else:
                     self.lock = None
