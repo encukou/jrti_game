@@ -31,6 +31,17 @@ def draw_rect(w, h):
     gl.glEnd()
 
 
+def draw_rect_xy(x, y, w, h, mode=gl.GL_TRIANGLE_FAN, last=True):
+    gl.glBegin(mode)
+    gl.glVertex2f(x+w, y)
+    gl.glVertex2f(x, y)
+    gl.glVertex2f(x, y+h)
+    gl.glVertex2f(x+w, y+h)
+    if last:
+        gl.glVertex2f(x+w, y)
+    gl.glEnd()
+
+
 def draw_keyhole(xywh):
     x, y, w, h = xywh
     gl.glBegin(gl.GL_TRIANGLE_FAN)

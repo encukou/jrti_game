@@ -1,11 +1,13 @@
 import functools
+import contextlib
 
 from pyglet import gl
 
 from jrti_game.data import spritesheet_data, spritesheet_texture
 from jrti_game.flippable import Sprite
 from jrti_game.key_names import key_symbols
-from jrti_game.util import draw_rect
+from jrti_game.util import draw_rect, draw_rect_xy, clamp
+from jrti_game.state import state
 
 
 @functools.lru_cache()
@@ -161,15 +163,56 @@ class Oh(Letter):
         gl.glPopMatrix()
 
 
+@contextlib.contextmanager
+def draw_opening(self):
+    gl.glPushMatrix()
+    gl.glColor3f(0, 0, 0)
+    draw_rect_xy(*self.innards)
+    gl.glColor3f(1, 1, 1)
+    draw_rect_xy(*self.innards, mode=gl.GL_LINE_STRIP, last=False)
+    yield
+    right = self.innards[0] + self.innards[2]
+    gl.glTranslatef(right, 0, 0)
+    t = clamp((state.time - self.unlocked.anim_start)*2, 0, 1)**3
+    gl.glRotatef(-t*100, 0, 1, 0)
+    gl.glTranslatef(-right, 0, 0)
+    draw_rect_xy(*self.innards)
+    gl.glColor4f(0, 0, 0, 1/2)
+    draw_rect_xy(*self.innards, mode=gl.GL_LINE_STRIP, last=False)
+    gl.glPopMatrix()
+
+
 class Eye(Letter):
     keyhole = 2, 7.25, 2/32, 1/2
+    innards = 2+1/8, 7+1/16, 2-3/16, 1-2/16
+
+    def draw(self, zoom, **kwargs):
+        super().draw(zoom=zoom, **kwargs)
+        if self.unlocked:
+            with draw_opening(self):
+                pass
 
 
 class Exclamation(Letter):
     keyhole = 1, 2.25, 2/32, 1/2
+    innards = 1+1/8, 1+1/16, 2-3/16, 2-2/16
+
+    def draw(self, zoom, **kwargs):
+        super().draw(zoom=zoom, **kwargs)
+        if self.unlocked:
+            with draw_opening(self):
+                pass
 
 
 class Dot(Letter):
     keyhole = 1, 2.25, 2/32, 1/2
+    innards = 1+1/8, 1+1/16, 2-3/16, 2-2/16
+
+    def draw(self, zoom, **kwargs):
+        super().draw(zoom=zoom, **kwargs)
+        if self.unlocked:
+            with draw_opening(self):
+                pass
+
 
 SPECIAL_LETTER_CLASSES = {'i': Eye, 'o': Oh, '!': Exclamation, '.': Dot}

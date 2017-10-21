@@ -220,8 +220,17 @@ Don't read this file before trying to play the game :)
     In that case, zoom out and try again.
 
 
+# U
+
+    UNLOCKING
+
+    Anything with a keyhole can be unlocked; usually, this opens a box or a wall.
+
+    The locks on some things are dual-purpose: when unlocked, they disable other kinds of interaction.
+
+    When one door opens, another closes…
+
 # XXX
-    U
     V
 
 # W

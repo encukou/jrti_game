@@ -135,10 +135,7 @@ class Flippable:
                 angle = 90 * factor
             else:
                 ratio = ((mouse - axis) / (start - axis))
-                if ratio > 1:
-                    ratio = 1
-                if ratio < -1:
-                    ratio = -1
+                ratio = clamp(ratio, -1, 1)
                 angle = math.degrees(math.acos(ratio) * factor)
             if direction[0]:
                 self.flip_params = axis, 0, -angle, 0
@@ -147,7 +144,8 @@ class Flippable:
 
             z = zoom
             if abs(angle) > 5 and (
-                    z*self.width >= 800 or z*self.height >= 600):
+                    z*self.width >= 800 or z*self.height >= 600
+                    or self.unlocked):
                 self.mouse_release()
                 return
 
