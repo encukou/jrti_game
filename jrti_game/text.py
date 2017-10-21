@@ -116,12 +116,16 @@ class Letter(Sprite):
         super().__init__(**kwargs)
 
 
-def letters(string, x=0, y=0, scale=1, center=False, parent=None):
+def letters(string, x=0, y=0, scale=1, center=False, parent=None,
+            replace=None):
     if center:
         x -= scale * (text_width(string) // 2)
     starting_x = x
     next_kern = 0
     for character, next_char in zip(string, string[1:] + ' '):
+        instructions = character.upper()
+        if replace:
+            character = replace.get(character, character)
         if character == '\n':
             y -= scale * 8
             x = starting_x
@@ -141,6 +145,7 @@ def letters(string, x=0, y=0, scale=1, center=False, parent=None):
                 x += (4 + etrim) * scale
             else:
                 letter = Letter(character, x=x, y=y, height=9, scale=scale,
-                                strim=strim, etrim=etrim, parent=parent)
+                                strim=strim, etrim=etrim, parent=parent,
+                                instructions=instructions)
                 x += (letter.width + etrim) * scale - scale
                 yield letter

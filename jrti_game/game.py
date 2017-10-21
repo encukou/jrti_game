@@ -47,7 +47,8 @@ bug_arena = BugArena(
 all(jrti_game.text.letters(
     "Just Read the", scale=4, y=8*36, x=300, center=True, parent=bug_arena))
 all(jrti_game.text.letters(
-    "Instructions!", scale=8, y=8*24, x=300, center=True, parent=bug_arena))
+    "Instructions!", replace={'o': '\x8f'},
+    scale=8, y=8*24, x=300, center=True, parent=bug_arena))
 
 for x in range(2):
     bug_arena.spawn_bug()
@@ -321,10 +322,6 @@ def tick(dt):
         w1 = 1 - w2
         _zoom((x1**w1 * x2**w2) ** (1/1))
     main_screen.tick(dt)
-
-    avg_seconds_to_bug = clamp((bug_arena.num_bugs-1/2)*4, 1, 100)
-    if random.uniform(0, avg_seconds_to_bug) < dt:
-        bug_arena.spawn_bug()
 
     tool_size = state.tool.size * state.tool.scale / 2
     tool_x = state.tool_x

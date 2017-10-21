@@ -1,29 +1,35 @@
 import math
 from math import pi
 import random
+import colorsys
 
 from pyglet import gl
 
 from jrti_game.flippable import Flippable, Layer
 from jrti_game.text import Letter
 from jrti_game.data import sprites, spritesheet_data
-from jrti_game.util import reify, draw_rect
+from jrti_game.util import reify, draw_rect, clamp
 from jrti_game.state import state
 
 tau = pi*2
-MIN_SPEED = 190
 
 
 class Bug(Flippable):
     transparent = True
     homing = False
+    homed = False
 
     def __init__(self, **kwargs):
         kwargs.setdefault('width', 15)
         kwargs.setdefault('height', 15)
         kwargs.setdefault('instructions', 'Bug')
+        kwargs.setdefault('color', colorsys.hsv_to_rgb(
+            random.uniform(0, 1),
+            random.uniform(0.2, 0.4),
+            random.uniform(0.8, 0.9),
+        ))
         self.rotation = random.uniform(-180, 180)
-        self.speed = MIN_SPEED
+        self.speed = self.min_speed = 190
         self.moment = random.uniform(-20, 20)
         super().__init__(**kwargs)
         self.x = random.uniform(
@@ -56,16 +62,20 @@ class Bug(Flippable):
 
         hx, hy = self.parent.home_coords
         d = (self.y - hy) ** 2 + (self.x - hx) ** 2
-        if d < 16**2:
-            self.homing = False
+        homed = d < 7**2
+        if homed:
             self.homed()
             if not self.parent:
                 return
-        if self.homing:
+        if (((self.y - hy) / 1.5) ** 2 + (self.x - hx) ** 2) < 5**2:
+            self.min_speed = self.speed = 5
+        elif self.homing:
             a = (angle - math.atan2(self.y - hy, self.x - hx) + pi) % tau - pi
             self.moment *= 0.075 ** dt
             self.moment += math.degrees(a) * dt * 5
-            self.rotation += math.degrees(a * dt * 3 * (math.exp(-d/1000)))
+            self.rotation += clamp(
+                math.degrees(a * dt * 3 * (math.exp(-d/5000))),
+                -abs(a), abs(a))
 
         if not self.flip_params and state.tool.grabbing is not self:
             self.moment *= 0.25 ** dt
@@ -100,17 +110,17 @@ class Bug(Flippable):
                 if abs(self.moment) > 180:
                     self.moment *= 1/2
 
-                self.speed += random.uniform(-MIN_SPEED/4, MIN_SPEED/4)
-                if abs(self.speed) > MIN_SPEED*2:
+                ms = self.min_speed
+                self.speed += random.uniform(-ms/4, ms/4)
+                if abs(self.speed) > ms*2:
                     self.speed *= 1/2
-                if self.speed < MIN_SPEED:
-                    self.speed = MIN_SPEED
+                if self.speed < ms:
+                    self.speed = ms
         else:
             if random.uniform(0, 1/10) < dt:
                 self.rotation += random.uniform(-5, 5)
 
     def hit_test_grab(self, x, y):
-        print(x, y)
         x -= self.width / 2
         y -= self.height / 2
         s = math.sin(math.radians(self.rotation))
@@ -138,7 +148,8 @@ class RangingBug(Bug):
             self.homing = True
 
     def homed(self):
-        self.die()
+        self.homing = True
+        self.speed = 1
 
 
 class BugArena(Layer):
@@ -169,16 +180,20 @@ class BugArena(Layer):
                     bug.rotation = random.normalvariate(90, 30)
                     if random.randrange(2):
                         bug.rotation = -bug.rotation
+                    self.children.sort(key=lambda c: -isinstance(c, Bug))
                     return bug
 
-    @property
-    def num_bugs(self):
-        return len([c for c in self.children if isinstance(c, Bug)])
+    def tick(self, dt):
+        super().tick(dt)
+        num_bugs = len([c for c in self.children if isinstance(c, Bug)])
+        avg_seconds_to_bug = clamp((num_bugs-1/2)*4, 1, 100)
+        if random.uniform(0, avg_seconds_to_bug) < dt:
+            self.spawn_bug()
 
     @property
     def home_coords(self):
         l = self.o_letter
-        return l.x + l.scale * 3.5, l.y + l.scale * 4
+        return l.x + l.scale * 2.5, l.y + l.scale * 3
 
     @reify
     def o_letter(self):
@@ -210,5 +225,4 @@ class BugArena(Layer):
                 return -s
         return -100
       d= d(s,a,b)
-      print(d,s,a,b)
       return d
