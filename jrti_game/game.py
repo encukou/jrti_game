@@ -59,7 +59,7 @@ all(jrti_game.text.letters(
     "PyWeek 24 entry", scale=1, y=8*3, x=400, center=True,
     parent=main_screen))
 all(jrti_game.text.letters(
-    "https://pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True,
+    "pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True,
     parent=main_screen))
 
 jrti_game.flippable.Sprite(

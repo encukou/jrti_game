@@ -74,7 +74,7 @@ Don't read this file before trying to play the game :)
 
 # B
 
-    [XXX] BUGS
+    BUGS
 
     Bugs are various wriggly organisms that frequently appear in all kinds of virtual environments.
     Some humans specialize in exterminating them; others expend significant effort to reproduce them.
@@ -113,7 +113,7 @@ Don't read this file before trying to play the game :)
 
 # G
 
-    [XXX] GRABBY TOOL
+    GRABBY TOOL
 
     The Grabby Tool can be selected by Shift+{G}.
 
@@ -146,7 +146,7 @@ Don't read this file before trying to play the game :)
     The Key Tool can be selected by Shift+{K}.
     Place the key over a lock, and press {K} to unlock.
 
-    The key can unlock any rectangular object. And maybe others…?
+    Rectangular objects tend to have keyholes.
 
 # XXX
     L

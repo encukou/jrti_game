@@ -31,6 +31,16 @@ def draw_rect(w, h):
     gl.glEnd()
 
 
+def draw_keyhole(xywh):
+    x, y, w, h = xywh
+    gl.glBegin(gl.GL_TRIANGLE_FAN)
+    gl.glVertex2f(x, y-w)
+    gl.glVertex2f(x, y+h+w)
+    gl.glVertex2f(x+w, y+h)
+    gl.glVertex2f(x+w, y)
+    gl.glVertex2f(x, y-w)
+    gl.glEnd()
+
 def interp(a, b, t):
     t = clamp(t, 0, 1)
     return a * (1-t) + b * t

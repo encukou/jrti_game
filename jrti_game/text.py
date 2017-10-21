@@ -143,12 +143,7 @@ def letters(string, x=0, y=0, scale=1, center=False, parent=None,
             if character == ' ':
                 x += (4 + etrim) * scale
             else:
-                if character == 'i':
-                    cls = Eye
-                elif character == 'o':
-                    cls = Oh
-                else:
-                    cls = Letter
+                cls = SPECIAL_LETTER_CLASSES.get(character, Letter)
                 letter = cls(character, x=x, y=y, height=9, scale=scale,
                              strim=strim, etrim=etrim, parent=parent,
                              instructions=instructions)
@@ -168,15 +163,13 @@ class Oh(Letter):
 
 class Eye(Letter):
     keyhole = 2, 7.25, 2/32, 1/2
-    def draw(self, zoom, **kwargs):
-        super().draw(zoom=zoom, **kwargs)
-        if zoom > 9:
-            x, y, w, h = self.keyhole
-            gl.glColor4f(*self.bgcolor)
-            gl.glBegin(gl.GL_TRIANGLE_FAN)
-            gl.glVertex2f(x, y-w)
-            gl.glVertex2f(x, y+h+w)
-            gl.glVertex2f(x+w, y+h)
-            gl.glVertex2f(x+w, y)
-            gl.glVertex2f(x, y-w)
-            gl.glEnd()
+
+
+class Exclamation(Letter):
+    keyhole = 1, 2.25, 2/32, 1/2
+
+
+class Dot(Letter):
+    keyhole = 1, 2.25, 2/32, 1/2
+
+SPECIAL_LETTER_CLASSES = {'i': Eye, 'o': Oh, '!': Exclamation, '.': Dot}

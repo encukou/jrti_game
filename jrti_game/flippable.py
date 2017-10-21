@@ -9,7 +9,7 @@ from attr import attrs, attrib
 from jrti_game.data import spritesheet_texture, spritesheet_data
 from jrti_game.data import instruction_font_name
 from jrti_game.instructions import get_instruction_text
-from jrti_game.util import clamp, reify, draw_rect
+from jrti_game.util import clamp, reify, draw_rect, draw_keyhole
 from jrti_game.state import state
 
 tau = math.pi*2
@@ -84,6 +84,9 @@ class Flippable:
     def die(self):
         self.parent.children.remove(self)
         self.parent = None
+
+    def spawn_bug(self, *args, **kwargs):
+        pass
 
     def mouse_press(self, x, y, **kwargs):
         if self.drag_info[0]:
@@ -463,7 +466,7 @@ class Sprite(Flippable):
     def _default_h(self):
         return self.height
 
-    def draw(self, **kwargs):
+    def draw(self, zoom, **kwargs):
         try:
             texture = self.texture
         except AttributeError:
@@ -472,6 +475,10 @@ class Sprite(Flippable):
             self.texture = texture
 
         texture.blit(0, 0, width=self.width, height=self.height)
+
+        if self.keyhole and zoom > 9:
+            gl.glColor4f(*self.bgcolor)
+            draw_keyhole(self.keyhole)
 
     def pixel(self, x, y):
         return spritesheet_data[self.v+y][self.u+x]
