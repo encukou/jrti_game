@@ -234,7 +234,7 @@ def on_key_press(sym, mod):
     try:
         key = state.keymap[sym]
     except KeyError:
-        return pyglet.event.EVENT_HANDLED
+        key = ''
 
     if state.ending:
         if key in ('Exit', 'Quit'):
@@ -277,6 +277,10 @@ def on_key_press(sym, mod):
             pass
         else:
             state.target_zoom = 1.3 ** level
+    elif key == 'Cheat':
+        print('Here, you cheater:', state.code)
+        if mod & (pyglet.window.key.MOD_CTRL|pyglet.window.key.MOD_ALT):
+            state.key_config[:] = state.code
 
     return pyglet.event.EVENT_HANDLED
 
@@ -337,7 +341,7 @@ def tick(dt):
     else:
         x1 = state.zoom
         x2 = state.target_zoom
-        w2 = 1 - math.exp(-dt) ** (10)
+        w2 = 1 - math.exp(-dt) ** (10) ** state.zoom_easing
         w1 = 1 - w2
         _zoom((x1**w1 * x2**w2) ** (1/1))
     main_screen.tick(dt)

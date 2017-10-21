@@ -2,6 +2,7 @@ import textwrap
 import pkgutil
 from pathlib import Path
 import tempfile
+import os
 
 import pyglet.image
 import pyglet.font
@@ -110,3 +111,6 @@ default_keymap = {
     '_8': 'Zoom 8',
     '_9': 'Zoom 9',
 }
+
+if os.environ.get('GAME_DEBUG'):
+    default_keymap['C'] = 'Cheat'

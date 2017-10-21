@@ -19,6 +19,7 @@ class Keyhole(Sprite):
         next(self.endgen)
         state.ending = True
         state.end_time = state.time
+        state.main_screen.update_instructions()
         print('Done! Time = ', state.end_time)
 
     def tick(self, dt):
@@ -34,7 +35,7 @@ class Keyhole(Sprite):
     def end_animation(self):
         yield
         state.min_zoom = 0.5
-        state.zoom_easing = 1/40
+        state.zoom_easing = 0.7
         prev_zoom = state.target_zoom
 
         state.target_zoom = 1

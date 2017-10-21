@@ -191,7 +191,7 @@ def draw_opening(self):
 
 
 class Eye(Letter):
-    keyhole = 2, 7.125, 2/64, 3/4
+    keyhole = 2-1/16, 7, 1/16, 1
     innards = 2+1/8, 7+1/16, 2-3/16, 1-2/16
 
     def draw(self, zoom, **kwargs):
