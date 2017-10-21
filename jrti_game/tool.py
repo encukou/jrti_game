@@ -94,21 +94,43 @@ class Grabby(Tool):
     def move(self, dx, dy, recursing=False):
         blocker = False
         if self.grabbing:
-            moved = False
             scale = state.zoom
             g = self.grabbing
             obj = g.parent
             while obj:
                 scale *= obj.scale
                 obj = obj.parent
-            new_x = g.x + dx / scale
-            new_y = g.y + dy / scale
-            gs = g.scale
-            blocker = self.calc_hit(new_x, new_y)
-            if not blocker:
-                g.x += dx / scale
-                g.y += dy / scale
-                moved = True
+
+            # Find appropriate distances to all siblings
+            # - If negative - overlapping, don't care
+            # - If distance is less than dN, limit dN to that
+            dists = []
+            e0 = -0.0001
+            for sibling in g.parent.children:
+                x = (g.x - sibling.x) / sibling.scale
+                y = (g.y - sibling.y) / sibling.scale
+                w = g.width * g.scale / sibling.scale
+                h = g.height * g.scale / sibling.scale
+                if dx < 0:
+                    dist = sibling.hit_test_overlap(x, y, y+h, 'x+') * sibling.scale
+                    if e0 <= dist <= -dx:
+                        dx = -dist
+                if dx > 0:
+                    dist = sibling.hit_test_overlap(x+w, y, y+h, 'x-') * sibling.scale
+                    if e0 <= dist <= dx:
+                        dx = dist
+                if dy < 0:
+                    dist = sibling.hit_test_overlap(y, x, x+w, 'y+') * sibling.scale
+                    if e0 <= dist <= -dy:
+                        dy = -dist
+                if dy > 0:
+                    dist = sibling.hit_test_overlap(y+h, x, x+w, 'y-') * sibling.scale
+                    if e0 <= dist <= dy:
+                        dy = dist
+
+            g.x += dx / scale
+            g.y += dy / scale
+            print(g.x, g.y)
         super().move(dx, dy)
         x, y = tool_to_main_screen(state.tool_x, state.tool_y)
         for obj, x, y in state.main_screen.hit_test_all(x, y):
@@ -116,21 +138,6 @@ class Grabby(Tool):
                 break
         else:
             self.deactivate()
-        return
-
-    def calc_hit(self, new_x, new_y):
-        g = self.grabbing
-        children = g.parent.children
-        for sibling in children:
-            if sibling is not g:
-                x = (new_x - sibling.x) / sibling.scale
-                y = (new_y - sibling.y) / sibling.scale
-                w = g.width * g.scale / sibling.scale
-                h = g.height * g.scale / sibling.scale
-                if sibling.hit_test_slab(x, y, w, h):
-                    print('Hit', sibling, x, y, w, h)
-                    return sibling
-        return False
 
     def try_move(self, dx, dy, scale):
             g = self.grabbing

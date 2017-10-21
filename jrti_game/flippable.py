@@ -165,6 +165,9 @@ class Flippable:
                     return True
         return False
 
+    def hit_test_overlap(self, x, a, b, mode):
+        return -100
+
     def hit_test_all(self, x, y):
         if self.hit_test(x, y):
             yield self, x, y
@@ -179,7 +182,7 @@ class Flippable:
             for obj in reversed(parents):
                 stack.enter_context(obj.draw_context(bg=False))
             if self.bgcolor[:3] == (0, 0, 0):
-                gl.glColor4f(0.2, 0.3, 0.5, 1 / 4)
+                gl.glColor4f(0.0, 0.2, 0.1, 1 / 3)
                 draw_rect(self.width, self.height)
             self.draw_outline((0.1, 0.9, 0.4), 0.7)
 
@@ -464,3 +467,28 @@ class Sprite(Flippable):
 
     def hit_test_grab(self, x, y):
         return self.pixel(int(x), int(y))
+
+    def hit_test_overlap(self, s, a, b, mode):
+        dists = []
+        a += 0.0001
+        a -= 1
+        b -= 0.0001
+        for x in range(self.width):
+            for y in range(self.height):
+                if self.pixel(x, y):
+                    if mode == 'x+':
+                        if a <= y < b:
+                            dists.append(s-x-1)
+                    elif mode == 'x-':
+                        if a <= y < b:
+                            dists.append(x-s)
+                    elif mode == 'y+':
+                        if a <= x < b:
+                            dists.append(s-y-1)
+                    elif mode == 'y-':
+                        if a <= x < b:
+                            dists.append(y-s)
+        if not dists:
+            return -100
+        else:
+            return min(dists)
