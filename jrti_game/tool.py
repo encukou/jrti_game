@@ -5,7 +5,7 @@ from pyglet import gl
 from jrti_game.data import sprites
 from jrti_game.state import state
 from jrti_game.util import clamp, interp
-from jrti_game.coords import tool_to_main_screen
+from jrti_game.coords import tool_to_main_screen, tool_to_logical
 
 
 class Tool:
@@ -262,29 +262,38 @@ class Key(Tool):
                         kx, ky, kw, kh = obj.keyhole
                         kx -= dx / zoom
                         kw += dx / zoom
+                        kmin, kmax = obj.keyhole_params
+                        print(kmin, kh * zoom, kmax)
+                        print(kx < x < kx+kw)
+                        print(ky < y < ky+kh)
                         if (kx < x < kx+kw and ky < y < ky+kh and
-                                10 < kh * zoom < 400):
+                                kmin < kh * zoom < kmax):
                             self.lock = obj
                             break
             if self.lock:
                 kx, ky, kw, kh = self.lock.keyhole
-                x, y = tool_to_main_screen(state.tool_x+4.5*3, state.tool_y)
-                for obj, x, y in state.main_screen.hit_test_all(x, y):
-                    if obj is self.lock:
-                        insert_remaining = (kx+kw - x)*self.lock_zoom
-                        if dx > insert_remaining:
-                            dx = insert_remaining
-                            self.fully_inserted = True
-                            self.obj_pos = x, y, self.lock_zoom
-                        elif y < ky+kh/2:
-                            dy += min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
-                        elif y > ky+kh/2:
-                            dy -= min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
-                        insert_remaining = (kx+kw - x)*self.lock_zoom - dx
-                        self.visible_len = 9 + insert_remaining / 3
-                        break
-                else:
-                    self.lock = None
+                x, y = tool_to_logical(state.tool_x+4.5*3, state.tool_y)
+                parents = []
+                obj = self.lock
+                while obj:
+                    parents.append(obj)
+                    obj = obj.parent
+                for obj in reversed(parents):
+                    x = (x - obj.x) / obj.scale
+                    y = (y - obj.y) / obj.scale
+                    print(obj, x, y, obj.x, obj.y, obj.scale)
+
+                insert_remaining = (kx+kw - x)*self.lock_zoom
+                if dx > insert_remaining:
+                    dx = insert_remaining
+                    self.fully_inserted = True
+                    self.obj_pos = x, y, self.lock_zoom
+                elif y < ky+kh/2:
+                    dy += min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
+                elif y > ky+kh/2:
+                    dy -= min(dx/2, abs(ky+kh/2 - y)*self.lock_zoom)
+                insert_remaining = (kx+kw - x)*self.lock_zoom - dx
+                self.visible_len = 9 + insert_remaining / 3
 
         super().move(dx, dy)
 

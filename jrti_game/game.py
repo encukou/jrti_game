@@ -9,6 +9,7 @@ from jrti_game.data import sprites
 import jrti_game.flippable
 import jrti_game.text
 from jrti_game.bug import BugArena
+from jrti_game.end import Keyhole
 from jrti_game.util import clamp
 from jrti_game.state import state
 from jrti_game import tool
@@ -62,7 +63,7 @@ all(jrti_game.text.letters(
     "https://pyweek.org/e/instructions/", scale=1, y=8*1, x=400, center=True,
     parent=main_screen))
 
-jrti_game.flippable.Sprite(
+Keyhole(
     parent=main_screen,
     x=800-32-16*2, y=32,
     u=80-1, v=3*8, width=16+1, height=32+1, scale=2,

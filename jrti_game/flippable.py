@@ -43,6 +43,7 @@ class Flippable:
 
     keyhole = None
     unlocked = None
+    keyhole_params = 10, 400
 
     children = attrib(convert=list)
 
@@ -473,6 +474,7 @@ class Sprite(Flippable):
 
         texture.blit(0, 0, width=self.width, height=self.height)
 
+        super().draw(zoom=zoom, **kwargs)
         if self.keyhole and zoom > 9:
             gl.glColor4f(*self.bgcolor)
             draw_keyhole(self.keyhole)
