@@ -20,9 +20,9 @@ Don't read this file before trying to play the game :)
     Win the game by unlocking the wall that is keeping you trapped.
 
     Use the mouse to navigate:
-    - Right button grabs things to reveal instructions underneath.
+    - Left button grabs things to reveal instructions underneath.
     - The wheel zooms. (You can also zoom by dragging up/down with Shift.)
-    - Drag with the left button (or with Ctrl) to move around the screen.
+    - Drag with the right button (or with Ctrl) to move around the screen.
 
     Press keys on your keyboard to play.
 
