@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='jrti_game',
-    version='1.0',
+    version='1.0.1',
     description='Just Read the Instructions, the game',
     author='Petr Viktorin',
     author_email='encukou@gmail.com',
@@ -19,4 +19,5 @@ setup(
             'jrti-game = jrti_game:main',
         ],
     },
+    package_data={'jrti_game': ['data/*', 'data/*/*']},
 )
