@@ -229,6 +229,12 @@ def on_mouse_scroll(x, y, scroll_x, scroll_y):
 
 @window.event
 def on_key_press(sym, mod):
+    # Apparently, some keyboards have an always-on modifier...
+    # Only include the ones we care about.
+    mod = mod & (pyglet.window.key.MOD_CTRL |
+                 pyglet.window.key.MOD_SHIFT |
+                 pyglet.window.key.MOD_ALT)
+
     if sym == pyglet.window.key.C and mod & pyglet.window.key.MOD_CTRL:
         raise KeyboardInterrupt()
 
