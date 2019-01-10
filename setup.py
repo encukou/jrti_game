@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='jrti_game',
-    version='1.0.2',
+    version='1.0.3',
     description='Just Read the Instructions, the game',
     author='Petr Viktorin',
     author_email='encukou@gmail.com',
